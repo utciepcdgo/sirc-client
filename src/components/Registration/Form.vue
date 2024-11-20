@@ -109,7 +109,7 @@ const toUpperCase = (value) => {
       <div>
         <FormField v-slot="{ componentField }" name="birth">
           <FormItem>
-            <FormLabel>Fecha de nacimiento</FormLabel>
+            <FormLabel>Fecha</FormLabel>
             <FormControl>
               <Input type="date" placeholder="shadcn" v-bind="componentField"/>
             </FormControl>
@@ -120,7 +120,7 @@ const toUpperCase = (value) => {
       <div>
         <FormField v-slot="{ componentField }" name="place">
           <FormItem>
-            <FormLabel>Lugar de nacimiento</FormLabel>
+            <FormLabel>País</FormLabel>
             <FormControl>
               <Input type="text" placeholder="País" v-bind="componentField"/>
             </FormControl>
@@ -133,22 +133,37 @@ const toUpperCase = (value) => {
     <Separator label="Residencia" class="my-4"/>
     <div class="grid grid-cols-3 gap-4">
       <div>
-        <FormField v-slot="{ componentField }" name="street">
-          <FormItem>
-            <FormLabel>Calle</FormLabel>
-            <FormControl>
-              <Input type="text" placeholder="shadcn" v-bind="componentField"/>
-            </FormControl>
-            <FormMessage/>
-          </FormItem>
-        </FormField>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="col-span-1 lg:col-span-2">
+            <FormField v-slot="{ componentField }" name="street">
+              <FormItem>
+                <FormLabel>Calle</FormLabel>
+                <FormControl>
+                  <Input type="text" placeholder="Especifique únicamente la calle" v-bind="componentField"/>
+                </FormControl>
+                <FormMessage/>
+              </FormItem>
+            </FormField>
+          </div>
+          <div>
+            <FormField v-slot="{ componentField }" name="outside_number">
+              <FormItem>
+                <FormLabel>Número</FormLabel>
+                <FormControl>
+                  <Input type="text" placeholder="Número ext." v-bind="componentField"/>
+                </FormControl>
+                <FormMessage/>
+              </FormItem>
+            </FormField>
+          </div>
+        </div>
       </div>
       <div>
         <FormField v-slot="{ componentField }" name="colony">
           <FormItem>
             <FormLabel>Colonia</FormLabel>
             <FormControl>
-              <Input type="text" placeholder="País" v-bind="componentField"/>
+              <Input type="text" placeholder="Col./Fracc./Priv./Loc." v-bind="componentField"/>
             </FormControl>
             <FormMessage/>
           </FormItem>
