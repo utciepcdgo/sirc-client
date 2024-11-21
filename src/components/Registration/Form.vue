@@ -97,17 +97,6 @@ onMounted(() => {
   <form @submit="onSubmit">
     <div class="grid grid-cols-3 gap-4">
       <div>
-        <FormField v-slot="{ componentField }" name="name">
-          <FormItem>
-            <FormLabel>Nombre</FormLabel>
-            <FormControl>
-              <Input type="text" placeholder="Nombre(s)" v-bind="componentField"/>
-            </FormControl>
-            <FormMessage/>
-          </FormItem>
-        </FormField>
-      </div>
-      <div>
         <FormField v-slot="{ componentField }" name="first_name">
           <FormItem>
             <FormLabel>Primer apellido</FormLabel>
@@ -124,6 +113,17 @@ onMounted(() => {
             <FormLabel>Segundo apellido</FormLabel>
             <FormControl>
               <Input type="text" placeholder="Segundo apellido" v-bind="componentField"/>
+            </FormControl>
+            <FormMessage/>
+          </FormItem>
+        </FormField>
+      </div>
+      <div>
+        <FormField v-slot="{ componentField }" name="name">
+          <FormItem>
+            <FormLabel>Nombre</FormLabel>
+            <FormControl>
+              <Input type="text" placeholder="Nombre(s)" data-maska="Z" data-maska-tokens="Z:[A-Z]:multiple" v-bind="componentField"/>
             </FormControl>
             <FormMessage/>
           </FormItem>
@@ -259,7 +259,7 @@ onMounted(() => {
           <FormItem>
             <FormLabel>Ocupación</FormLabel>
             <FormControl>
-              <Input type="text" placeholder="Especifique únicamente la calle" v-bind="componentField"/>
+              <Input type="text" placeholder="Actividad laboral actual" v-bind="componentField"/>
             </FormControl>
             <FormMessage/>
           </FormItem>
@@ -270,7 +270,7 @@ onMounted(() => {
           <FormItem>
             <FormLabel>Clave de elector</FormLabel>
             <FormControl>
-              <Input type="text" placeholder="LLLLLLAAMMDD00H000" data-maska="AAAAAA########A###" data-maska-tokens="{ 'A': { 'pattern': '[A-Z]' }}" v-bind="componentField"/>
+              <Input type="text" placeholder="LLLLLLAAMMDD00H000" v-maska="'@@@@@@########@###'" v-bind="componentField"/>
             </FormControl>
             <FormMessage/>
           </FormItem>
