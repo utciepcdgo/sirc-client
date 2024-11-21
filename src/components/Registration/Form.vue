@@ -1,9 +1,13 @@
 <script setup lang="ts">
-
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
 import {toTypedSchema} from '@vee-validate/zod';
 import {Separator} from "@/components/ui/separator";
+
+import {useGenresStore} from "@/stores/genres.js";
+import {useSexesStore} from "@/stores/sexes.js";
+
+import { vMaska } from "maska/vue"
 
 import {z} from 'zod';
 import {useForm} from "vee-validate";
@@ -16,6 +20,18 @@ import {
   FormLabel,
   FormMessage
 } from '@/components/ui/form'
+
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+
+import {computed, onMounted} from "vue";
 
 const voterCardSchema = z.object({
   cic: z.number().min(1).max(999),
@@ -52,7 +68,6 @@ const formSchema = toTypedSchema({
   gender_id: 'string',
 });
 
-
 const form = useForm({
   validationSchema: formSchema,
 })
@@ -61,9 +76,20 @@ const onSubmit = form.handleSubmit(async (values) => {
   console.log(values)
 })
 
-const toUpperCase = (value) => {
-  return value.toUpperCase()
-}
+const store = {storeGender: useGenresStore(), storeSex: useSexesStore()}
+
+const getGenres = computed(() => {
+  return store.storeGender.getGenres || []
+})
+
+const getSexes = computed(() => {
+  return store.storeSex.getSexes || []
+})
+
+onMounted(() => {
+  store.storeGender.fetchGenres()
+  store.storeSex.fetchSexes()
+})
 
 </script>
 
@@ -105,7 +131,7 @@ const toUpperCase = (value) => {
       </div>
     </div>
     <Separator label="Nacimiento" class="my-4"/>
-    <div class="grid grid-cols-2 gap-4">
+    <div class="grid grid-cols-4 gap-4">
       <div>
         <FormField v-slot="{ componentField }" name="birth">
           <FormItem>
@@ -122,7 +148,51 @@ const toUpperCase = (value) => {
           <FormItem>
             <FormLabel>País</FormLabel>
             <FormControl>
-              <Input type="text" placeholder="País" v-bind="componentField"/>
+              <Input type="text" placeholder="País" v-bind="componentField" value="México"/>
+            </FormControl>
+            <FormMessage/>
+          </FormItem>
+        </FormField>
+      </div>
+      <div>
+        <FormField v-slot="{ componentField }" name="place">
+          <FormItem>
+            <FormLabel>Sexo</FormLabel>
+            <FormControl>
+              <Select>
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleccione una opción"/>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup v-for="(sex) in getSexes" :key="sex.id">
+                    <SelectItem :value="sex.id">
+                      {{ sex.name }}
+                    </SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </FormControl>
+            <FormMessage/>
+          </FormItem>
+        </FormField>
+      </div>
+      <div>
+        <FormField v-slot="{ componentField }" name="place">
+          <FormItem>
+            <FormLabel>Género</FormLabel>
+            <FormControl>
+              <Select>
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleccione una opción"/>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup v-for="(genre, i) in getGenres" :key="genre.id">
+                    <SelectItem :value="genre.id">
+                      {{ genre.name }}
+                    </SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
             </FormControl>
             <FormMessage/>
           </FormItem>
@@ -181,6 +251,44 @@ const toUpperCase = (value) => {
         </FormField>
       </div>
     </div>
+
+    <Separator label="Información general" class="my-4"/>
+    <div class="grid grid-cols-3 gap-4">
+      <div>
+        <FormField v-slot="{ componentField }" name="occupation">
+          <FormItem>
+            <FormLabel>Ocupación</FormLabel>
+            <FormControl>
+              <Input type="text" placeholder="Especifique únicamente la calle" v-bind="componentField"/>
+            </FormControl>
+            <FormMessage/>
+          </FormItem>
+        </FormField>
+      </div>
+      <div>
+        <FormField v-slot="{ componentField }" name="voter_key">
+          <FormItem>
+            <FormLabel>Clave de elector</FormLabel>
+            <FormControl>
+              <Input type="text" placeholder="LLLLLLAAMMDD00H000" data-maska="AAAAAA########A###" data-maska-tokens="{ 'A': { 'pattern': '[A-Z]' }}" v-bind="componentField"/>
+            </FormControl>
+            <FormMessage/>
+          </FormItem>
+        </FormField>
+      </div>
+      <div>
+        <FormField v-slot="{ componentField }" name="curp">
+          <FormItem>
+            <FormLabel>CURP</FormLabel>
+            <FormControl>
+              <Input type="text" placeholder="LLLLAAMMDDHDGRLL00" v-maska="'@@@@######@@@@@@##'" v-bind="componentField"/>
+            </FormControl>
+            <FormMessage/>
+          </FormItem>
+        </FormField>
+      </div>
+    </div>
+
     <Button type="submit">
       Submit
     </Button>
