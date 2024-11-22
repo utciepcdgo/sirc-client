@@ -7,7 +7,7 @@ import {Separator} from "@/components/ui/separator";
 import {useGenresStore} from "@/stores/genres.js";
 import {useSexesStore} from "@/stores/sexes.js";
 
-import { vMaska } from "maska/vue"
+import {vMaska} from "maska/vue"
 
 import {z} from 'zod';
 import {useForm} from "vee-validate";
@@ -34,10 +34,10 @@ import {
 import {computed, onMounted} from "vue";
 
 const voterCardSchema = z.object({
-  cic: z.number().min(1).max(999),
-  ocr: z.number().min(1).max(999),
-  section: '',
-  emission_number: '',
+  cic: z.string().min(9).max(9).optional(),
+  ocr: z.string().min(1).max(999).optional(),
+  section: z.string().min(1).max(9999).optional(),
+  emission_number: z.string().min(1).max(99).optional(),
 });
 
 const addressLengthResidenceSchema = z.object({
@@ -45,36 +45,31 @@ const addressLengthResidenceSchema = z.object({
   colony: z.string().min(3).max(255),
   street: z.string().min(3).max(255),
   country: z.string().min(3).max(255),
-  latitude: z.string().min(3).max(255),
-  longitude: z.string().min(3).max(255),
+  postal_code: z.string().min(3).max(5),
   outside_number: z.string().min(3).max(255),
 })
 
-const formSchema = toTypedSchema({
-  name: 'string',
-  first_name: 'string',
-  last_name: 'string',
-  second_name: 'string',
-  birthplace: 'string',
+const birthPlaceSchema = z.object({
+  birth: z.string().date(),
+  place: z.string().min(3).max(255),
+})
+
+const formSchema = toTypedSchema(z.object({
+  name: z.string().min(3).max(255),
+  first_name: z.string().min(3).max(255),
+  second_name: z.string().min(3).max(255),
+  birthplace: birthPlaceSchema,
   address_length_residence: addressLengthResidenceSchema,
-  occupation: 'string',
-  voter_key: z.string().regex(/^[A-Z]{6}[0-9]{8}[A-Z]{1}[0-9]{3}$/, {message: "No es una clave de elector válida"}),
-  curp: z.string().regex(/^([A-Z][AEIOUX][A-Z]{2}\\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\\d|3[01])[HM](?:AS|B[CS]|C[CLMSH]|D[FG]|G[TR]|HG|JC|M[CNS]|N[ETL]|OC|PL|Q[TR]|S[PLR]|T[CSL]|VZ|YN|ZS)[B-DF-HJ-NP-TV-Z]{3}[A-Z\\d])(\\d)$/, {message: "No es una CURP válida"}),
+  occupation: z.string().min(3).max(255),
+  voter_key: z.string().min(18).max(18),
+  curp: z.string().min(18).max(18).toUpperCase(),
   voter_card: voterCardSchema,
-  block_id: 'number',
-  position_id: 'string',
-  postulation_id: 'string',
-  sex_id: 'string',
-  gender_id: 'string',
-});
-
-const form = useForm({
-  validationSchema: formSchema,
-})
-
-const onSubmit = form.handleSubmit(async (values) => {
-  console.log(values)
-})
+  block_id: z.number().int().positive(),
+  position_id: z.string({required_error: 'Seleccione una opción'}).min(1),
+  postulation_id: z.string({required_error: 'Seleccione una opción'}).min(1),
+  sex_id: z.string({required_error: 'Seleccione una opción'}).min(1),
+  gender_id: z.string({required_error: 'Seleccione una opción'}).min(1),
+}));
 
 const store = {storeGender: useGenresStore(), storeSex: useSexesStore()}
 
@@ -87,14 +82,28 @@ const getSexes = computed(() => {
 })
 
 onMounted(() => {
+
   store.storeGender.fetchGenres()
   store.storeSex.fetchSexes()
 })
 
+const form = useForm({
+  validationSchema: formSchema,
+})
+
+const onSubmit = form.handleSubmit(async (values) => {
+  try {
+    console.log('values')
+    console.log(values)
+  } catch (e) {
+    console.log('error')
+    console.log(e)
+  }
+})
 </script>
 
 <template>
-  <form @submit="onSubmit">
+  <form @submit="onSubmit" id="registration_form">
     <div class="grid grid-cols-3 gap-4">
       <div>
         <FormField v-slot="{ componentField }" name="first_name">
@@ -123,49 +132,50 @@ onMounted(() => {
           <FormItem>
             <FormLabel>Nombre</FormLabel>
             <FormControl>
-              <Input type="text" placeholder="Nombre(s)" data-maska="Z" data-maska-tokens="Z:[A-Z]:multiple" v-bind="componentField"/>
+              <Input type="text" placeholder="Nombre(s)" data-maska="Z-Z" data-maska-tokens="Z:[A-Z]:multiple" v-bind="componentField"/>
             </FormControl>
             <FormMessage/>
           </FormItem>
         </FormField>
       </div>
     </div>
+
     <Separator label="Nacimiento" class="my-4"/>
     <div class="grid grid-cols-4 gap-4">
       <div>
-        <FormField v-slot="{ componentField }" name="birth">
+        <FormField v-slot="{ componentField }" name="birthplace.birth">
           <FormItem>
-            <FormLabel>Fecha</FormLabel>
+            <FormLabel>Fecha de nacimiento</FormLabel>
             <FormControl>
-              <Input type="date" placeholder="shadcn" v-bind="componentField"/>
+              <Input type="date" placeholder="Fecha de nacimiento" v-bind="componentField"/>
             </FormControl>
             <FormMessage/>
           </FormItem>
         </FormField>
       </div>
       <div>
-        <FormField v-slot="{ componentField }" name="place">
+        <FormField v-slot="{ componentField }" name="birthplace.place">
           <FormItem>
-            <FormLabel>País</FormLabel>
+            <FormLabel>País de origen</FormLabel>
             <FormControl>
-              <Input type="text" placeholder="País" v-bind="componentField" value="México"/>
+              <Input type="text" placeholder="País de origen" v-bind="componentField"/>
             </FormControl>
             <FormMessage/>
           </FormItem>
         </FormField>
       </div>
       <div>
-        <FormField v-slot="{ componentField }" name="place">
+        <FormField v-slot="{ componentField }" name="sex_id">
           <FormItem>
             <FormLabel>Sexo</FormLabel>
             <FormControl>
-              <Select>
+              <Select v-bind="componentField">
                 <SelectTrigger>
                   <SelectValue placeholder="Seleccione una opción"/>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup v-for="(sex) in getSexes" :key="sex.id">
-                    <SelectItem :value="sex.id">
+                    <SelectItem :value="sex.name">
                       {{ sex.name }}
                     </SelectItem>
                   </SelectGroup>
@@ -177,74 +187,22 @@ onMounted(() => {
         </FormField>
       </div>
       <div>
-        <FormField v-slot="{ componentField }" name="place">
+        <FormField v-slot="{ componentField }" name="gender_id">
           <FormItem>
             <FormLabel>Género</FormLabel>
             <FormControl>
-              <Select>
+              <Select v-bind="componentField">
                 <SelectTrigger>
                   <SelectValue placeholder="Seleccione una opción"/>
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectGroup v-for="(genre, i) in getGenres" :key="genre.id">
+                  <SelectGroup v-for="(genre) in getGenres" :key="genre.id">
                     <SelectItem :value="genre.id">
                       {{ genre.name }}
                     </SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>
-            </FormControl>
-            <FormMessage/>
-          </FormItem>
-        </FormField>
-      </div>
-    </div>
-
-    <Separator label="Residencia" class="my-4"/>
-    <div class="grid grid-cols-3 gap-4">
-      <div>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div class="col-span-1 lg:col-span-2">
-            <FormField v-slot="{ componentField }" name="street">
-              <FormItem>
-                <FormLabel>Calle</FormLabel>
-                <FormControl>
-                  <Input type="text" placeholder="Especifique únicamente la calle" v-bind="componentField"/>
-                </FormControl>
-                <FormMessage/>
-              </FormItem>
-            </FormField>
-          </div>
-          <div>
-            <FormField v-slot="{ componentField }" name="outside_number">
-              <FormItem>
-                <FormLabel>Número</FormLabel>
-                <FormControl>
-                  <Input type="text" placeholder="Número ext." v-bind="componentField"/>
-                </FormControl>
-                <FormMessage/>
-              </FormItem>
-            </FormField>
-          </div>
-        </div>
-      </div>
-      <div>
-        <FormField v-slot="{ componentField }" name="colony">
-          <FormItem>
-            <FormLabel>Colonia</FormLabel>
-            <FormControl>
-              <Input type="text" placeholder="Col./Fracc./Priv./Loc." v-bind="componentField"/>
-            </FormControl>
-            <FormMessage/>
-          </FormItem>
-        </FormField>
-      </div>
-      <div>
-        <FormField v-slot="{ componentField }" name="city">
-          <FormItem>
-            <FormLabel>Ciudad</FormLabel>
-            <FormControl>
-              <Input type="text" placeholder="País" v-bind="componentField"/>
             </FormControl>
             <FormMessage/>
           </FormItem>
@@ -289,9 +247,194 @@ onMounted(() => {
       </div>
     </div>
 
-    <Button type="submit">
-      Submit
-    </Button>
+    <Separator label="Residencia" class="my-4"/>
+    <div class="grid grid-cols-3 gap-4">
+      <div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="col-span-1 lg:col-span-2">
+            <FormField v-slot="{ componentField }" name="address_length_residence.street">
+              <FormItem>
+                <FormLabel>Calle</FormLabel>
+                <FormControl>
+                  <Input type="text" placeholder="Especifique únicamente la calle" v-bind="componentField"/>
+                </FormControl>
+                <FormMessage/>
+              </FormItem>
+            </FormField>
+          </div>
+          <div>
+            <FormField v-slot="{ componentField }" name="address_length_residence.outside_number">
+              <FormItem>
+                <FormLabel>Número</FormLabel>
+                <FormControl>
+                  <Input type="text" placeholder="Número ext." v-bind="componentField"/>
+                </FormControl>
+                <FormMessage/>
+              </FormItem>
+            </FormField>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="col-span-1 lg:col-span-2">
+            <FormField v-slot="{ componentField }" name="address_length_residence.colony">
+              <FormItem>
+                <FormLabel>Colonia</FormLabel>
+                <FormControl>
+                  <Input type="text" placeholder="Col./Fracc./Priv./Loc." v-bind="componentField"/>
+                </FormControl>
+                <FormMessage/>
+              </FormItem>
+            </FormField>
+          </div>
+          <div>
+            <FormField v-slot="{ componentField }" name="address_length_residence.postal_code">
+              <FormItem>
+                <FormLabel>Código Postal</FormLabel>
+                <FormControl>
+                  <Input type="text" placeholder="Número a 5 dígitos" v-maska="'#####'" v-bind="componentField"/>
+                </FormControl>
+                <FormMessage/>
+              </FormItem>
+            </FormField>
+          </div>
+        </div>
+      </div>
+      <div>
+        <FormField v-slot="{ componentField }" name="address_length_residence.city">
+          <FormItem>
+            <FormLabel>Ciudad</FormLabel>
+            <FormControl>
+              <Input type="text" placeholder="País" v-bind="componentField"/>
+            </FormControl>
+            <FormMessage/>
+          </FormItem>
+        </FormField>
+      </div>
+      <div>
+        <FormField v-slot="{ componentField }" name="address_length_residence.country">
+          <FormItem>
+            <FormLabel>País</FormLabel>
+            <FormControl>
+              <Input type="text" placeholder="País" v-bind="componentField"/>
+            </FormControl>
+            <FormMessage/>
+          </FormItem>
+        </FormField>
+      </div>
+    </div>
+
+    <Separator label="Credencial para Votar" class="my-4"/>
+    <div class="grid lg:grid-cols-4 grid-cols-1 gap-4">
+      <div>
+        <FormField v-slot="{ componentField }" name="voter_card.cic">
+          <FormItem>
+            <FormLabel>CIC</FormLabel>
+            <FormControl>
+              <Input type="text" placeholder="Número a 9 dígitos" v-maska="'#########'" v-bind="componentField"/>
+            </FormControl>
+            <FormMessage/>
+          </FormItem>
+        </FormField>
+      </div>
+      <div>
+        <FormField v-slot="{ componentField }" name="voter_card.ocr">
+          <FormItem>
+            <FormLabel>OCR</FormLabel>
+            <FormControl>
+              <Input type="text" placeholder="Número a 13 dígitos" v-maska="'#############'" v-bind="componentField"/>
+            </FormControl>
+            <FormMessage/>
+          </FormItem>
+        </FormField>
+      </div>
+      <div>
+        <FormField v-slot="{ componentField }" name="voter_card.section">
+          <FormItem>
+            <FormLabel>Sección</FormLabel>
+            <FormControl>
+              <Input type="text" placeholder="Número a 4 dígitos" v-maska="'####'" v-bind="componentField"/>
+            </FormControl>
+            <FormMessage/>
+          </FormItem>
+        </FormField>
+      </div>
+      <div>
+        <FormField v-slot="{ componentField }" name="voter_card.emission_number">
+          <FormItem>
+            <FormLabel>Numero de emisión</FormLabel>
+            <FormControl>
+              <Input type="text" placeholder="Número a 2 dígitos" v-maska="'##'" v-bind="componentField"/>
+            </FormControl>
+            <FormMessage/>
+          </FormItem>
+        </FormField>
+      </div>
+    </div>
+
+    <Separator label="Cargo" class="my-4"/>
+    <div class="grid lg:grid-cols-4 grid-cols-1 gap-4">
+      <div>
+        <FormField v-slot="{ componentField }" name="postulation_id">
+          <FormItem>
+            <FormLabel>Postulación</FormLabel>
+            <FormControl>
+              <Select v-bind="componentField">
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleccione una opción"/>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectItem value="1">
+                      Presidencia Municipal
+                    </SelectItem>
+                    <SelectItem value="2">
+                      Regiduría
+                    </SelectItem>
+                    <SelectItem value="3">
+                      Sindicatura
+                    </SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </FormControl>
+            <FormMessage/>
+          </FormItem>
+        </FormField>
+      </div>
+      <div>
+        <FormField v-slot="{ componentField }" name="position_id">
+          <FormItem>
+            <FormLabel>Posición</FormLabel>
+            <FormControl>
+              <Select v-bind="componentField">
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleccione una opción"/>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectItem value="1">
+                      Propietaria/o
+                    </SelectItem>
+                    <SelectItem value="2">
+                      Suplencia
+                    </SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </FormControl>
+            <FormMessage/>
+          </FormItem>
+        </FormField>
+      </div>
+      <div>
+
+      </div>
+      <div>
+
+      </div>
+    </div>
   </form>
 </template>
 

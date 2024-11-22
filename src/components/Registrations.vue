@@ -104,7 +104,7 @@ const openModal = (block) => {
           </div>
         </CardHeader>
         <CardContent>
-          <div class="flex text-center justify-between">
+          <div class="flex text-center justify-around">
             <div class="flex flex-col">
               <IconWomanFilled class="self-center"/>
               <small class="text-[8pt]">MUJERES</small>
@@ -147,40 +147,15 @@ const openModal = (block) => {
   <DialogRoot v-model:open="open">
     <DialogContent class="min-w-[50%]">
       <DialogHeader>
-        <div class="flex justify-between">
-          <div>
-            <DialogTitle>Nuevo registro</DialogTitle>
-            <DialogDescription>
-              Municipio de {{ selectedBlock.municipality.name }}
-            </DialogDescription>
-          </div>
-          <div class="flex flex-col">
-            <Select>
-              <SelectTrigger>
-                <SelectValue placeholder="Cargo"/>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectLabel>Cargos</SelectLabel>
-                  <SelectItem value="1">
-                    Presidencia Municipal
-                  </SelectItem>
-                  <SelectItem value="2">
-                    Sindicatura
-                  </SelectItem>
-                  <SelectItem value="3">
-                    Regiduría
-                  </SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
+        <DialogTitle>Nuevo registro</DialogTitle>
+        <DialogDescription>
+          Municipio de {{ selectedBlock.municipality.name }}
+        </DialogDescription>
       </DialogHeader>
-      <Form />
+      <Form/>
       <DialogFooter>
-        <Button type="submit">
-          Save changes
+        <Button type="submit" form="registration_form">
+          Guardar registro
         </Button>
       </DialogFooter>
     </DialogContent>
