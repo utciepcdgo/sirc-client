@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
 import {toTypedSchema} from '@vee-validate/zod';
 import {Separator} from "@/components/ui/separator";
@@ -11,6 +10,13 @@ import {vMaska} from "maska/vue"
 
 import {z} from 'zod';
 import {useForm} from "vee-validate";
+
+const props = defineProps({
+  selectedBlock: {
+    type: Object,
+    required: true
+  }
+});
 
 import {
   FormControl,
@@ -31,22 +37,32 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 
-import {computed, onMounted} from "vue";
+import {computed, onMounted, ref, watch} from "vue";
+import axios from "axios";
 
 const voterCardSchema = z.object({
-  cic: z.string().min(9).max(9).optional(),
-  ocr: z.string().min(1).max(999).optional(),
-  section: z.string().min(1).max(9999).optional(),
-  emission_number: z.string().min(1).max(99).optional(),
+  cic: z.string({required_error: 'Requerido'}).min(9).max(9).optional(),
+  ocr: z.string({required_error: 'Requerido'}).min(1).max(999).optional(),
+  section: z.string({required_error: 'Requerido'}).min(1).max(9999).optional(),
+  emission_number: z.string({required_error: 'Requerido'}).min(1).max(99).optional(),
 });
 
-const addressLengthResidenceSchema = z.object({
-  city: z.string().min(3).max(255),
-  colony: z.string().min(3).max(255),
-  street: z.string().min(3).max(255),
-  country: z.string().min(3).max(255),
-  postal_code: z.string().min(3).max(5),
-  outside_number: z.string().min(3).max(255),
+const residenceSchema = z.object({
+  city: z.string({required_error: 'Requerido'}).min(3).max(255),
+  colony: z.string({required_error: 'Requerido'}).min(3).max(255),
+  street: z.string({required_error: 'Requerido'}).min(3).max(255),
+  postal_code: z.string({required_error: 'Requerido'}).min(3).max(5),
+  outside_number: z.string({required_error: 'Requerido'}).min(3).max(255),
+  length: z.object({
+    years: z.number({required_error: 'Requerido'}).int().min(0)
+        .max(99,
+            {message: 'El valor máximo permitido es 99'}
+        ),
+    months: z.number().int().positive().min(0)
+        .max(11,
+            {message: 'El valor máximo permitido es 11'}
+        ),
+  })
 })
 
 const birthPlaceSchema = z.object({
@@ -55,21 +71,23 @@ const birthPlaceSchema = z.object({
 })
 
 const formSchema = toTypedSchema(z.object({
-  name: z.string().min(3).max(255),
-  first_name: z.string().min(3).max(255),
-  second_name: z.string().min(3).max(255),
+  name: z.string({required_error: 'Requerido'}).min(3).max(255),
+  first_name: z.string({required_error: 'Requerido'}).min(3).max(255),
+  second_name: z.string({required_error: 'Requerido'}).min(3).max(255),
   birthplace: birthPlaceSchema,
-  address_length_residence: addressLengthResidenceSchema,
-  occupation: z.string().min(3).max(255),
-  voter_key: z.string().min(18).max(18),
-  curp: z.string().min(18).max(18).toUpperCase(),
+  residence: residenceSchema,
+  occupation: z.string({required_error: 'Requerido'}).min(3).max(255),
+  voter_key: z.string({required_error: 'Requerido'}).min(18).max(18),
+  curp: z.string({required_error: 'Requerido'}).min(18).max(18).toUpperCase(),
   voter_card: voterCardSchema,
-  block_id: z.number().int().positive(),
+  council_number: z.string(),
+  block_id: z.number({required_error: 'Requerido'}).int().positive(),
   position_id: z.string({required_error: 'Seleccione una opción'}).min(1),
   postulation_id: z.string({required_error: 'Seleccione una opción'}).min(1),
   sex_id: z.string({required_error: 'Seleccione una opción'}).min(1),
   gender_id: z.string({required_error: 'Seleccione una opción'}).min(1),
-}));
+}))
+
 
 const store = {storeGender: useGenresStore(), storeSex: useSexesStore()}
 
@@ -82,28 +100,39 @@ const getSexes = computed(() => {
 })
 
 onMounted(() => {
-
   store.storeGender.fetchGenres()
   store.storeSex.fetchSexes()
 })
 
 const form = useForm({
+  initialValues: {
+    block_id: props.selectedBlock.id,
+  },
   validationSchema: formSchema,
 })
 
 const onSubmit = form.handleSubmit(async (values) => {
+  values.block_id = props.selectedBlock.id
+  console.log(values)
+
   try {
-    console.log('values')
-    console.log(values)
-  } catch (e) {
-    console.log('error')
-    console.log(e)
+    await axios.post('http://localhost:8000/api/registrations', values);
+    // successMessage.value = 'Formulario enviado con éxito';
+  } catch (error) {
+    console.error('Error al enviar el formulario:', error);
   }
 })
+
+const showCouncilNumber = ref(false);
+
+watch(() => form.values.postulation_id, (newVal) => {
+  showCouncilNumber.value = newVal === '2'; // '2' es el valor para Regiduría
+});
 </script>
 
 <template>
-  <form @submit="onSubmit" id="registration_form">
+  <form @submit.prevent="onSubmit" id="registration_form">
+    <Input type="hidden" name="block_id" v-bind="componentField"/>
     <div class="grid grid-cols-3 gap-4">
       <div>
         <FormField v-slot="{ componentField }" name="first_name">
@@ -175,7 +204,7 @@ const onSubmit = form.handleSubmit(async (values) => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup v-for="(sex) in getSexes" :key="sex.id">
-                    <SelectItem :value="sex.name">
+                    <SelectItem :value="sex.id">
                       {{ sex.name }}
                     </SelectItem>
                   </SelectGroup>
@@ -252,7 +281,7 @@ const onSubmit = form.handleSubmit(async (values) => {
       <div>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div class="col-span-1 lg:col-span-2">
-            <FormField v-slot="{ componentField }" name="address_length_residence.street">
+            <FormField v-slot="{ componentField }" name="residence.street">
               <FormItem>
                 <FormLabel>Calle</FormLabel>
                 <FormControl>
@@ -263,7 +292,7 @@ const onSubmit = form.handleSubmit(async (values) => {
             </FormField>
           </div>
           <div>
-            <FormField v-slot="{ componentField }" name="address_length_residence.outside_number">
+            <FormField v-slot="{ componentField }" name="residence.outside_number">
               <FormItem>
                 <FormLabel>Número</FormLabel>
                 <FormControl>
@@ -278,7 +307,7 @@ const onSubmit = form.handleSubmit(async (values) => {
       <div>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div class="col-span-1 lg:col-span-2">
-            <FormField v-slot="{ componentField }" name="address_length_residence.colony">
+            <FormField v-slot="{ componentField }" name="residence.colony">
               <FormItem>
                 <FormLabel>Colonia</FormLabel>
                 <FormControl>
@@ -289,7 +318,7 @@ const onSubmit = form.handleSubmit(async (values) => {
             </FormField>
           </div>
           <div>
-            <FormField v-slot="{ componentField }" name="address_length_residence.postal_code">
+            <FormField v-slot="{ componentField }" name="residence.postal_code">
               <FormItem>
                 <FormLabel>Código Postal</FormLabel>
                 <FormControl>
@@ -301,27 +330,49 @@ const onSubmit = form.handleSubmit(async (values) => {
           </div>
         </div>
       </div>
-      <div>
-        <FormField v-slot="{ componentField }" name="address_length_residence.city">
-          <FormItem>
-            <FormLabel>Ciudad</FormLabel>
-            <FormControl>
-              <Input type="text" placeholder="País" v-bind="componentField"/>
-            </FormControl>
-            <FormMessage/>
-          </FormItem>
-        </FormField>
-      </div>
-      <div>
-        <FormField v-slot="{ componentField }" name="address_length_residence.country">
-          <FormItem>
-            <FormLabel>País</FormLabel>
-            <FormControl>
-              <Input type="text" placeholder="País" v-bind="componentField"/>
-            </FormControl>
-            <FormMessage/>
-          </FormItem>
-        </FormField>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div>
+          <FormField v-slot="{ componentField }" name="residence.city">
+            <FormItem>
+              <FormLabel>Ciudad</FormLabel>
+              <FormControl>
+                <Input type="text" placeholder="País" v-bind="componentField"/>
+              </FormControl>
+              <FormDescription class="text-xs">
+                P.e. Victoria de Durango
+              </FormDescription>
+              <FormMessage/>
+            </FormItem>
+          </FormField>
+        </div>
+        <div>
+          <FormField v-slot="{ componentField }" name="residence.length.years">
+            <FormItem>
+              <FormLabel>Años</FormLabel>
+              <FormControl>
+                <Input type="number" placeholder="0" v-maska="'##'" v-bind="componentField"/>
+              </FormControl>
+              <FormDescription class="text-xs">
+                Años de residencia
+              </FormDescription>
+              <FormMessage/>
+            </FormItem>
+          </FormField>
+        </div>
+        <div>
+          <FormField v-slot="{ componentField }" name="residence.length.months">
+            <FormItem>
+              <FormLabel>Meses</FormLabel>
+              <FormControl>
+                <Input type="number" placeholder="0" v-bind="componentField"/>
+              </FormControl>
+              <FormDescription class="text-xs">
+                Meses de residencia
+              </FormDescription>
+              <FormMessage/>
+            </FormItem>
+          </FormField>
+        </div>
       </div>
     </div>
 
@@ -403,10 +454,30 @@ const onSubmit = form.handleSubmit(async (values) => {
           </FormItem>
         </FormField>
       </div>
+      <div v-if="showCouncilNumber">
+        <FormField v-slot="{ componentField }" name="council_number">
+          <FormItem>
+            <FormLabel>Posición</FormLabel>
+            <FormControl>
+              <Select v-bind="componentField">
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleccione una opción"/>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup v-for="i in selectedBlock.municipality.councils" :key="i">
+                    <SelectItem :value="i.toString()">{{ i }}</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </FormControl>
+            <FormMessage/>
+          </FormItem>
+        </FormField>
+      </div>
       <div>
         <FormField v-slot="{ componentField }" name="position_id">
           <FormItem>
-            <FormLabel>Posición</FormLabel>
+            <FormLabel>Cargo</FormLabel>
             <FormControl>
               <Select v-bind="componentField">
                 <SelectTrigger>
@@ -427,12 +498,6 @@ const onSubmit = form.handleSubmit(async (values) => {
             <FormMessage/>
           </FormItem>
         </FormField>
-      </div>
-      <div>
-
-      </div>
-      <div>
-
       </div>
     </div>
   </form>

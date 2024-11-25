@@ -1,5 +1,5 @@
 <script setup>
-import {ref, onMounted, computed} from 'vue'
+import {ref, onMounted, onUnmounted, computed} from 'vue'
 import {useBlocksStore} from "@/stores/blocks.js";
 
 import Form from "@/components/Registration/Form.vue";
@@ -76,6 +76,22 @@ const openModal = (block) => {
   open.value = true
 }
 
+const currentTime = ref(new Date());
+
+const updateCurrentTime = () => {
+  currentTime.value = new Date();
+};
+
+let intervalId;
+
+onMounted(() => {
+  intervalId = setInterval(updateCurrentTime, 1000);
+});
+
+onUnmounted(() => {
+  clearInterval(intervalId);
+});
+
 </script>
 
 <template>
@@ -147,13 +163,25 @@ const openModal = (block) => {
   <DialogRoot v-model:open="open">
     <DialogContent class="min-w-[50%]">
       <DialogHeader>
-        <DialogTitle>Nuevo registro</DialogTitle>
-        <DialogDescription>
-          Municipio de {{ selectedBlock.municipality.name }}
-        </DialogDescription>
+        <div class="flex items-center space-x-2.5">
+          <img :src="selectedBlock.municipality.shield" :alt="'Escudo del municipio de ' + selectedBlock.municipality.name" class="w-16 h-16"/>
+          <div>
+            <DialogTitle>Nuevo registro</DialogTitle>
+            <DialogDescription>
+              <p>Municipio de {{ selectedBlock.municipality.name }}</p>
+            </DialogDescription>
+          </div>
+        </div>
       </DialogHeader>
-      <Form/>
-      <DialogFooter>
+      <Form :selectedBlock="selectedBlock"/>
+      <DialogFooter class="flex items-center !justify-between">
+        <div class="flex items-center space-x-2.5">
+         <img :src="selectedBlock.entity.logo" :alt="selectedBlock.entity.name" class="rounded-md" width="32">
+          <div class="flex flex-col">
+            <p class="text-sm">{{ selectedBlock.entity.name }}</p>
+            <p class="text-xs text-slate-600">{{ currentTime.toLocaleString() }}</p>
+          </div>
+        </div>
         <Button type="submit" form="registration_form">
           Guardar registro
         </Button>
