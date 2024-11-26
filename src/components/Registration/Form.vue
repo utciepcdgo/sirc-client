@@ -159,7 +159,7 @@ watch(() => form.values.postulation_id, (newVal) => {
       <div>
         <FormField v-slot="{ componentField }" name="name">
           <FormItem>
-            <FormLabel>Nombre</FormLabel>
+            <FormLabel>Nombre(s)</FormLabel>
             <FormControl>
               <Input type="text" placeholder="Nombre(s)" data-maska="Z-Z" data-maska-tokens="Z:[A-Z]:multiple" v-bind="componentField"/>
             </FormControl>
@@ -196,7 +196,7 @@ watch(() => form.values.postulation_id, (newVal) => {
       <div>
         <FormField v-slot="{ componentField }" name="sex_id">
           <FormItem>
-            <FormLabel>Sexo</FormLabel>
+            <FormLabel>Identidad Sexual</FormLabel>
             <FormControl>
               <Select v-bind="componentField">
                 <SelectTrigger>
@@ -247,17 +247,6 @@ watch(() => form.values.postulation_id, (newVal) => {
             <FormLabel>Ocupación</FormLabel>
             <FormControl>
               <Input type="text" placeholder="Actividad laboral actual" v-bind="componentField"/>
-            </FormControl>
-            <FormMessage/>
-          </FormItem>
-        </FormField>
-      </div>
-      <div>
-        <FormField v-slot="{ componentField }" name="voter_key">
-          <FormItem>
-            <FormLabel>Clave de elector</FormLabel>
-            <FormControl>
-              <Input type="text" placeholder="LLLLLLAAMMDD00H000" v-maska="'@@@@@@########@###'" v-bind="componentField"/>
             </FormControl>
             <FormMessage/>
           </FormItem>
@@ -336,7 +325,7 @@ watch(() => form.values.postulation_id, (newVal) => {
             <FormItem>
               <FormLabel>Ciudad</FormLabel>
               <FormControl>
-                <Input type="text" placeholder="País" v-bind="componentField"/>
+                <Input type="text" placeholder="Ciudad" v-bind="componentField"/>
               </FormControl>
               <FormDescription class="text-xs">
                 P.e. Victoria de Durango
@@ -400,23 +389,36 @@ watch(() => form.values.postulation_id, (newVal) => {
           </FormItem>
         </FormField>
       </div>
-      <div>
-        <FormField v-slot="{ componentField }" name="voter_card.section">
-          <FormItem>
-            <FormLabel>Sección</FormLabel>
-            <FormControl>
-              <Input type="text" placeholder="Número a 4 dígitos" v-maska="'####'" v-bind="componentField"/>
-            </FormControl>
-            <FormMessage/>
-          </FormItem>
-        </FormField>
+      <div class="grid lg:grid-cols-2 grid-cols-1 gap-4">
+        <div>
+          <FormField v-slot="{ componentField }" name="voter_card.section">
+            <FormItem>
+              <FormLabel>Sección</FormLabel>
+              <FormControl>
+                <Input type="text" placeholder="4 dígitos" v-maska="'####'" v-bind="componentField"/>
+              </FormControl>
+              <FormMessage/>
+            </FormItem>
+          </FormField>
+        </div>
+        <div>
+          <FormField v-slot="{ componentField }" name="voter_card.emission_number">
+            <FormItem>
+              <FormLabel>Numero de emisión</FormLabel>
+              <FormControl>
+                <Input type="text" placeholder="2 dígitos" v-maska="'##'" v-bind="componentField"/>
+              </FormControl>
+              <FormMessage/>
+            </FormItem>
+          </FormField>
+        </div>
       </div>
       <div>
-        <FormField v-slot="{ componentField }" name="voter_card.emission_number">
+        <FormField v-slot="{ componentField }" name="voter_key">
           <FormItem>
-            <FormLabel>Numero de emisión</FormLabel>
+            <FormLabel>Clave de elector</FormLabel>
             <FormControl>
-              <Input type="text" placeholder="Número a 2 dígitos" v-maska="'##'" v-bind="componentField"/>
+              <Input type="text" placeholder="LLLLLLAAMMDD00H000" v-maska="'@@@@@@########@###'" v-bind="componentField"/>
             </FormControl>
             <FormMessage/>
           </FormItem>
@@ -429,7 +431,7 @@ watch(() => form.values.postulation_id, (newVal) => {
       <div>
         <FormField v-slot="{ componentField }" name="postulation_id">
           <FormItem>
-            <FormLabel>Postulación</FormLabel>
+            <FormLabel>Postulado a:</FormLabel>
             <FormControl>
               <Select v-bind="componentField">
                 <SelectTrigger>
