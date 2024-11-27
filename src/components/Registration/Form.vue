@@ -18,6 +18,8 @@ const props = defineProps({
   }
 });
 
+import {IconStarFilled} from "@tabler/icons-vue"
+
 import {
   FormControl,
   FormDescription,
@@ -78,7 +80,7 @@ const formSchema = toTypedSchema(z.object({
   residence: residenceSchema,
   occupation: z.string({required_error: 'Requerido'}).min(3).max(255),
   voter_key: z.string({required_error: 'Requerido'}).min(18).max(18),
-  curp: z.string({required_error: 'Requerido'}).min(18).max(18).toUpperCase(),
+  curp: z.string({required_error: 'Requerido'}).regex(/([A-Z][AEIOUX][A-Z]{2}\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])[HM](?:AS|B[CS]|C[CLMSH]|D[FG]|G[TR]|HG|JC|M[CNS]|N[ETL]|OC|PL|Q[TR]|S[PLR]|T[CSL]|VZ|YN|ZS)[B-DF-HJ-NP-TV-Z]{3}[A-Z\d])(\d)$/).min(18).max(18).toUpperCase(),
   voter_card: voterCardSchema,
   council_number: z.string(),
   block_id: z.number({required_error: 'Requerido'}).int().positive(),
@@ -497,6 +499,40 @@ watch(() => form.values.postulation_id, (newVal) => {
                 </SelectContent>
               </Select>
             </FormControl>
+            <FormMessage/>
+          </FormItem>
+        </FormField>
+      </div>
+      <div>
+        <FormField v-slot="{ componentField }" name="reelection">
+          <FormItem>
+            <FormLabel>Reelección</FormLabel>
+            <FormControl>
+              <Select v-bind="componentField">
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleccione una opción"/>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectItem value="2022-2025">
+                      2022-2025
+                    </SelectItem>
+                    <SelectItem value="2019-2022">
+                      2019-2022
+                    </SelectItem>
+                    <SelectItem value="2016-2019">
+                      2016-2019
+                    </SelectItem>
+                    <SelectItem value="No" aria-selected="true">
+                      No
+                    </SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </FormControl>
+            <FormDescription class="text-xs">
+              Periodo de reelección.
+            </FormDescription>
             <FormMessage/>
           </FormItem>
         </FormField>
