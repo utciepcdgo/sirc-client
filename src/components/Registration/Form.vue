@@ -34,13 +34,15 @@ import {
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
+  SelectLabel, SelectSeparator,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
 
 import {computed, onMounted, ref, watch} from "vue";
 import axios from "axios";
+
+import {SelectRoot} from "radix-vue";
 
 const voterCardSchema = z.object({
   cic: z.string({required_error: 'Requerido'}).min(9).max(9).optional(),
@@ -508,27 +510,30 @@ watch(() => form.values.postulation_id, (newVal) => {
           <FormItem>
             <FormLabel>Reelección</FormLabel>
             <FormControl>
-              <Select v-bind="componentField">
-                <SelectTrigger>
-                  <SelectValue placeholder="Seleccione una opción"/>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectItem value="2022-2025">
-                      2022-2025
-                    </SelectItem>
-                    <SelectItem value="2019-2022">
-                      2019-2022
-                    </SelectItem>
-                    <SelectItem value="2016-2019">
-                      2016-2019
-                    </SelectItem>
-                    <SelectItem value="No" aria-selected="true">
-                      No
-                    </SelectItem>
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
+              <SelectRoot :default-value="'No'">
+                <Select v-bind="componentField">
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleccione una opción"/>
+                  </SelectTrigger>
+                  <SelectContent position="popper" :side-offset="5">
+                    <SelectGroup>
+                      <SelectItem value="2022-2025">
+                        2022-2025
+                      </SelectItem>
+                      <SelectItem value="2019-2022">
+                        2019-2022
+                      </SelectItem>
+                      <SelectItem value="2016-2019">
+                        2016-2019
+                      </SelectItem>
+                      <SelectSeparator />
+                      <SelectItem value="No" aria-selected="true">
+                        No
+                      </SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </SelectRoot>
             </FormControl>
             <FormDescription class="text-xs">
               Periodo de reelección.
