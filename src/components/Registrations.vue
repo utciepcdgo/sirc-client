@@ -161,7 +161,7 @@ onUnmounted(() => {
   </div>
 
   <DialogRoot v-model:open="open">
-    <DialogContent class="min-w-[50%]">
+    <DialogContent class="min-w-[80%]">
       <DialogHeader>
         <div class="flex items-center space-x-2.5">
           <img :src="selectedBlock.municipality.shield" :alt="'Escudo del municipio de ' + selectedBlock.municipality.name" class="w-16 h-16"/>
