@@ -1,6 +1,7 @@
 <script setup>
 import {ref, onMounted, onUnmounted, computed} from 'vue'
 import {useBlocksStore} from "@/stores/blocks.js";
+import {FingerprintSpinner} from 'epic-spinners'
 
 import Form from "@/components/Registration/Form.vue";
 
@@ -31,14 +32,9 @@ import {
 } from '@/components/ui/dialog'
 
 import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+  AlertDialog,
+  AlertDialogContent,
+} from '@/components/ui/alert-dialog'
 
 import {Input} from '@/components/ui/input'
 
@@ -49,7 +45,8 @@ import {
   IconInfoCircle,
   IconSearch
 } from '@tabler/icons-vue';
-import {DialogRoot} from "radix-vue";
+
+import {AlertDialogOverlay, DialogRoot} from "radix-vue";
 
 const store = useBlocksStore()
 
@@ -91,7 +88,6 @@ onMounted(() => {
 onUnmounted(() => {
   clearInterval(intervalId);
 });
-
 </script>
 
 <template>
@@ -103,6 +99,25 @@ onUnmounted(() => {
       </span>
     </div>
   </div>
+<!--  SHOW ALERT LOADING FEED -->
+  <AlertDialog v-model:open="store.isLoading">
+    <AlertDialogContent class="w-[177.6px] bg-transparent border-0 shadow-none">
+      <fingerprint-spinner
+          :animation-duration="1500"
+          :size="128"
+          :color="'#ffffff'"/>
+      <p class="text-center font-bold text-white">Cargando...</p>
+    </AlertDialogContent>
+  </AlertDialog>
+
+  <AlertDialog v-model:open="store.blocksError">
+    <AlertDialogContent class="min-w-[128]">
+      <p>Hubo un error al intentar cargar el contenido, contacte al administrador.</p>
+      <p class="mt-3 text-sm p-0 leading-none">Detalles:</p>
+      <small class="italic text-red-600 leading-none">{{ store.blocksError }}</small>
+    </AlertDialogContent>
+  </AlertDialog>
+
   <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
     <div v-for="(block) in filterBlocks" :key="block.id">
       <Card>
@@ -112,7 +127,7 @@ onUnmounted(() => {
               <img :src="block.municipality.shield" alt="logo" class="w-16 h-16"/>
             </div>
             <div>
-              <CardTitle>{{ block.municipality.name }}</CardTitle>
+              <CardTitle>{{ block.municipality.name }} {{block.id }}</CardTitle>
               <CardDescription>
                 {{ block.entity.name }}
               </CardDescription>
@@ -176,7 +191,7 @@ onUnmounted(() => {
       <Form :selectedBlock="selectedBlock"/>
       <DialogFooter class="flex items-center !justify-between">
         <div class="flex items-center space-x-2.5">
-         <img :src="selectedBlock.entity.logo" :alt="selectedBlock.entity.name" class="rounded-md" width="32">
+          <img :src="selectedBlock.entity.logo" :alt="selectedBlock.entity.name" class="rounded-md" width="32">
           <div class="flex flex-col">
             <p class="text-sm">{{ selectedBlock.entity.name }}</p>
             <p class="text-xs text-slate-600">{{ currentTime.toLocaleString() }}</p>

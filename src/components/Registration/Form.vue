@@ -173,7 +173,7 @@ watch(() => form.values.postulation_id, (newVal) => {
       </div>
     </div>
 
-    <Separator label="Nacimiento" class="my-4"/>
+    <Separator label="Nacimiento" class="my-4 font-bold italic"/>
     <div class="grid grid-cols-4 gap-4">
       <div>
         <FormField v-slot="{ componentField }" name="birthplace.birth">
@@ -243,7 +243,7 @@ watch(() => form.values.postulation_id, (newVal) => {
       </div>
     </div>
 
-    <Separator label="Información general" class="my-4"/>
+    <Separator label="Información general" class="my-4 font-bold italic"/>
     <div class="grid grid-cols-3 gap-4">
       <div>
         <FormField v-slot="{ componentField }" name="occupation">
@@ -269,7 +269,7 @@ watch(() => form.values.postulation_id, (newVal) => {
       </div>
     </div>
 
-    <Separator label="Residencia" class="my-4"/>
+    <Separator label="Residencia" class="my-4 font-bold italic"/>
     <div class="grid grid-cols-3 gap-4">
       <div>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -369,7 +369,7 @@ watch(() => form.values.postulation_id, (newVal) => {
       </div>
     </div>
 
-    <Separator label="Credencial para Votar" class="my-4"/>
+    <Separator label="Credencial para Votar" class="my-4 font-bold italic"/>
     <div class="grid lg:grid-cols-4 grid-cols-1 gap-4">
       <div>
         <FormField v-slot="{ componentField }" name="voter_card.cic">
@@ -430,7 +430,7 @@ watch(() => form.values.postulation_id, (newVal) => {
       </div>
     </div>
 
-    <Separator label="Cargo" class="my-4"/>
+    <Separator label="Cargo" class="my-4 font-bold italic"/>
     <div class="grid lg:grid-cols-4 grid-cols-1 gap-4">
       <div>
         <FormField v-slot="{ componentField }" name="postulation_id">
@@ -443,7 +443,7 @@ watch(() => form.values.postulation_id, (newVal) => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    <SelectItem value="1">
+                    <SelectItem value="1" :disabled="!selectedBlock.assignments.municipality">
                       Presidencia Municipal
                     </SelectItem>
                     <SelectItem value="2">
@@ -460,7 +460,7 @@ watch(() => form.values.postulation_id, (newVal) => {
           </FormItem>
         </FormField>
       </div>
-      <div v-if="showCouncilNumber">
+      <div v-show="showCouncilNumber">
         <FormField v-slot="{ componentField }" name="council_number">
           <FormItem>
             <FormLabel>Posición</FormLabel>
@@ -471,7 +471,10 @@ watch(() => form.values.postulation_id, (newVal) => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup v-for="i in selectedBlock.municipality.councils" :key="i">
-                    <SelectItem :value="i.toString()">{{ i }}</SelectItem>
+                    <SelectItem :value="i.toString()" :disabled="!selectedBlock.assignments?.councils.list.includes(i) && selectedBlock.assignments?.councils.list.length > 0">
+                      <p>{{ i }}</p>
+                      <small class="accent-muted" v-show="!selectedBlock.assignments?.councils.list.includes(i) && selectedBlock.assignments?.councils.list.length > 0">Deshabilitado según convenio de coalición.</small>
+                    </SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>
@@ -483,7 +486,7 @@ watch(() => form.values.postulation_id, (newVal) => {
       <div>
         <FormField v-slot="{ componentField }" name="position_id">
           <FormItem>
-            <FormLabel>Cargo</FormLabel>
+            <FormLabel>Carácter</FormLabel>
             <FormControl>
               <Select v-bind="componentField">
                 <SelectTrigger>
@@ -517,16 +520,9 @@ watch(() => form.values.postulation_id, (newVal) => {
                   </SelectTrigger>
                   <SelectContent position="popper" :side-offset="5">
                     <SelectGroup>
-                      <SelectItem value="2022-2025">
-                        2022-2025
+                      <SelectItem value="Si">
+                        Sí (2022-2025)
                       </SelectItem>
-                      <SelectItem value="2019-2022">
-                        2019-2022
-                      </SelectItem>
-                      <SelectItem value="2016-2019">
-                        2016-2019
-                      </SelectItem>
-                      <SelectSeparator />
                       <SelectItem value="No" aria-selected="true">
                         No
                       </SelectItem>
@@ -547,5 +543,4 @@ watch(() => form.values.postulation_id, (newVal) => {
 </template>
 
 <style scoped>
-
 </style>
