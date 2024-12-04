@@ -408,7 +408,7 @@ watch(() => form.values.postulation_id, (newVal) => {
         <div>
           <FormField v-slot="{ componentField }" name="voter_card.emission_number">
             <FormItem>
-              <FormLabel>Numero de emisión</FormLabel>
+              <FormLabel>Número de emisión</FormLabel>
               <FormControl>
                 <Input type="text" placeholder="2 dígitos" v-maska="'##'" v-bind="componentField"/>
               </FormControl>
@@ -430,7 +430,7 @@ watch(() => form.values.postulation_id, (newVal) => {
       </div>
     </div>
 
-    <Separator label="Cargo" class="my-4 font-bold italic"/>
+    <Separator label="Candidatura" class="my-4 font-bold italic"/>
     <div class="grid lg:grid-cols-4 grid-cols-1 gap-4">
       <div>
         <FormField v-slot="{ componentField }" name="postulation_id">
@@ -472,8 +472,8 @@ watch(() => form.values.postulation_id, (newVal) => {
                 <SelectContent>
                   <SelectGroup v-for="i in selectedBlock.municipality.councils" :key="i">
                     <SelectItem :value="i.toString()" :disabled="!selectedBlock.assignments?.councils.list.includes(i) && selectedBlock.assignments?.councils.list.length > 0">
-                      <p>{{ i }}</p>
-                      <small class="accent-muted" v-show="!selectedBlock.assignments?.councils.list.includes(i) && selectedBlock.assignments?.councils.list.length > 0">Deshabilitado según convenio de coalición.</small>
+                      {{ i }}
+                      <small class="accent-muted" v-show="!selectedBlock.assignments?.councils.list.includes(i) && selectedBlock.assignments?.councils.list.length > 0">(Deshabilitado)</small>
                     </SelectItem>
                   </SelectGroup>
                 </SelectContent>
@@ -525,6 +525,48 @@ watch(() => form.values.postulation_id, (newVal) => {
                       </SelectItem>
                       <SelectItem value="No" aria-selected="true">
                         No
+                      </SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </SelectRoot>
+            </FormControl>
+            <FormDescription class="text-xs">
+              Periodo de reelección.
+            </FormDescription>
+            <FormMessage/>
+          </FormItem>
+        </FormField>
+      </div>
+      <div>
+        <FormField v-slot="{ componentField }" name="compensatory_measure">
+          <FormItem>
+            <FormLabel>Medida Compensatoria</FormLabel>
+            <FormControl>
+              <SelectRoot :default-value="'No'">
+                <Select v-bind="componentField">
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleccione una opción"/>
+                  </SelectTrigger>
+                  <SelectContent position="popper" :side-offset="5">
+                    <SelectGroup>
+                      <SelectItem value="Si">
+                        Jóven
+                      </SelectItem>
+                      <SelectItem value="No" aria-selected="true">
+                        Discapacidad Permanente
+                      </SelectItem>
+                      <SelectItem value="No" aria-selected="true">
+                        Diversidad sexual
+                      </SelectItem>
+                      <SelectItem value="No" aria-selected="true">
+                        Persona adulta mayor
+                      </SelectItem>
+                      <SelectItem value="No" aria-selected="true">
+                        Migrante
+                      </SelectItem>
+                      <SelectItem value="No" aria-selected="true">
+                        Indígena
                       </SelectItem>
                     </SelectGroup>
                   </SelectContent>
