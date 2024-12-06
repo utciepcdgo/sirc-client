@@ -127,7 +127,7 @@ onUnmounted(() => {
               <img :src="block.municipality.shield" alt="logo" class="w-16 h-16"/>
             </div>
             <div>
-              <CardTitle>{{ block.municipality.name }} {{block.id }}</CardTitle>
+              <CardTitle>{{ block.municipality.name }}</CardTitle>
               <CardDescription>
                 {{ block.entity.name }}
               </CardDescription>
@@ -144,7 +144,7 @@ onUnmounted(() => {
             <div class="flex flex-col">
               <IconManFilled class="self-center"/>
               <small class="text-[8pt]">HOMBRES</small>
-              <span class="font-bold text-2xl mt-3">{{ block.registrations.stats.mans }}</span>
+              <span class="font-bold text-2xl mt-3">{{ block.registrations.stats.man }}</span>
             </div>
           </div>
         </CardContent>

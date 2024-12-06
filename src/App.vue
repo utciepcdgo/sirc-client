@@ -55,9 +55,6 @@ const components = RegistrationRoutes
   </NavigationMenu>
 
   <div class="px-4 w-full lg:px-8">
-    <p>
-      <strong>Current route path:</strong> {{ $route.fullPath }}
-    </p>
     <nav>
       <RouterLink to="/">Home</RouterLink>
       <RouterLink to="/registrations">Registrations</RouterLink>

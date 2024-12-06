@@ -17,7 +17,7 @@ interface Block {
         stats: {
             total: number,
             women: number,
-            mans: number
+            man: number
         }
     }
 }

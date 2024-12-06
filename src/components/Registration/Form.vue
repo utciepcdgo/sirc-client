@@ -5,6 +5,7 @@ import {Separator} from "@/components/ui/separator";
 
 import {useGenresStore} from "@/stores/genres.js";
 import {useSexesStore} from "@/stores/sexes.js";
+import {useCompensatoriesStore} from "@/stores/compensatories.js";
 
 import {vMaska} from "maska/vue"
 
@@ -102,6 +103,8 @@ const getGenres = computed(() => {
 const getSexes = computed(() => {
   return store.storeSex.getSexes || []
 })
+
+const getCompensatories =
 
 onMounted(() => {
   store.storeGender.fetchGenres()
@@ -550,22 +553,22 @@ watch(() => form.values.postulation_id, (newVal) => {
                   </SelectTrigger>
                   <SelectContent position="popper" :side-offset="5">
                     <SelectGroup>
-                      <SelectItem value="Si">
+                      <SelectItem value="1">
                         Jóven
                       </SelectItem>
-                      <SelectItem value="No" aria-selected="true">
-                        Discapacidad Permanente
+                      <SelectItem value="2" aria-selected="true">
+                        Discapacidad permanente
                       </SelectItem>
-                      <SelectItem value="No" aria-selected="true">
+                      <SelectItem value="3" aria-selected="true">
                         Diversidad sexual
                       </SelectItem>
-                      <SelectItem value="No" aria-selected="true">
+                      <SelectItem value="4" aria-selected="true">
                         Persona adulta mayor
                       </SelectItem>
-                      <SelectItem value="No" aria-selected="true">
+                      <SelectItem value="5" aria-selected="true">
                         Migrante
                       </SelectItem>
-                      <SelectItem value="No" aria-selected="true">
+                      <SelectItem value="6" aria-selected="true">
                         Indígena
                       </SelectItem>
                     </SelectGroup>
