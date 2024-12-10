@@ -72,7 +72,8 @@ const residenceSchema = z.object({
 
 const birthPlaceSchema = z.object({
   birth: z.string().date(),
-  place: z.string().min(3).max(255),
+  state: z.string().min(3).max(255),
+  municipality: z.string().min(3).max(255),
 })
 
 const formSchema = toTypedSchema(z.object({
@@ -106,10 +107,10 @@ const getSexes = computed(() => {
 
 const getCompensatories =
 
-onMounted(() => {
-  store.storeGender.fetchGenres()
-  store.storeSex.fetchSexes()
-})
+    onMounted(() => {
+      store.storeGender.fetchGenres()
+      store.storeSex.fetchSexes()
+    })
 
 const form = useForm({
   initialValues: {
@@ -140,6 +141,7 @@ watch(() => form.values.postulation_id, (newVal) => {
 <template>
   <form @submit.prevent="onSubmit" id="registration_form">
     <Input type="hidden" name="block_id" v-bind="componentField"/>
+    <Separator label="Información general" class="my-4 font-bold italic"/>
     <div class="grid grid-cols-3 gap-4">
       <div>
         <FormField v-slot="{ componentField }" name="first_name">
@@ -175,6 +177,31 @@ watch(() => form.values.postulation_id, (newVal) => {
         </FormField>
       </div>
     </div>
+    <div class="grid grid-cols-3 gap-4">
+      <div>
+        <FormField v-slot="{ componentField }" name="occupation">
+          <FormItem>
+            <FormLabel>Ocupación</FormLabel>
+            <FormControl>
+              <Input type="text" placeholder="Actividad laboral actual" v-bind="componentField"/>
+            </FormControl>
+            <FormMessage/>
+          </FormItem>
+        </FormField>
+      </div>
+      <div>
+        <FormField v-slot="{ componentField }" name="curp">
+          <FormItem>
+            <FormLabel>CURP</FormLabel>
+            <FormControl>
+              <Input type="text" placeholder="LLLLAAMMDDHDGRLL00" v-maska="'@@@@######@@@@@@##'" v-bind="componentField"/>
+            </FormControl>
+            <FormMessage/>
+          </FormItem>
+        </FormField>
+      </div>
+    </div>
+
 
     <Separator label="Nacimiento" class="my-4 font-bold italic"/>
     <div class="grid grid-cols-4 gap-4">
@@ -190,12 +217,29 @@ watch(() => form.values.postulation_id, (newVal) => {
         </FormField>
       </div>
       <div>
-        <FormField v-slot="{ componentField }" name="birthplace.place">
+        <FormField v-slot="{ componentField }" name="birthplace.state">
           <FormItem>
-            <FormLabel>País de origen</FormLabel>
+            <FormLabel>Estado</FormLabel>
             <FormControl>
               <Input type="text" placeholder="País de origen" v-bind="componentField"/>
             </FormControl>
+            <FormDescription class="text-xs">
+              Lugar de nacimiento
+            </FormDescription>
+            <FormMessage/>
+          </FormItem>
+        </FormField>
+      </div>
+      <div>
+        <FormField v-slot="{ componentField }" name="birthplace.municipality">
+          <FormItem>
+            <FormLabel>Municipio</FormLabel>
+            <FormControl>
+              <Input type="text" placeholder="País de origen" v-bind="componentField"/>
+            </FormControl>
+            <FormDescription class="text-xs">
+              Lugar de nacimiento
+            </FormDescription>
             <FormMessage/>
           </FormItem>
         </FormField>
@@ -239,32 +283,6 @@ watch(() => form.values.postulation_id, (newVal) => {
                   </SelectGroup>
                 </SelectContent>
               </Select>
-            </FormControl>
-            <FormMessage/>
-          </FormItem>
-        </FormField>
-      </div>
-    </div>
-
-    <Separator label="Información general" class="my-4 font-bold italic"/>
-    <div class="grid grid-cols-3 gap-4">
-      <div>
-        <FormField v-slot="{ componentField }" name="occupation">
-          <FormItem>
-            <FormLabel>Ocupación</FormLabel>
-            <FormControl>
-              <Input type="text" placeholder="Actividad laboral actual" v-bind="componentField"/>
-            </FormControl>
-            <FormMessage/>
-          </FormItem>
-        </FormField>
-      </div>
-      <div>
-        <FormField v-slot="{ componentField }" name="curp">
-          <FormItem>
-            <FormLabel>CURP</FormLabel>
-            <FormControl>
-              <Input type="text" placeholder="LLLLAAMMDDHDGRLL00" v-maska="'@@@@######@@@@@@##'" v-bind="componentField"/>
             </FormControl>
             <FormMessage/>
           </FormItem>
