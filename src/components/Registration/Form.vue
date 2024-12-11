@@ -145,8 +145,8 @@ const selectedMunicipality = ref(null);
 // Obtener los estados al montar el componente
 const statesOptions = {
   method: 'GET',
-  url: 'http://127.0.0.1:8002/api/states',
-  headers: {authorization: 'Bearer 1|RYrlB9QHyVCLkEY13igBdifJ7ee11HRc9jDZPY5N71cb9779'}
+  url: import.meta.env.VITE_SERVICES_API_URI + 'states',
+  headers: {authorization: 'Bearer ' + import.meta.env.VITE_SERVICES_API_TOKEN}
 };
 onMounted(async () => {
   try {
@@ -159,8 +159,8 @@ onMounted(async () => {
   watch(selectedState, async (newState) => {
     if (newState) {
       try {
-        const response = await axios.get(`http://127.0.0.1:8002/api/municipalities/${newState}`, {
-          headers: {authorization: 'Bearer 1|RYrlB9QHyVCLkEY13igBdifJ7ee11HRc9jDZPY5N71cb9779'}
+        const response = await axios.get(import.meta.env.VITE_SERVICES_API_URI + `municipalities/${newState}`, {
+          headers: {authorization: 'Bearer ' + import.meta.env.VITE_SERVICES_API_TOKEN}
         });
         municipalities.value = response.data.data;
       } catch (error) {
