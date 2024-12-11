@@ -136,6 +136,41 @@ const showCouncilNumber = ref(false);
 watch(() => form.values.postulation_id, (newVal) => {
   showCouncilNumber.value = newVal === '2'; // '2' es el valor para Regiduría
 });
+
+const states = ref();
+const municipalities = ref();
+const selectedState = ref(null);
+const selectedMunicipality = ref(null);
+
+// Obtener los estados al montar el componente
+const statesOptions = {
+  method: 'GET',
+  url: 'http://127.0.0.1:8002/api/states',
+  headers: {authorization: 'Bearer 1|RYrlB9QHyVCLkEY13igBdifJ7ee11HRc9jDZPY5N71cb9779'}
+};
+onMounted(async () => {
+  try {
+    const {data} = await axios.request(statesOptions);
+    states.value = data.data;
+  } catch (error) {
+    console.error(error);
+  }
+
+  watch(selectedState, async (newState) => {
+    if (newState) {
+      try {
+        const response = await axios.get(`http://127.0.0.1:8002/api/municipalities/${newState}`, {
+          headers: {authorization: 'Bearer 1|RYrlB9QHyVCLkEY13igBdifJ7ee11HRc9jDZPY5N71cb9779'}
+        });
+        municipalities.value = response.data.data;
+      } catch (error) {
+        console.error('Error al obtener los municipios:', error);
+      }
+    } else {
+      municipalities.value = [];
+    }
+  });
+});
 </script>
 
 <template>
@@ -221,7 +256,18 @@ watch(() => form.values.postulation_id, (newVal) => {
           <FormItem>
             <FormLabel>Estado</FormLabel>
             <FormControl>
-              <Input type="text" placeholder="País de origen" v-bind="componentField"/>
+              <Select v-bind="componentField" v-model="selectedState">
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleccione una opción"/>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup v-for="state in states" :key="state.id">
+                    <SelectItem :value="state.id">
+                      {{ state.name }}
+                    </SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
             </FormControl>
             <FormDescription class="text-xs">
               Lugar de nacimiento
@@ -235,7 +281,18 @@ watch(() => form.values.postulation_id, (newVal) => {
           <FormItem>
             <FormLabel>Municipio</FormLabel>
             <FormControl>
-              <Input type="text" placeholder="País de origen" v-bind="componentField"/>
+              <Select v-bind="componentField" v-model="selectedMunicipality" :disabled="!selectedState">
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleccione una opción"/>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup v-for="municipality in municipalities" :key="municipality.id">
+                    <SelectItem :value="municipality.id">
+                      {{ municipality.name }}
+                    </SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
             </FormControl>
             <FormDescription class="text-xs">
               Lugar de nacimiento
