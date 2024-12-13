@@ -72,8 +72,17 @@ const residenceSchema = z.object({
 
 const birthPlaceSchema = z.object({
   birth: z.string().date(),
-  state: z.string().min(3).max(255),
-  municipality: z.string().min(3).max(255),
+  state: z.object({
+    id: z.number().int().positive(),
+    name: z.string(),
+    abbreviation: z.string(),
+    shield: z.string().url(),
+  }),
+  municipality: z.object({
+    id: z.number().int().positive(),
+    name: z.string(),
+    state_id: z.number().int().positive(),
+  }),
 })
 
 const formSchema = toTypedSchema(z.object({
@@ -157,9 +166,10 @@ onMounted(async () => {
   }
 
   watch(selectedState, async (newState) => {
+    console.log("selectedState ", selectedState)
     if (newState) {
       try {
-        const response = await axios.get(import.meta.env.VITE_SERVICES_API_URI + `municipalities/${newState}`, {
+        const response = await axios.get(import.meta.env.VITE_SERVICES_API_URI + `municipalities/${newState.id}`, {
           headers: {authorization: 'Bearer ' + import.meta.env.VITE_SERVICES_API_TOKEN}
         });
         municipalities.value = response.data.data;
@@ -262,7 +272,7 @@ onMounted(async () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup v-for="state in states" :key="state.id">
-                    <SelectItem :value="state.id">
+                    <SelectItem :value="state">
                       {{ state.name }}
                     </SelectItem>
                   </SelectGroup>
@@ -287,7 +297,7 @@ onMounted(async () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup v-for="municipality in municipalities" :key="municipality.id">
-                    <SelectItem :value="municipality.id">
+                    <SelectItem :value="municipality">
                       {{ municipality.name }}
                     </SelectItem>
                   </SelectGroup>
