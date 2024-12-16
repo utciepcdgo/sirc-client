@@ -72,27 +72,33 @@ const residenceSchema = z.object({
 
 const birthPlaceSchema = z.object({
   birth: z.string().date(),
-  state: z.object({
-    id: z.number().int().positive(),
-    name: z.string(),
-    abbreviation: z.string(),
-    shield: z.string().url(),
-  }),
-  municipality: z.object({
-    id: z.number().int().positive(),
-    name: z.string(),
-    state_id: z.number().int().positive(),
-  }),
+  state: z.union([
+    z.object({
+      id: z.number().int().positive(),
+      name: z.string(),
+      abbreviation: z.string(),
+      shield: z.string().nullable(),
+    }),
+    z.undefined()
+  ]),
+  municipality: z.union([
+    z.object({
+      id: z.number().int().positive(),
+      name: z.string(),
+      state_id: z.number().int().positive(),
+    }),
+    z.undefined()
+  ])
 })
 
 const formSchema = toTypedSchema(z.object({
-  name: z.string({required_error: 'Requerido'}).min(3).max(255),
-  first_name: z.string({required_error: 'Requerido'}).min(3).max(255),
-  second_name: z.string({required_error: 'Requerido'}).min(3).max(255),
+  name: z.string({required_error: 'Requerido'}).min(3, {message: 'Requiere mínimo 3 caracteres.'}).max(50, {message: 'Admite hasta 50 caracteres.'}),
+  first_name: z.string({required_error: 'Requerido'}).min(3,{message: 'Requiere mínimo 3 caracteres.'}).max(50, {message: 'Admite hasta 50 caracteres.'}),
+  second_name: z.string({required_error: 'Requerido'}).min(3, {message: 'Requiere mínimo 3 caracteres.'}).max(50, {message: 'Admite hasta 50 caracteres.'}),
   birthplace: birthPlaceSchema,
   residence: residenceSchema,
-  occupation: z.string({required_error: 'Requerido'}).min(3).max(255),
-  voter_key: z.string({required_error: 'Requerido'}).min(18).max(18),
+  occupation: z.string({required_error: 'Requerido'}).min(3, {message: 'Requiere mínimo 3 caracteres.'}).max(50),
+  voter_key: z.string({required_error: 'Requerido'}).min(18, {message: 'Requiere mínimo 18 caracteres.'}).max(18, {message: 'Requiere hasta 18 caracteres.'}),
   curp: z.string({required_error: 'Requerido'}).regex(/([A-Z][AEIOUX][A-Z]{2}\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])[HM](?:AS|B[CS]|C[CLMSH]|D[FG]|G[TR]|HG|JC|M[CNS]|N[ETL]|OC|PL|Q[TR]|S[PLR]|T[CSL]|VZ|YN|ZS)[B-DF-HJ-NP-TV-Z]{3}[A-Z\d])(\d)$/).min(18).max(18).toUpperCase(),
   voter_card: voterCardSchema,
   council_number: z.string(),
@@ -114,12 +120,10 @@ const getSexes = computed(() => {
   return store.storeSex.getSexes || []
 })
 
-const getCompensatories =
-
-    onMounted(() => {
-      store.storeGender.fetchGenres()
-      store.storeSex.fetchSexes()
-    })
+onMounted(() => {
+  store.storeGender.fetchGenres()
+  store.storeSex.fetchSexes()
+})
 
 const form = useForm({
   initialValues: {
