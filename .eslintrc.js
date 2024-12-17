@@ -4,19 +4,19 @@ module.exports = {
     env: {
         node: true,
         // https://eslint.vuejs.org/user-guide/#compiler-macros-such-as-defineprops-and-defineemits-generate-no-undef-warnings
-        'vue/setup-compiler-macros': true,
+        'vue/setup-compiler-macros': true
     },
     parser: 'vue-eslint-parser',
     // https://github.com/vuejs/vue-eslint-parser#parseroptionsparser
     parserOptions: {
-        parser: '@typescript-eslint/parser',
+        parser: '@typescript-eslint/parser'
     },
     plugins: ['@typescript-eslint',],
     extends: [
         'eslint:recommended',
         'plugin:@typescript-eslint/recommended',
         'plugin:vue/vue3-recommended',
-        'prettier',
+        'prettier'
     ],
     overrides: [
         {
@@ -25,8 +25,11 @@ module.exports = {
                 '**/tests/unit/**/*.spec.{j,t}s?(x)',
             ],
             env: {
-                jest: true,
-            },
+                jest: true
+            }
         },
     ],
+    rules: {
+        'prettier': 'error',
+    },
 }
