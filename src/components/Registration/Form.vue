@@ -7,10 +7,15 @@ import {useGenresStore} from "@/stores/genres.js";
 import {useSexesStore} from "@/stores/sexes.js";
 import {useCompensatoriesStore} from "@/stores/compensatories.js";
 
+// import Schemas for the form validations
+import {generalSchema} from "@/components/Registration/Form/Schemas/general";
+
 import {vMaska} from "maska/vue"
 
 import {z} from 'zod';
 import {useForm} from "vee-validate";
+import {FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage} from '@/components/ui/form'
+import {Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue} from '@/components/ui/select'
 
 const props = defineProps({
   selectedBlock: {
@@ -19,96 +24,12 @@ const props = defineProps({
   }
 });
 
-import {IconStarFilled} from "@tabler/icons-vue"
-
-import {
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage
-} from '@/components/ui/form'
-
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel, SelectSeparator,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-
 import {computed, onMounted, ref, watch} from "vue";
 import axios from "axios";
 
 import {SelectRoot} from "radix-vue";
 
-const voterCardSchema = z.object({
-  cic: z.string({required_error: 'Requerido'}).min(9).max(9).optional(),
-  ocr: z.string({required_error: 'Requerido'}).min(13).max(13).optional(),
-  section: z.string({required_error: 'Requerido'}).min(1).max(4).optional(),
-  emission_number: z.string({required_error: 'Requerido'}).min(1).max(99).optional(),
-});
-
-const residenceSchema = z.object({
-  city: z.string({required_error: 'Requerido'}).min(3).max(255),
-  colony: z.string({required_error: 'Requerido'}).min(3).max(255),
-  street: z.string({required_error: 'Requerido'}).min(3).max(255),
-  postal_code: z.string({required_error: 'Requerido'}).min(3).max(5),
-  outside_number: z.string({required_error: 'Requerido'}).min(3).max(255),
-  length: z.object({
-    years: z.number({required_error: 'Requerido'}).int().min(0)
-        .max(99,
-            {message: 'El valor máximo permitido es 99'}
-        ),
-    months: z.number().int().positive().min(0)
-        .max(11,
-            {message: 'El valor máximo permitido es 11'}
-        ),
-  })
-})
-
-const birthPlaceSchema = z.object({
-  birth: z.string().date(),
-  state: z.union([
-    z.object({
-      id: z.number().int().positive(),
-      name: z.string(),
-      abbreviation: z.string(),
-      shield: z.string().nullable(),
-    }),
-    z.undefined()
-  ]),
-  municipality: z.union([
-    z.object({
-      id: z.number().int().positive(),
-      name: z.string(),
-      state_id: z.number().int().positive(),
-    }),
-    z.undefined()
-  ])
-})
-
-const formSchema = toTypedSchema(z.object({
-  name: z.string({required_error: 'Requerido'}).min(3, {message: 'Requiere mínimo 3 caracteres.'}).max(50, {message: 'Admite hasta 50 caracteres.'}),
-  first_name: z.string({required_error: 'Requerido'}).min(3,{message: 'Requiere mínimo 3 caracteres.'}).max(50, {message: 'Admite hasta 50 caracteres.'}),
-  second_name: z.string({required_error: 'Requerido'}).min(3, {message: 'Requiere mínimo 3 caracteres.'}).max(50, {message: 'Admite hasta 50 caracteres.'}),
-  birthplace: birthPlaceSchema,
-  residence: residenceSchema,
-  occupation: z.string({required_error: 'Requerido'}).min(3, {message: 'Requiere mínimo 3 caracteres.'}).max(50),
-  voter_key: z.string({required_error: 'Requerido'}).min(18, {message: 'Requiere mínimo 18 caracteres.'}).max(18, {message: 'Requiere hasta 18 caracteres.'}),
-  curp: z.string({required_error: 'Requerido'}).regex(/([A-Z][AEIOUX][A-Z]{2}\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])[HM](?:AS|B[CS]|C[CLMSH]|D[FG]|G[TR]|HG|JC|M[CNS]|N[ETL]|OC|PL|Q[TR]|S[PLR]|T[CSL]|VZ|YN|ZS)[B-DF-HJ-NP-TV-Z]{3}[A-Z\d])(\d)$/).min(18).max(18).toUpperCase(),
-  voter_card: voterCardSchema,
-  council_number: z.string(),
-  block_id: z.number({required_error: 'Requerido'}).int().positive(),
-  position_id: z.string({required_error: 'Seleccione una opción'}).min(1),
-  postulation_id: z.string({required_error: 'Seleccione una opción'}).min(1),
-  sex_id: z.string({required_error: 'Seleccione una opción'}).min(1),
-  gender_id: z.string({required_error: 'Seleccione una opción'}).min(1),
-}))
-
+const formSchema = toTypedSchema(z.object(generalSchema))
 
 const store = {storeGender: useGenresStore(), storeSex: useSexesStore()}
 
@@ -150,10 +71,7 @@ watch(() => form.values.postulation_id, (newVal) => {
   showCouncilNumber.value = newVal === '2'; // '2' es el valor para Regiduría
 });
 
-const states = ref();
-const municipalities = ref();
-const selectedState = ref(null);
-const selectedMunicipality = ref(null);
+const [states, municipalities, selectedState, selectedMunicipality, loadingStates, loadingMunicipalities] = [ref(), ref(), ref(null), ref(null), ref(false), ref(false)];
 
 // Obtener los estados al montar el componente
 const statesOptions = {
@@ -161,12 +79,17 @@ const statesOptions = {
   url: import.meta.env.VITE_SERVICES_API_URI + 'states',
   headers: {authorization: 'Bearer ' + import.meta.env.VITE_SERVICES_API_TOKEN}
 };
+
+
 onMounted(async () => {
   try {
+    loadingStates.value = true;
     const {data} = await axios.request(statesOptions);
     states.value = data.data;
   } catch (error) {
     console.error(error);
+  } finally {
+    loadingStates.value = false;
   }
 
   watch(selectedState, async (newState) => {
@@ -275,7 +198,10 @@ onMounted(async () => {
                   <SelectValue placeholder="Seleccione una opción"/>
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectGroup v-for="state in states" :key="state.id">
+                  <SelectGroup v-if="loadingStates">
+                    <SelectItem disabled value="-1">Cargando...</SelectItem>
+                  </SelectGroup>
+                  <SelectGroup v-else v-for="state in states" :key="state.id">
                     <SelectItem :value="state">
                       {{ state.name }}
                     </SelectItem>
