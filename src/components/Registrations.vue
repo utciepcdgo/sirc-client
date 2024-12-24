@@ -185,6 +185,7 @@ onUnmounted(() => {
             <DialogDescription>
               <p>Municipio de {{ selectedBlock.municipality.name }}</p>
             </DialogDescription>
+            Bloque seleccionado: {{ selectedBlock.id }}
           </div>
         </div>
       </DialogHeader>
