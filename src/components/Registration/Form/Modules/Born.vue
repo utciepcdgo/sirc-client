@@ -100,7 +100,7 @@ onMounted(async () => {
       </FormField>
     </div>
     <div>
-      <FormField v-slot="{ componentField }" name="birthplace.municipality">
+      <FormField v-slot="{ componentField }" name="birthplace.municipality" :value-as="Object">
         <FormItem>
           <FormLabel>Municipio</FormLabel>
           <FormControl>
@@ -109,7 +109,10 @@ onMounted(async () => {
                 <SelectValue placeholder="Seleccione una opción"/>
               </SelectTrigger>
               <SelectContent>
-                <SelectGroup v-for="municipality in municipalities" :key="municipality.id">
+                <SelectGroup v-if="loadingMunicipalities">
+                  <SelectItem disabled value="-1">Cargando...</SelectItem>
+                </SelectGroup>
+                <SelectGroup v-else v-for="municipality in municipalities" :key="municipality.id">
                   <SelectItem :value="municipality">
                     {{ municipality.name }}
                   </SelectItem>

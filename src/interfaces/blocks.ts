@@ -1,4 +1,4 @@
-interface Block {
+export default interface Block {
     id: number,
     votes_obtained: number,
     valid_vote_issued: number,
@@ -21,5 +21,3 @@ interface Block {
         }
     }
 }
-
-export default Block;

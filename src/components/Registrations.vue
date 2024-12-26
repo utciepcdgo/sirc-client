@@ -34,6 +34,7 @@ import {
 import {
   AlertDialog,
   AlertDialogContent,
+  AlertDialogTitle
 } from '@/components/ui/alert-dialog'
 
 import {Input} from '@/components/ui/input'
@@ -46,7 +47,7 @@ import {
   IconSearch
 } from '@tabler/icons-vue';
 
-import {AlertDialogOverlay, DialogRoot} from "radix-vue";
+import {DialogRoot, VisuallyHidden} from "radix-vue";
 
 const store = useBlocksStore()
 
@@ -99,9 +100,12 @@ onUnmounted(() => {
       </span>
     </div>
   </div>
-<!--  SHOW ALERT LOADING FEED -->
+  <!--  SHOW ALERT LOADING FEED -->
   <AlertDialog v-model:open="store.isLoading">
     <AlertDialogContent class="w-[177.6px] bg-transparent border-0 shadow-none">
+      <VisuallyHidden>
+        <AlertDialogTitle>Cargando...</AlertDialogTitle>
+      </VisuallyHidden>
       <fingerprint-spinner
           :animation-duration="1500"
           :size="128"
@@ -112,6 +116,9 @@ onUnmounted(() => {
 
   <AlertDialog v-model:open="store.blocksError">
     <AlertDialogContent class="min-w-[128]">
+      <VisuallyHidden asChild>
+        <AlertDialogTitle>Error</AlertDialogTitle>
+      </VisuallyHidden>
       <p>Hubo un error al intentar cargar el contenido, contacte al administrador.</p>
       <p class="mt-3 text-sm p-0 leading-none">Detalles:</p>
       <small class="italic text-red-600 leading-none">{{ store.blocksError }}</small>

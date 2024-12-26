@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import {Input} from "@/components/ui/input";
-import {toTypedSchema} from '@vee-validate/zod';
 
 import Born from "@/components/Registration/Form/Modules/Born.vue";
 import Candidacy from "@/components/Registration/Form/Modules/Candidacy.vue";
@@ -10,6 +9,8 @@ import GeneralInformation from "@/components/Registration/Form/Modules/GeneralIn
 
 // import Schemas for the form validations
 import {generalSchema} from "@/components/Registration/Form/Schemas/general";
+
+import {toTypedSchema} from '@vee-validate/zod';
 import {z} from 'zod';
 
 import {useForm} from "vee-validate";
@@ -17,7 +18,7 @@ import {useForm} from "vee-validate";
 const props = defineProps({
   selectedBlock: {
     type: Object,
-    required: true
+    required: false
   }
 });
 
@@ -34,6 +35,7 @@ const form = useForm({
 
 const onSubmit = form.handleSubmit(async (values) => {
   values.block_id = props.selectedBlock.id
+
   console.log(values)
 
   try {
@@ -51,12 +53,14 @@ const onSubmit = form.handleSubmit(async (values) => {
     <Input type="hidden" name="block_id" v-bind="componentField"/>
 
     <GeneralInformation/>
-    <Born/>
-    <Residence/>
-    <VoterCard/>
-    <Candidacy :selectedBlock="selectedBlock" :form="form"/>
 
-    <pre>{{ form.values }}</pre>
+    <Born/>
+
+    <Residence/>
+
+    <VoterCard/>
+
+    <Candidacy :selectedBlock="selectedBlock" :form="form"/>
 
   </form>
 </template>
