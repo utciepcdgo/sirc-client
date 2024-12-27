@@ -11,9 +11,9 @@ import GeneralInformation from "@/components/Registration/Form/Modules/GeneralIn
 import {generalSchema} from "@/components/Registration/Form/Schemas/general";
 
 import {toTypedSchema} from '@vee-validate/zod';
-import {z} from 'zod';
+import {Form as VeeForm, Field, ErrorMessage} from 'vee-validate';
 
-import {useForm} from "vee-validate";
+import * as yup from 'yup';
 
 const props = defineProps({
   selectedBlock: {
@@ -22,47 +22,50 @@ const props = defineProps({
   }
 });
 
-import axios from "axios";
+const schema = yup.object({
+  name: yup.string().required().min(3),
+  first_name: yup.string().required().min(3),
+  second_name: yup.string().required().min(3),
+  birthplace: yup.object().shape({
+    birth: yup.date().required('El campo es requerido'),
+    state: yup.string().required().min(3),
+    municipality: yup.string().required().min(3),
+  })
+});
 
-const formSchema = toTypedSchema(z.object(generalSchema))
+function onSubmit(values) {
+  // Submit values to API...
+  alert(JSON.stringify(values, null, 2));
+}
 
-const form = useForm({
-  initialValues: {
-    block_id: props.selectedBlock.id,
-  },
-  validationSchema: formSchema,
-})
-
-const onSubmit = form.handleSubmit(async (values) => {
-  values.block_id = props.selectedBlock.id
-
-  console.log(values)
-
-  try {
-    await axios.post('http://localhost:8000/api/registrations', values);
-    // successMessage.value = 'Formulario enviado con éxito';
-  } catch (error) {
-    console.error('Error al enviar el formulario:', error);
-  }
-})
+const initialData = {}
 
 </script>
 
 <template>
-  <form @submit.prevent="onSubmit" id="registration_form">
-    <Input type="hidden" name="block_id" v-bind="componentField"/>
+  <VeeForm v-slot="{ handleSubmit }" :validation-schema="schema" as="div" :initial-values="initialData">
+    <form @submit="handleSubmit($event, onSubmit)">
+      <Input name="name"/>
+      <ErrorMessage name="name"/>
 
-    <GeneralInformation/>
+      <Input name="first_name"/>
+      <ErrorMessage name="first_name"/>
 
-    <Born/>
+      <Input name="second_name"/>
+      <ErrorMessage name="second_name"/>
 
-    <Residence/>
+      <Input name="birthplace.birth" type="date"/>
+      <ErrorMessage name="birthplace.birth"/>
 
-    <VoterCard/>
+      <Input name="birthplace.state"/>
+      <ErrorMessage name="birthplace.state"/>
 
-    <Candidacy :selectedBlock="selectedBlock" :form="form"/>
+      <Input name="birthplace.municipality"/>
+      <ErrorMessage name="birthplace.municipality"/>
 
-  </form>
+      <button>Submit</button>
+    </form>
+  </VeeForm>
 </template>
 
 <style scoped>

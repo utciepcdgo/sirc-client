@@ -27,7 +27,6 @@ const statesOptions = {
   headers: {authorization: 'Bearer ' + import.meta.env.VITE_SERVICES_API_TOKEN}
 };
 
-
 onMounted(async () => {
   try {
     loadingStates.value = true;
@@ -72,7 +71,7 @@ onMounted(async () => {
       </FormField>
     </div>
     <div>
-      <FormField v-slot="{ componentField }" name="birthplace.state">
+      <FormField v-slot="{ componentField }" name="birthplace.state.value">
         <FormItem>
           <FormLabel>Estado</FormLabel>
           <FormControl>
@@ -100,7 +99,7 @@ onMounted(async () => {
       </FormField>
     </div>
     <div>
-      <FormField v-slot="{ componentField }" name="birthplace.municipality" :value-as="Object">
+      <FormField v-slot="{ componentField }" name="birthplace.municipality.value" :value-as="Object">
         <FormItem>
           <FormLabel>Municipio</FormLabel>
           <FormControl>
