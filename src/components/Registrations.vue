@@ -94,7 +94,7 @@ onUnmounted(() => {
 <template>
   <div>
     <div class="relative w-full max-w-sm items-center">
-      <Input v-model="municipalitySearch" id="search" type="search" placeholder="Buscar municipio..." class="pl-10"/>
+      <Input v-model="municipalitySearch" id="search" type="search" name="search" placeholder="Buscar municipio..." class="pl-10"/>
       <span class="absolute start-0 inset-y-0 flex items-center justify-center px-2">
         <IconSearch class="size-6 text-muted-foreground"/>
       </span>

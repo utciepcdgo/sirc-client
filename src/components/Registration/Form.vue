@@ -1,19 +1,26 @@
 <script setup lang="ts">
-import {Input} from "@/components/ui/input";
 
-import Born from "@/components/Registration/Form/Modules/Born.vue";
-import Candidacy from "@/components/Registration/Form/Modules/Candidacy.vue";
-import VoterCard from "@/components/Registration/Form/Modules/VoterCard.vue";
-import Residence from "@/components/Registration/Form/Modules/Residence.vue";
-import GeneralInformation from "@/components/Registration/Form/Modules/GeneralInformation.vue";
-
-// import Schemas for the form validations
-import {generalSchema} from "@/components/Registration/Form/Schemas/general";
-
-import {toTypedSchema} from '@vee-validate/zod';
 import {Form as VeeForm, Field, ErrorMessage} from 'vee-validate';
-
+import {toTypedSchema} from '@vee-validate/yup';
 import * as yup from 'yup';
+import {Select} from "@/components/ui/select";
+
+const states = {
+  data: [
+    {
+      id: 1,
+      name: "Aguascalientes",
+      abbreviation: "AGS",
+      shield: ""
+    },
+    {
+      id: 2,
+      name: "Baja California",
+      abbreviation: "BC",
+      shield: ""
+    }
+  ]
+}
 
 const props = defineProps({
   selectedBlock: {
@@ -28,10 +35,11 @@ const schema = yup.object({
   second_name: yup.string().required().min(3),
   birthplace: yup.object().shape({
     birth: yup.date().required('El campo es requerido'),
-    state: yup.string().required().min(3),
+    state: yup.string()
+        .required('El campo Estado es requerido'),
     municipality: yup.string().required().min(3),
   })
-});
+})
 
 function onSubmit(values) {
   // Submit values to API...
@@ -43,30 +51,36 @@ const initialData = {}
 </script>
 
 <template>
-  <VeeForm v-slot="{ handleSubmit }" :validation-schema="schema" as="div" :initial-values="initialData">
-    <form @submit="handleSubmit($event, onSubmit)">
-      <Input name="name"/>
-      <ErrorMessage name="name"/>
+  <VeeForm @submit="onSubmit" :validation-schema="schema">
+    <Field name="name"/>
+    <ErrorMessage name="name"/>
 
-      <Input name="first_name"/>
-      <ErrorMessage name="first_name"/>
+    <Field name="first_name"/>
+    <ErrorMessage name="first_name"/>
 
-      <Input name="second_name"/>
-      <ErrorMessage name="second_name"/>
+    <Field name="second_name"/>
+    <ErrorMessage name="second_name"/>
 
-      <Input name="birthplace.birth" type="date"/>
-      <ErrorMessage name="birthplace.birth"/>
+    <Field name="birthplace.birth" type="date"/>
+    <ErrorMessage name="birthplace.birth"/>
 
-      <Input name="birthplace.state"/>
-      <ErrorMessage name="birthplace.state"/>
+    <select name="birthplace.state">
+      <option value="-1">Seleccione una opción</option>
+      <option v-for="state in states.data" :value="state">{{ state.name + ' - ' + state.abbreviation }}</option>
+    </select>
+    <ErrorMessage name="birthplace.state"/>
 
-      <Input name="birthplace.municipality"/>
-      <ErrorMessage name="birthplace.municipality"/>
+    <Field name="birthplace.municipality"/>
+    <ErrorMessage name="birthplace.municipality"/>
 
-      <button>Submit</button>
-    </form>
+    <button>Submit</button>
   </VeeForm>
 </template>
 
 <style scoped>
+input, select {
+  width: 100%;
+  padding: 0.1rem;
+  border:1px solid #CCC;
+}
 </style>
