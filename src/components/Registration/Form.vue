@@ -1,9 +1,7 @@
 <script setup lang="ts">
 
-import {Form as VeeForm, Field, ErrorMessage} from 'vee-validate';
-import {toTypedSchema} from '@vee-validate/yup';
+import {Field, ErrorMessage, useForm} from 'vee-validate';
 import * as yup from 'yup';
-import {Select} from "@/components/ui/select";
 
 const states = {
   data: [
@@ -29,33 +27,49 @@ const props = defineProps({
   }
 });
 
-const schema = yup.object({
+const schema = yup.object().shape({
   name: yup.string().required().min(3),
   first_name: yup.string().required().min(3),
   second_name: yup.string().required().min(3),
   birthplace: yup.object().shape({
-    birth: yup.date().required('El campo es requerido'),
-    state: yup.string()
-        .required('El campo Estado es requerido'),
+    birth: yup.date().required('El campo Fecha es requerido'),
+    state: yup.object().shape({
+      id: yup.number().required(),
+      name: yup.string().required().uppercase({force: true}),
+      abbreviation: yup.string().required(),
+      shield: yup.string().optional(),
+    }),
     municipality: yup.string().required().min(3),
   })
 })
 
-function onSubmit(values) {
-  // Submit values to API...
-  alert(JSON.stringify(values, null, 2));
-}
+const {handleSubmit} = useForm({
+  validationSchema: schema,
+  initialValues: {
+    name: 'ALEJANDRO',
+    first_name: 'PARRA',
+    second_name: 'VILLA',
+    birthplace: {
+      birth: '1995-04-24',
+      state: states.data[0],
+      municipality: 'DURANGO'
+    }
+  }
+});
 
-const initialData = {}
+const onSubmit = handleSubmit((values) => {
+  // Submit values to API...
+  alert(JSON.stringify(values, null, 4));
+})
 
 </script>
 
 <template>
-  <VeeForm @submit="onSubmit" :validation-schema="schema">
-    <Field name="name"/>
+  <form @submit.prevent="onSubmit">
+    <Field name="name" :validate-on-change="true"/>
     <ErrorMessage name="name"/>
 
-    <Field name="first_name"/>
+    <Field name="first_name" :validate-on-change="true"/>
     <ErrorMessage name="first_name"/>
 
     <Field name="second_name"/>
@@ -64,23 +78,24 @@ const initialData = {}
     <Field name="birthplace.birth" type="date"/>
     <ErrorMessage name="birthplace.birth"/>
 
-    <select name="birthplace.state">
-      <option value="-1">Seleccione una opción</option>
-      <option v-for="state in states.data" :value="state">{{ state.name + ' - ' + state.abbreviation }}</option>
-    </select>
+    <label for="birthplace.state">Estado</label>
+    <Field as="select" name="birthplace.state" label="Estado">
+      <option :value="undefined">Seleccione una opción</option>
+      <option v-for="state in states.data" :key="state.id" :value="state">{{ state.name }}</option>
+    </Field>
     <ErrorMessage name="birthplace.state"/>
 
-    <Field name="birthplace.municipality"/>
+    <Field name="birthplace.municipality" v-on:change="console.log($el)"/>
     <ErrorMessage name="birthplace.municipality"/>
 
     <button>Submit</button>
-  </VeeForm>
+  </form>
 </template>
 
 <style scoped>
 input, select {
   width: 100%;
   padding: 0.1rem;
-  border:1px solid #CCC;
+  border: 1px solid #CCC;
 }
 </style>

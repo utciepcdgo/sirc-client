@@ -168,7 +168,7 @@ onUnmounted(() => {
                     <IconInfoCircle/>
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>
+                <TooltipContent align="center" :align-offset="0" :arrow-padding="0" avoid-collisions :collision-boundary="[]" :collision-padding="0" hide-when-detached side="top" sticky="partial">
                   <p>Más detalles</p>
                 </TooltipContent>
               </Tooltip>
