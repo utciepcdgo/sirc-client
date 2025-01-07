@@ -24,7 +24,7 @@ import {
 } from '@/components/ui/tooltip'
 
 import {
-  DialogContent,
+  DialogScrollContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
@@ -183,7 +183,7 @@ onUnmounted(() => {
   </div>
 
   <DialogRoot v-model:open="open">
-    <DialogContent class="min-w-[80%]">
+    <DialogScrollContent class="min-w-[80%]">
       <DialogHeader>
         <div class="flex items-center space-x-2.5">
           <img :src="selectedBlock.municipality.shield" :alt="'Escudo del municipio de ' + selectedBlock.municipality.name" class="w-16 h-16"/>
@@ -209,7 +209,7 @@ onUnmounted(() => {
           Guardar registro
         </Button>
       </DialogFooter>
-    </DialogContent>
+    </DialogScrollContent>
   </DialogRoot>
 
   <Label>Test</Label>

@@ -8,7 +8,6 @@ import {vMaska} from "maska/vue"
 </script>
 
 <template>
-  <Separator label="Información general" class="my-4 font-bold italic"/>
   <div class="grid grid-cols-3 gap-4">
     <div>
       <FormField v-slot="{ componentField }" name="first_name">
