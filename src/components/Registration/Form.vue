@@ -5,6 +5,7 @@ import {toTypedSchema} from '@vee-validate/yup';
 import {object, string, number, date} from 'yup';
 import {computed, onMounted, ref, watch} from "vue";
 import axios from "axios";
+import {vMaska} from "maska/vue"
 
 import {
   FormControl,
@@ -146,7 +147,10 @@ const {values, handleSubmit} = useForm({
     birthplace: {
       birth: '1995-04-24',
       municipality: 'DURANGO'
-    }
+    },
+    voter_card: {
+      section: '0000',
+    },
   }
 });
 
@@ -160,12 +164,54 @@ const onSubmit = handleSubmit((values) => {
 <template>
   <form @submit.prevent="onSubmit" id="registration_form">
 
-    <div class="border border-slate-400 rounded-md p-4 relative mt-10">
-      <header class="mx-auto max-w-2xl text-center absolute left-0 right-0 top-[-23px]">
-        <h1 class="text-xl font-extrabold tracking-tight text-slate-900 sm:text-2xl inline-block bg-white px-4">Información General</h1>
-        <p class="text-sm font-semibold text-gray-400">Nombre(s), ocupación y CURP</p>
-      </header>
-      <GeneralInformation/>
+
+    <div class="grid grid-cols-2 gap-4">
+      <div class="border border-slate-400 rounded-md p-4 relative mt-10">
+        <header class="mx-auto max-w-2xl text-center absolute left-0 right-0 top-[-23px]">
+          <h1 class="text-xl font-extrabold tracking-tight text-slate-900 sm:text-2xl inline-block bg-white px-4">Información General</h1>
+          <p class="text-sm font-semibold text-gray-400">Nombre(s), ocupación y CURP</p>
+        </header>
+        <GeneralInformation/>
+      </div>
+
+      <div class="border border-slate-400 rounded-md p-4 relative mt-10">
+        <header class="mx-auto max-w-2xl text-center absolute left-0 right-0 top-[-23px]">
+          <h1 class="text-xl font-extrabold tracking-tight text-slate-900 sm:text-2xl inline-block bg-white px-4">Credencial para votar</h1>
+          <p class="text-sm font-semibold text-gray-400 hidden xl:block">Indique los campos solicitados, tales como CIC, Clave de Elector, entre otros.</p>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4 mt-5">
+          <div class="grid grid-cols-1 2xl:grid-cols-2 gap-4">
+            <div>
+              <Label for="voter_card.cic">CIC</Label>
+              <Field as="input" type="text" name="voter_card.cic" v-maska="'#########'"/>
+              <ErrorMessage name="voter_card.cic"/>
+            </div>
+            <div>
+              <Label for="voter_card.ocr">OCR</Label>
+              <Field as="input" type="text" name="voter_card.ocr" v-maska="'#############'"/>
+              <ErrorMessage name="voter_card.ocr"/>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 2xl:grid-cols-2 gap-4">
+            <div>
+              <Label for="voter_card.section">Sección</Label>
+              <Field as="input" type="text" name="voter_card.section" v-maska="'####'" data-maska-tokens="0:[0-9]" data-maska-eager="false"/>
+              <ErrorMessage name="voter_card.section"/>
+            </div>
+            <div>
+              <Label for="voter_card.emission_number">Número de emisión</Label>
+              <Field as="input" type="text" name="voter_card.emission_number" v-maska="'##'"/>
+              <ErrorMessage name="voter_card.emission_number"/>
+            </div>
+          </div>
+          <div class="col-span-1 lg:col-span-2 xl:col-span-1">
+            <Label for="voter_key">Clave de Elector</Label>
+            <Field as="input" type="text" name="voter_key" v-maska="'@@@@@@########@###'"/>
+            <ErrorMessage name="voter_key"/>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="grid grid-cols-2 gap-4">
@@ -206,34 +252,38 @@ const onSubmit = handleSubmit((values) => {
           <p class="text-sm font-semibold text-gray-400">Información relacionada con el domicilio y el tiempo de residencia</p>
         </header>
 
-        <div class="grid grid-cols-4 gap-4 mt-5">
-          <div>
-            <Label for="residence.state">Estado</Label>
-            <Field as="select" name="residence.state" v-model="selectedState">
-              <option :value="undefined">Seleccione una opción</option>
-              <option v-for="state in states" :key="state.id" :value="state.name">{{ state.name }}</option>
-            </Field>
-            <ErrorMessage name="residence.state"/>
+        <div class="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4 mt-5">
+          <div class="grid grid-cols-1 2xl:grid-cols-2 gap-4">
+            <div>
+              <Label for="residence.state">Estado</Label>
+              <Field as="select" name="residence.state" v-model="selectedState">
+                <option :value="undefined">Seleccione una opción</option>
+                <option v-for="state in states" :key="state.id" :value="state.name">{{ state.name }}</option>
+              </Field>
+              <ErrorMessage name="residence.state"/>
+            </div>
+            <div>
+              <Label for="birthplace.municipality">Municipio</Label>
+              <Field as="select" name="birthplace.municipality" :disabled="!selectedState">
+                <option :value="undefined">Seleccione una opción</option>
+                <option v-for="municipality in municipalities" :key="municipality.id" :value="municipality.name">{{ municipality.name }}</option>
+              </Field>
+              <ErrorMessage name="birthplace.municipality"/>
+            </div>
           </div>
-          <div>
-            <Label for="birthplace.municipality">Municipio</Label>
-            <Field as="select" name="birthplace.municipality" :disabled="!selectedState">
-              <option :value="undefined">Seleccione una opción</option>
-              <option v-for="municipality in municipalities" :key="municipality.id" :value="municipality.name">{{ municipality.name }}</option>
-            </Field>
-            <ErrorMessage name="birthplace.municipality"/>
+          <div class="grid grid-cols-1 2xl:grid-cols-2 gap-4">
+            <div>
+              <Label for="residence.city">Ciudad</Label>
+              <Field as="input" type="text" name="residence.city"/>
+              <ErrorMessage name="residence.city"/>
+            </div>
+            <div>
+              <Label for="residence.v">Colonia</Label>
+              <Field as="input" type="text" name="residence.colony"/>
+              <ErrorMessage name="residence.colony"/>
+            </div>
           </div>
-          <div>
-            <Label for="residence.city">Ciudad</Label>
-            <Field as="input" type="text" name="residence.city"/>
-            <ErrorMessage name="residence.city"/>
-          </div>
-          <div>
-            <Label for="residence.v">Colonia</Label>
-            <Field as="input" type="text" name="residence.colony"/>
-            <ErrorMessage name="residence.colony"/>
-          </div>
-          <div>
+          <div class="col-span-1 lg:col-span-2 xl:col-span-1">
             <Label for="residence.street">Calle</Label>
             <Field as="input" type="text" name="residence.street" v-slot="{field}">
               <input type="text" name="residence.street" v-bind="field">
