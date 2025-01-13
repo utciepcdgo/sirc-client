@@ -19,34 +19,22 @@ import {
 import {Input} from '@/components/ui/input'
 import GeneralInformation from "@/components/Registration/Form/Modules/GeneralInformation.vue";
 import {Label} from "@/components/ui/label";
-
-// const states = {
-//   data: [
-//     {
-//       id: 1,
-//       name: "Aguascalientes",
-//       abbreviation: "AGS",
-//       shield: ""
-//     },
-//     {
-//       id: 2,
-//       name: "Baja California",
-//       abbreviation: "BC",
-//       shield: ""
-//     }
-//   ]
-// }
+import {AlertDialog, AlertDialogContent, AlertDialogTitle} from "@/components/ui/alert-dialog";
+import {FingerprintSpinner} from "epic-spinners";
+import {VisuallyHidden} from "radix-vue";
 
 // Getting states from API
 const loadingStates = ref(false);
 const states = ref([]);
 const municipalities = ref([]);
+const municipalitiesFromResidence = ref([]);
 const selectedState = ref(null);
+const selectedStateFromResidence = ref(null);
+const isLoading = ref(false);
 
-const postulation = ref(0);
-
-onMounted(async () => {
+const fetchStates = async () => {
   loadingStates.value = true;
+  isLoading.value = true;
   try {
     const response = await axios.get(import.meta.env.VITE_SERVICES_API_URI + 'states', {
       headers: {authorization: 'Bearer ' + import.meta.env.VITE_SERVICES_API_TOKEN}
@@ -57,21 +45,47 @@ onMounted(async () => {
     console.error(error);
   } finally {
     loadingStates.value = false;
+    isLoading.value = false;
   }
+};
 
+const fetchMunicipalities = async (stateId, field) => {
+  isLoading.value = true;
+  try {
+    const response = await axios.get(import.meta.env.VITE_SERVICES_API_URI + `municipalities/${stateId}`, {
+      headers: {authorization: 'Bearer ' + import.meta.env.VITE_SERVICES_API_TOKEN}
+    });
+
+    console.log("field: ", field);
+    field == 1 ? (municipalities.value = response.data.data) : (municipalitiesFromResidence.value = response.data.data);
+
+  } catch (error) {
+    console.error('Error al obtener los municipios:', error);
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+onMounted(async () => {
+  await fetchStates();
+
+  // Field 1 is for birthplace
   watch(selectedState, async (newState) => {
     console.log("selectedState ", selectedState)
     if (newState) {
-      try {
-        const response = await axios.get(import.meta.env.VITE_SERVICES_API_URI + `municipalities/${newState.id}`, {
-          headers: {authorization: 'Bearer ' + import.meta.env.VITE_SERVICES_API_TOKEN}
-        });
-        municipalities.value = response.data.data;
-      } catch (error) {
-        console.error('Error al obtener los municipios:', error);
-      }
+      await fetchMunicipalities(newState.id, 1);
     } else {
       municipalities.value = [];
+    }
+  });
+
+  // Field 2 is for residence
+  watch(selectedStateFromResidence, async (newState) => {
+    console.log("selectedStateFromResidence ", selectedStateFromResidence)
+    if (newState) {
+      await fetchMunicipalities(newState.id, 2);
+    } else {
+      municipalitiesFromResidence.value = [];
     }
   });
 });
@@ -92,18 +106,23 @@ const {values, handleSubmit} = useForm({
       birth: date().required('El campo Fecha es requerido'),
       state: object().shape({
         id: number().required(),
-        name: string().required().transform(value => value.toUpperCase()),
+        name: string().required(),
         abbreviation: string().required(),
         shield: string().optional(),
       }),
       municipality: object().shape({
         id: string().required(),
-        name: string().required().transform(value => value.toUpperCase()),
+        name: string().required(),
         state_id: string().required(),
       }),
     }),
     residence: object().shape({
-      state: string().min(3).max(255).required().transform(value => value.toUpperCase()),
+      state: object().shape({
+        id: number().required(),
+        name: string().required(),
+        abbreviation: string().required(),
+        shield: string().optional(),
+      }),
       municipality: string().min(3).max(255).required(),
       city: string().min(3).max(255).required(),
       colony: string().min(3).max(255).required(),
@@ -129,12 +148,6 @@ const {values, handleSubmit} = useForm({
       ocr: string().min(13).max(13).optional(),
       section: string().min(1).max(4).optional(),
       emission_number: string().min(1).max(99).optional(),
-    }),
-    postulation_id: number().required(),
-    council_number: number().when('postulation_id', {
-      is: (postulation_id) => postulation_id === '2',
-      then: (s) => s.label('Posición').required(),
-      otherwise: (s) => s,
     }),
     sex_id: number().required(),
     compensatory_measure: number().required(),
@@ -172,6 +185,18 @@ const onSubmit = handleSubmit((values) => {
 
 <template>
   <form @submit.prevent="onSubmit" id="registration_form">
+    <AlertDialog v-model:open="isLoading">
+      <AlertDialogContent class="w-[177.6px] bg-transparent border-0 shadow-none">
+        <VisuallyHidden>
+          <AlertDialogTitle>Cargando...</AlertDialogTitle>
+        </VisuallyHidden>
+        <fingerprint-spinner
+            :animation-duration="1500"
+            :size="128"
+            :color="'#ffffff'"/>
+        <p class="text-center font-bold text-white">Cargando...</p>
+      </AlertDialogContent>
+    </AlertDialog>
 
     <div class="grid sm:grid-cols-1 xl:grid-cols-2 gap-4">
       <div class="border border-slate-400 rounded-md p-4 relative mt-10">
@@ -273,19 +298,19 @@ const onSubmit = handleSubmit((values) => {
           <div class="grid grid-cols-1 2xl:grid-cols-2 gap-4">
             <div>
               <Label for="residence.state">Estado</Label>
-              <Field as="select" name="residence.state" v-model="selectedState">
+              <Field as="select" name="residence.state" v-model="selectedStateFromResidence">
                 <option :value="undefined">Seleccione una opción</option>
-                <option v-for="state in states" :key="state.id" :value="state.name">{{ state.name }}</option>
+                <option v-for="state in states" :key="state.id" :value="state">{{ state.name }}</option>
               </Field>
               <ErrorMessage name="residence.state"/>
             </div>
             <div>
-              <Label for="birthplace.municipality">Municipio</Label>
-              <Field as="select" name="birthplace.municipality" :disabled="!selectedState">
+              <Label for="residence.municipality">Municipio</Label>
+              <Field as="select" name="residence.municipality" :disabled="!selectedStateFromResidence">
                 <option :value="undefined">Seleccione una opción</option>
-                <option v-for="municipality in municipalities" :key="municipality.id" :value="municipality.name">{{ municipality.name }}</option>
+                <option v-for="municipality in municipalitiesFromResidence" :key="municipality.id" :value="municipality.name">{{ municipality.name }}</option>
               </Field>
-              <ErrorMessage name="birthplace.municipality"/>
+              <ErrorMessage name="residence.municipality"/>
             </div>
           </div>
           <div class="grid grid-cols-1 2xl:grid-cols-2 gap-4">
@@ -306,59 +331,6 @@ const onSubmit = handleSubmit((values) => {
               <input type="text" name="residence.street" v-bind="field">
             </Field>
             <ErrorMessage name="residence.street"/>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="grid-cols-1 gap-4">
-      <div class="border border-slate-400 rounded-md p-4 relative mt-10">
-        <header class="mx-auto max-w-2xl text-center absolute left-0 right-0 top-[-23px]">
-          <h1 class="text-xl font-extrabold tracking-tight text-slate-900 sm:text-2xl inline-block bg-white px-4">Candidatura</h1>
-          <p class="text-sm font-semibold text-gray-400 hidden xl:block">Ingrese la información referente al cargo por el que se postula</p>
-        </header>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4 mt-5">
-          <div class="grid grid-cols-1 2xl:grid-cols-2 gap-4">
-            <div>
-              <Label for="postulation_id">Postulación</Label>
-              <Field as="select" name="postulation_id" v-model="postulation">
-                <option :value="undefined">Seleccione una opción</option>
-                <option :value="1">Presidencia Municipal</option>
-                <option :value="2">Regiduría</option>
-                <option :value="3">Sindicatura</option>
-              </Field>
-              <ErrorMessage name="postulation_id"/>
-              {{ postulation }}
-            </div>
-            <div v-show="postulation === 2">
-              <Label for="council_number">Posición</Label>
-              <Field as="select" name="council_number">
-                <option :value="undefined">Seleccione una opción</option>
-                <option v-for="i in selectedBlock.municipality.councils" :key="i" :value="i" :disabled="!selectedBlock.assignments?.councils.list.includes(i) && selectedBlock.assignments?.councils.list.length > 0">{{ i }}</option>
-              </Field>
-              <ErrorMessage name="council_number"/>
-              {{ selectedBlock.assignments?.councils.list }}
-            </div>
-          </div>
-          <div class="grid grid-cols-1 2xl:grid-cols-2 gap-4">
-            <div>
-              <Label for="position_id">Carácter</Label>
-              <Field as="select" name="position_id">
-                <option :value="undefined">Seleccione una opción</option>
-                <option :value="1">Propietaria/o</option>
-                <option :value="2">Suplencia</option>
-              </Field>
-              <ErrorMessage name="position_id"/>
-            </div>
-            <div>
-              <Label for="reelection">Periodo de reelección</Label>
-              <Field as="select" name="reelection">
-                <option :value="undefined">Seleccione una opción</option>
-                <option value="SI">Sí (2022-2025)</option>
-                <option value="NO">No</option>
-              </Field>
-              <ErrorMessage name="reelection"/>
-            </div>
           </div>
         </div>
       </div>
