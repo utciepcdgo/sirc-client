@@ -2,8 +2,20 @@
 
 import {FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form";
 import {Input} from "@/components/ui/input";
-import {Separator} from "@/components/ui/separator";
 import {vMaska} from "maska/vue"
+import {Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
+import {computed, onMounted} from "vue";
+import {useGenresStore} from "@/stores/genres";
+
+const store = {storeGender: useGenresStore()}
+
+const getGenres = computed(() => {
+  return store.storeGender.getGenres || []
+})
+
+onMounted(() => {
+  store.storeGender.fetchGenres()
+})
 
 </script>
 
@@ -45,7 +57,7 @@ import {vMaska} from "maska/vue"
       </FormField>
     </div>
   </div>
-  <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
+  <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
     <div>
       <FormField v-slot="{ componentField }" name="occupation">
         <FormItem>
@@ -63,6 +75,28 @@ import {vMaska} from "maska/vue"
           <FormLabel>CURP</FormLabel>
           <FormControl>
             <Input type="text" placeholder="LLLLAAMMDDHDGRLL00" v-maska="'@@@@######@@@@@@##'" v-bind="componentField"/>
+          </FormControl>
+          <FormMessage/>
+        </FormItem>
+      </FormField>
+    </div>
+    <div>
+      <FormField v-slot="{ componentField }" name="gender_id">
+        <FormItem>
+          <FormLabel>Género</FormLabel>
+          <FormControl>
+            <Select v-bind="componentField">
+              <SelectTrigger>
+                <SelectValue placeholder="Seleccione una opción"/>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup v-for="(genre) in getGenres" :key="genre.id">
+                  <SelectItem :value="genre.id">
+                    {{ genre.name }}
+                  </SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
           </FormControl>
           <FormMessage/>
         </FormItem>

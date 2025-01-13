@@ -2,27 +2,27 @@ import {defineStore} from 'pinia'
 // Import axios to make HTTP requests
 import axios from "axios"
 
-export const useCompensatoriesStore = defineStore("compensatory", {
+export const useCompensatoryStore = defineStore("compensatory", {
     state: () => ({
-        compensatories: [],
+        compensatory: [],
         isLoading: false,
-        compensatoriesError: null,
+        compensatoryError: null,
     }),
     getters: {
-        getBlocks(state) {
-            return state.compensatories.data
+        getCompensatory(state) {
+            return state.compensatory.data
         }
     },
     actions: {
-        async fetchBlocks() {
+        async fetchCompensatory() {
             // Set isLoading to true to show a loading spinner
             this.isLoading = true
             try {
                 const data = await axios.get('http://127.0.0.1:8000/api/compensatories')
-                this.compensatories = data.data
+                this.compensatory = data.data
             } catch (error) {
                 // alert(error)
-                this.compensatoriesError = error
+                this.compensatoryError = error
                 console.log(error)
             } finally {
                 // Set isLoading to false to hide the loading spinner

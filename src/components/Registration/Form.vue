@@ -22,6 +22,14 @@ import {Label} from "@/components/ui/label";
 import {AlertDialog, AlertDialogContent, AlertDialogTitle} from "@/components/ui/alert-dialog";
 import {FingerprintSpinner} from "epic-spinners";
 import {VisuallyHidden} from "radix-vue";
+import {useCompensatoryStore} from "@/stores/compensatories";
+
+const store = {storeCompensatory: useCompensatoryStore()}
+
+const getCompensatory = computed(() => {
+  return store.storeCompensatory.getCompensatory || []
+})
+
 
 // Getting states from API
 const loadingStates = ref(false);
@@ -31,6 +39,7 @@ const municipalitiesFromResidence = ref([]);
 const selectedState = ref(null);
 const selectedStateFromResidence = ref(null);
 const isLoading = ref(false);
+const postulation = ref(0);
 
 const fetchStates = async () => {
   loadingStates.value = true;
@@ -67,6 +76,7 @@ const fetchMunicipalities = async (stateId, field) => {
 };
 
 onMounted(async () => {
+  store.storeCompensatory.fetchCompensatory();
   await fetchStates();
 
   // Field 1 is for birthplace
@@ -128,8 +138,8 @@ const {values, handleSubmit} = useForm({
       colony: string().min(3).max(255).required(),
       street: string().min(3).max(255).required(),
       postal_code: string().min(3).max(5).required(),
-      outside_number: number().min(3).max(9999).optional().default(1),
-      inside_number: number().min(3).max(9999).optional().default(1),
+      outside_number: number().optional().default(1),
+      inside_number: number().optional().default(1),
       length: object().shape({
         years: number().min(0)
             .max(99, 'El valor máximo permitido es 99'),
@@ -148,6 +158,12 @@ const {values, handleSubmit} = useForm({
       ocr: string().min(13).max(13).optional(),
       section: string().min(1).max(4).optional(),
       emission_number: string().min(1).max(99).optional(),
+    }),
+    postulation_id: number().required(),
+    council_number: number().when('postulation_id', {
+      is: (postulation_id) => postulation_id === '2',
+      then: (s) => s.label('Posición').required(),
+      otherwise: (s) => s,
     }),
     sex_id: number().required(),
     compensatory_measure: number().required(),
@@ -331,6 +347,111 @@ const onSubmit = handleSubmit((values) => {
               <input type="text" name="residence.street" v-bind="field">
             </Field>
             <ErrorMessage name="residence.street"/>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-2 gap-4 mt-5">
+          <div class="grid grid-cols-1 2xl:grid-cols-2 gap-4">
+            <div>
+              <Label for="residence.postal_code">Código Postal</Label>
+              <Field as="input" name="residence.postal_code" v-maska="'#####'"/>
+              <ErrorMessage name="residence.postal_code"/>
+            </div>
+            <div class="grid grid-cols-1 2xl:grid-cols-2 gap-4">
+              <div>
+                <Label for="residence.outside_number">Número interior</Label>
+                <Field as="input" name="residence.outside_number"/>
+                <ErrorMessage name="residence.outside_number"/>
+              </div>
+              <div>
+                <Label for="residence.inside_number">Número exterior</Label>
+                <Field as="input" name="residence.inside_number" />
+                <ErrorMessage name="residence.inside_number"/>
+              </div>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 2xl:grid-cols-2 gap-4">
+            <div>
+              <Label for="residence.length.years">Años</Label>
+              <Field as="input" type="text" name="residence.length.years"/>
+              <ErrorMessage name="residence.length.years"/>
+            </div>
+            <div>
+              <Label for="residence.length.months">Meses</Label>
+              <Field as="input" type="text" name="residence.length.months"/>
+              <ErrorMessage name="residence.length.months"/>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="grid-cols-1 gap-4">
+      <div class="border border-slate-400 rounded-md p-4 relative mt-10">
+        <header class="mx-auto max-w-2xl text-center absolute left-0 right-0 top-[-23px]">
+          <h1 class="text-xl font-extrabold tracking-tight text-slate-900 sm:text-2xl inline-block bg-white px-4">Candidatura</h1>
+          <p class="text-sm font-semibold text-gray-400 hidden xl:block">Ingrese la información referente al cargo por el que se postula</p>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4 mt-5">
+          <div class="grid grid-cols-1 2xl:grid-cols-2 gap-4">
+            <div>
+              <Label for="postulation_id">Postulación</Label>
+              <Field as="select" name="postulation_id" v-model="postulation">
+                <option :value="undefined">Seleccione una opción</option>
+                <option :value="1">Presidencia Municipal</option>
+                <option :value="2">Regiduría</option>
+                <option :value="3">Sindicatura</option>
+              </Field>
+              <ErrorMessage name="postulation_id"/>
+              {{ postulation }}
+            </div>
+            <div v-show="postulation === 2">
+              <Label for="council_number">Posición</Label>
+              <Field as="select" name="council_number">
+                <option :value="undefined">Seleccione una opción</option>
+                <option v-for="i in selectedBlock.municipality.councils" :key="i" :value="i" :disabled="!selectedBlock.assignments?.councils.list.includes(i) && selectedBlock.assignments?.councils.list.length > 0">{{ i }}</option>
+              </Field>
+              <ErrorMessage name="council_number"/>
+              {{ selectedBlock.assignments?.councils.list }}
+            </div>
+          </div>
+          <div class="grid grid-cols-1 2xl:grid-cols-2 gap-4">
+            <div>
+              <Label for="position_id">Carácter</Label>
+              <Field as="select" name="position_id">
+                <option :value="undefined">Seleccione una opción</option>
+                <option :value="1">Propietaria/o</option>
+                <option :value="2">Suplencia</option>
+              </Field>
+              <ErrorMessage name="position_id"/>
+            </div>
+            <div>
+              <Label for="reelection">Periodo de reelección</Label>
+              <Field as="select" name="reelection">
+                <option :value="undefined">Seleccione una opción</option>
+                <option value="SI">Sí (2022-2025)</option>
+                <option value="NO">No</option>
+              </Field>
+              <ErrorMessage name="reelection"/>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 2xl:grid-cols-2 gap-4">
+            <div>
+              <Label for="compensatory_measure">Medida Compensatoria</Label>
+              <Field as="select" name="compensatory_measure">
+                <option :value="undefined">Seleccione una opción</option>
+                <option v-for="compensatory in getCompensatory" :value="compensatory.id" :key="compensatory.id">{{ compensatory.name }}</option>
+              </Field>
+              <ErrorMessage name="compensatory_measure"/>
+            </div>
+            <div>
+              <Label for="reelection">Periodo de reelección</Label>
+              <Field as="select" name="reelection">
+                <option :value="undefined">Seleccione una opción</option>
+                <option value="SI">Sí (2022-2025)</option>
+                <option value="NO">No</option>
+              </Field>
+              <ErrorMessage name="reelection"/>
+            </div>
           </div>
         </div>
       </div>
