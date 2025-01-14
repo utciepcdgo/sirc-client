@@ -81,9 +81,9 @@ onMounted(() => {
       </FormField>
     </div>
     <div>
-      <FormField v-slot="{ componentField }" name="gender_id">
+      <FormField v-slot="{ componentField }" name="sex_id">
         <FormItem>
-          <FormLabel>Género</FormLabel>
+          <FormLabel>Sexo</FormLabel>
           <FormControl>
             <Select v-bind="componentField">
               <SelectTrigger>

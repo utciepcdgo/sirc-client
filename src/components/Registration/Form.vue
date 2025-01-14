@@ -23,11 +23,16 @@ import {AlertDialog, AlertDialogContent, AlertDialogTitle} from "@/components/ui
 import {FingerprintSpinner} from "epic-spinners";
 import {VisuallyHidden} from "radix-vue";
 import {useCompensatoryStore} from "@/stores/compensatories";
+import {useSexesStore} from "@/stores/sexes";
 
-const store = {storeCompensatory: useCompensatoryStore()}
+const store = {storeCompensatory: useCompensatoryStore(), storeSex: useSexesStore()}
 
 const getCompensatory = computed(() => {
   return store.storeCompensatory.getCompensatory || []
+})
+
+const getSexes = computed(() => {
+  return store.storeSex.getSexes || []
 })
 
 
@@ -138,8 +143,8 @@ const {values, handleSubmit} = useForm({
       colony: string().min(3).max(255).required(),
       street: string().min(3).max(255).required(),
       postal_code: string().min(3).max(5).required(),
-      outside_number: number().optional().default(1),
-      inside_number: number().optional().default(1),
+      outside_number: number().optional().default(0),
+      inside_number: number().optional().default(0),
       length: object().shape({
         years: number().min(0)
             .max(99, 'El valor máximo permitido es 99'),
@@ -356,7 +361,7 @@ const onSubmit = handleSubmit((values) => {
               <Field as="input" name="residence.postal_code" v-maska="'#####'"/>
               <ErrorMessage name="residence.postal_code"/>
             </div>
-            <div class="grid grid-cols-1 2xl:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 2xl:grid-cols-2 gap-4 border border-slate-400 rounded-md p-2">
               <div>
                 <Label for="residence.outside_number">Número interior</Label>
                 <Field as="input" name="residence.outside_number"/>
@@ -367,6 +372,7 @@ const onSubmit = handleSubmit((values) => {
                 <Field as="input" name="residence.inside_number" />
                 <ErrorMessage name="residence.inside_number"/>
               </div>
+              <div class="md:col-span-2 col-span-1 text-gray-500 text-sm">Si su dirección no cuenta con número interior y/o exterior, deje un 0 (cero)</div>
             </div>
           </div>
           <div class="grid grid-cols-1 2xl:grid-cols-2 gap-4">
@@ -444,7 +450,7 @@ const onSubmit = handleSubmit((values) => {
               <ErrorMessage name="compensatory_measure"/>
             </div>
             <div>
-              <Label for="reelection">Periodo de reelección</Label>
+              <Label for="reelection">Género</Label>
               <Field as="select" name="reelection">
                 <option :value="undefined">Seleccione una opción</option>
                 <option value="SI">Sí (2022-2025)</option>
