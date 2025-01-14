@@ -5,16 +5,16 @@ import {Input} from "@/components/ui/input";
 import {vMaska} from "maska/vue"
 import {Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 import {computed, onMounted} from "vue";
-import {useGenresStore} from "@/stores/genres";
+import {useSexesStore} from "@/stores/sexes";
 
-const store = {storeGender: useGenresStore()}
+const store = {storeSex: useSexesStore()}
 
-const getGenres = computed(() => {
-  return store.storeGender.getGenres || []
+const getSexes = computed(() => {
+  return store.storeSex.getSexes || []
 })
 
 onMounted(() => {
-  store.storeGender.fetchGenres()
+  store.storeSex.fetchSexes()
 })
 
 </script>
@@ -90,9 +90,9 @@ onMounted(() => {
                 <SelectValue placeholder="Seleccione una opción"/>
               </SelectTrigger>
               <SelectContent>
-                <SelectGroup v-for="(genre) in getGenres" :key="genre.id">
-                  <SelectItem :value="genre.id">
-                    {{ genre.name }}
+                <SelectGroup v-for="sex in getSexes" :key="sex.id">
+                  <SelectItem :value="sex.id">
+                    {{ sex.name }}
                   </SelectItem>
                 </SelectGroup>
               </SelectContent>

@@ -23,18 +23,17 @@ import {AlertDialog, AlertDialogContent, AlertDialogTitle} from "@/components/ui
 import {FingerprintSpinner} from "epic-spinners";
 import {VisuallyHidden} from "radix-vue";
 import {useCompensatoryStore} from "@/stores/compensatories";
-import {useSexesStore} from "@/stores/sexes";
+import {useGenresStore} from "@/stores/genres";
 
-const store = {storeCompensatory: useCompensatoryStore(), storeSex: useSexesStore()}
+const store = {storeCompensatory: useCompensatoryStore(), storeGender: useGenresStore()}
 
 const getCompensatory = computed(() => {
   return store.storeCompensatory.getCompensatory || []
 })
 
-const getSexes = computed(() => {
-  return store.storeSex.getSexes || []
+const getGenres = computed(() => {
+  return store.storeGender.getGenres || []
 })
-
 
 // Getting states from API
 const loadingStates = ref(false);
@@ -82,6 +81,8 @@ const fetchMunicipalities = async (stateId, field) => {
 
 onMounted(async () => {
   store.storeCompensatory.fetchCompensatory();
+  store.storeGender.fetchGenres();
+
   await fetchStates();
 
   // Field 1 is for birthplace
@@ -171,11 +172,11 @@ const {values, handleSubmit} = useForm({
       otherwise: (s) => s,
     }),
     sex_id: number().required(),
-    compensatory_measure: number().required(),
-    gender_id: number().when('compensatory_measure', {
-      is: (compensatory_measure) => {
-        console.log(compensatory_measure === 3);
-        return compensatory_measure === 3;
+    compensatory_id: number().required(),
+    gender_id: number().when('compensatory_id', {
+      is: (compensatory_id) => {
+        console.log(compensatory_id === 3);
+        return compensatory_id === 3;
       },
       then: (s) => s.label('Género').required(),
       otherwise: (s) => s,
@@ -197,9 +198,16 @@ const {values, handleSubmit} = useForm({
   }
 });
 
-const onSubmit = handleSubmit((values) => {
+const onSubmit = handleSubmit(async (values) => {
   // Submit values to API...
   alert(JSON.stringify(values, null, 4));
+
+  try {
+    await axios.post('http://localhost:8000/api/registrations', values);
+    // successMessage.value = 'Formulario enviado con éxito';
+  } catch (error) {
+    console.error('Error al enviar el formulario:', error);
+  }
 })
 
 </script>
@@ -369,7 +377,7 @@ const onSubmit = handleSubmit((values) => {
               </div>
               <div>
                 <Label for="residence.inside_number">Número exterior</Label>
-                <Field as="input" name="residence.inside_number" />
+                <Field as="input" name="residence.inside_number"/>
                 <ErrorMessage name="residence.inside_number"/>
               </div>
               <div class="md:col-span-2 col-span-1 text-gray-500 text-sm">Si su dirección no cuenta con número interior y/o exterior, deje un 0 (cero)</div>
@@ -442,21 +450,20 @@ const onSubmit = handleSubmit((values) => {
           </div>
           <div class="grid grid-cols-1 2xl:grid-cols-2 gap-4">
             <div>
-              <Label for="compensatory_measure">Medida Compensatoria</Label>
-              <Field as="select" name="compensatory_measure">
+              <Label for="compensatory_id">Medida Compensatoria</Label>
+              <Field as="select" name="compensatory_id">
                 <option :value="undefined">Seleccione una opción</option>
                 <option v-for="compensatory in getCompensatory" :value="compensatory.id" :key="compensatory.id">{{ compensatory.name }}</option>
               </Field>
-              <ErrorMessage name="compensatory_measure"/>
+              <ErrorMessage name="compensatory_id"/>
             </div>
             <div>
-              <Label for="reelection">Género</Label>
-              <Field as="select" name="reelection">
+              <Label for="gender_id">Género</Label>
+              <Field as="select" name="gender_id">
                 <option :value="undefined">Seleccione una opción</option>
-                <option value="SI">Sí (2022-2025)</option>
-                <option value="NO">No</option>
+                <option v-for="gender in getGenres" :key="gender.id" :value="gender.id">{{ gender.name }}</option>
               </Field>
-              <ErrorMessage name="reelection"/>
+              <ErrorMessage name="gender_id"/>
             </div>
           </div>
         </div>
