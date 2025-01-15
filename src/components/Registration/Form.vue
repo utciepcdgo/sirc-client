@@ -19,13 +19,23 @@ import {
 import {Input} from '@/components/ui/input'
 import GeneralInformation from "@/components/Registration/Form/Modules/GeneralInformation.vue";
 import {Label} from "@/components/ui/label";
-import {AlertDialog, AlertDialogContent, AlertDialogTitle} from "@/components/ui/alert-dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from "@/components/ui/alert-dialog";
 import {FingerprintSpinner} from "epic-spinners";
 import {VisuallyHidden} from "radix-vue";
 import {useCompensatoryStore} from "@/stores/compensatories";
 import {useGenresStore} from "@/stores/genres";
+import {usePostulationsStore} from "@/stores/postulations";
 
-const store = {storeCompensatory: useCompensatoryStore(), storeGender: useGenresStore()}
+const store = {storeCompensatory: useCompensatoryStore(), storeGender: useGenresStore(), storePostulation: usePostulationsStore()}
 
 const getCompensatory = computed(() => {
   return store.storeCompensatory.getCompensatory || []
@@ -33,6 +43,10 @@ const getCompensatory = computed(() => {
 
 const getGenres = computed(() => {
   return store.storeGender.getGenres || []
+})
+
+const getPostulations = computed(() => {
+  return store.storePostulation.getPostulations || []
 })
 
 // Getting states from API
@@ -44,6 +58,7 @@ const selectedState = ref(null);
 const selectedStateFromResidence = ref(null);
 const isLoading = ref(false);
 const postulation = ref(0);
+const isError = ref({there: false, error: ''});
 
 const fetchStates = async () => {
   loadingStates.value = true;
@@ -82,6 +97,7 @@ const fetchMunicipalities = async (stateId, field) => {
 onMounted(async () => {
   store.storeCompensatory.fetchCompensatory();
   store.storeGender.fetchGenres();
+  store.storePostulation.fetchPostulations();
 
   await fetchStates();
 
@@ -167,7 +183,7 @@ const {values, handleSubmit} = useForm({
     }),
     postulation_id: number().required(),
     council_number: number().when('postulation_id', {
-      is: (postulation_id) => postulation_id === '2',
+      is: (postulation_id) => postulation_id === 6,
       then: (s) => s.label('Posición').required(),
       otherwise: (s) => s,
     }),
@@ -206,7 +222,8 @@ const onSubmit = handleSubmit(async (values) => {
     await axios.post('http://localhost:8000/api/registrations', values);
     // successMessage.value = 'Formulario enviado con éxito';
   } catch (error) {
-    console.error('Error al enviar el formulario:', error);
+    isError.value = {there: true, error: error.response.data.message};
+    console.error('Error al enviar el formulario:', error.response.data.message);
   }
 })
 
@@ -214,6 +231,23 @@ const onSubmit = handleSubmit(async (values) => {
 
 <template>
   <form @submit.prevent="onSubmit" id="registration_form">
+
+    <AlertDialog v-model:open="isError.there">
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Error</AlertDialogTitle>
+          <AlertDialogDescription>
+            Hubo un error al intentar guardar el registro.
+            <p class="mt-3 p-0 leading-none">Detalles:</p>
+            <p class="italic text-red-600 leading-none">{{ isError.error }}</p>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogAction>Aceptar</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+
     <AlertDialog v-model:open="isLoading">
       <AlertDialogContent class="w-[177.6px] bg-transparent border-0 shadow-none">
         <VisuallyHidden>
@@ -411,14 +445,12 @@ const onSubmit = handleSubmit(async (values) => {
               <Label for="postulation_id">Postulación</Label>
               <Field as="select" name="postulation_id" v-model="postulation">
                 <option :value="undefined">Seleccione una opción</option>
-                <option :value="1">Presidencia Municipal</option>
-                <option :value="2">Regiduría</option>
-                <option :value="3">Sindicatura</option>
+                <option v-for="postulation in getPostulations" :key="postulation.id" :value="postulation.id" :disabled="!postulation.active">{{ postulation.name }}</option>
               </Field>
               <ErrorMessage name="postulation_id"/>
               {{ postulation }}
             </div>
-            <div v-show="postulation === 2">
+            <div v-show="postulation === 5">
               <Label for="council_number">Posición</Label>
               <Field as="select" name="council_number">
                 <option :value="undefined">Seleccione una opción</option>
