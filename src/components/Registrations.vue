@@ -48,6 +48,7 @@ import {
 } from '@tabler/icons-vue';
 
 import {DialogRoot, VisuallyHidden} from "radix-vue";
+import axios from "axios";
 
 const store = useBlocksStore()
 
@@ -62,6 +63,8 @@ onMounted(() => {
 let municipalitySearch = ref('')
 let selectedBlock = ref(null)
 let open = ref(false)
+let openDetails = ref(false)
+const blockdata = ref(null)
 
 const filterBlocks = computed(() => {
   return getBlocks.value.filter(block => {
@@ -72,6 +75,23 @@ const filterBlocks = computed(() => {
 const openModal = (block) => {
   selectedBlock.value = block
   open.value = true
+}
+
+const openModalDetails = async (block) => {
+  // Get all registrations from the selected block through the API using axios
+  // and show them in a modal
+  store.isLoading = true
+  console.log('block: ', block.id)
+  try {
+    const response = await axios.get(import.meta.env.VITE_SIRC_API_URI + `blocks/${block.id}?include=registrations`)
+    blockdata.value = response.data.data
+  } catch (error) {
+    console.error('Error al obtener los registros:', error)
+  } finally {
+    store.isLoading = false
+    openDetails.value = true
+  }
+  console.log('blockData', blockdata)
 }
 
 const currentTime = ref(new Date());
@@ -164,7 +184,7 @@ onUnmounted(() => {
             <TooltipProvider :delay-duration="100">
               <Tooltip>
                 <TooltipTrigger as-child>
-                  <Button variant="secondary">
+                  <Button variant="secondary" @click="openModalDetails(block)">
                     <IconInfoCircle/>
                   </Button>
                 </TooltipTrigger>
@@ -208,6 +228,18 @@ onUnmounted(() => {
         <Button type="submit" form="registration_form">
           Guardar registro
         </Button>
+      </DialogFooter>
+    </DialogScrollContent>
+  </DialogRoot>
+
+  <DialogRoot v-model:open="openDetails">
+    <DialogScrollContent class="min-w-[80%]">
+      <DialogHeader>
+        Detalles del bloque
+      </DialogHeader>
+      {{ blockdata.registrations.list }}
+      <DialogFooter class="flex items-center !justify-between">
+
       </DialogFooter>
     </DialogScrollContent>
   </DialogRoot>
