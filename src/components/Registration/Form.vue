@@ -8,27 +8,11 @@ import {computed, onMounted, ref, watch} from "vue";
 import axios from "axios";
 import {vMaska} from "maska/vue"
 
-import {
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form'
+import {FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage,} from '@/components/ui/form'
 import {Input} from '@/components/ui/input'
 import GeneralInformation from "@/components/Registration/Form/Modules/GeneralInformation.vue";
 import {Label} from "@/components/ui/label";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle
-} from "@/components/ui/alert-dialog";
+import {AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle} from "@/components/ui/alert-dialog";
 import {FingerprintSpinner} from "epic-spinners";
 import {VisuallyHidden} from "radix-vue";
 import {useCompensatoryStore} from "@/stores/compensatories";
@@ -216,7 +200,7 @@ const {values, handleSubmit} = useForm({
 
 const onSubmit = handleSubmit(async (values) => {
   // Submit values to API...
-  alert(JSON.stringify(values, null, 4));
+  // alert(JSON.stringify(values, null, 4));
 
   try {
     await axios.post('http://localhost:8000/api/registrations', values);
@@ -224,6 +208,9 @@ const onSubmit = handleSubmit(async (values) => {
   } catch (error) {
     isError.value = {there: true, error: error.response.data.message};
     console.error('Error al enviar el formulario:', error.response.data.message);
+  } finally {
+    // Close modal
+    $emit('close-registration-modal');
   }
 })
 

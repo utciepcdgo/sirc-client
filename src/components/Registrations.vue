@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import {ref, onMounted, onUnmounted, computed} from 'vue'
 import {useBlocksStore} from "@/stores/blocks.js";
 import {FingerprintSpinner} from 'epic-spinners'
@@ -7,37 +7,17 @@ import Form from "@/components/Registration/Form.vue";
 
 import {Label} from "@/components/ui/label";
 import {Button} from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
-
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger
-} from '@/components/ui/tooltip'
-
-import {
-  DialogScrollContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
-
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogTitle
-} from '@/components/ui/alert-dialog'
+import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle,} from '@/components/ui/card'
+import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from '@/components/ui/tooltip'
+import {DialogScrollContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,} from '@/components/ui/dialog'
+import {AlertDialog, AlertDialogContent, AlertDialogTitle} from '@/components/ui/alert-dialog'
+import {Tabs, TabsContent, TabsList, TabsTrigger} from '@/components/ui/tabs'
 
 import {Input} from '@/components/ui/input'
+import type {Registration} from './Details/columns'
+import {columns} from './Details/columns'
+import DataTable from './Details/DataTable.vue'
+
 
 import {
   IconPlus,
@@ -65,6 +45,7 @@ let selectedBlock = ref(null)
 let open = ref(false)
 let openDetails = ref(false)
 const blockdata = ref(null)
+const datatable = ref<Registration[]>([])
 
 const filterBlocks = computed(() => {
   return getBlocks.value.filter(block => {
@@ -85,6 +66,7 @@ const openModalDetails = async (block) => {
   try {
     const response = await axios.get(import.meta.env.VITE_SIRC_API_URI + `blocks/${block.id}?include=registrations`)
     blockdata.value = response.data.data
+    datatable.value<Registration> = blockdata.value.registrations.list
   } catch (error) {
     console.error('Error al obtener los registros:', error)
   } finally {
@@ -109,6 +91,7 @@ onMounted(() => {
 onUnmounted(() => {
   clearInterval(intervalId);
 });
+
 </script>
 
 <template>
@@ -202,7 +185,7 @@ onUnmounted(() => {
     </div>
   </div>
 
-  <DialogRoot v-model:open="open">
+  <DialogRoot v-model:open="open" @close-registration-modal="open = false">
     <DialogScrollContent class="min-w-[80%]">
       <DialogHeader>
         <div class="flex items-center space-x-2.5">
@@ -235,9 +218,34 @@ onUnmounted(() => {
   <DialogRoot v-model:open="openDetails">
     <DialogScrollContent class="min-w-[80%]">
       <DialogHeader>
-        Detalles del bloque
+        <DialogTitle>Detalles en {{ blockdata.municipality.name }}</DialogTitle>
+        <DialogDescription>
+          Revise, edite o elimine los registros del bloque seleccionado.
+        </DialogDescription>
       </DialogHeader>
-      {{ blockdata.registrations.list }}
+      <Tabs default-value="registrations">
+        <TabsList>
+          <TabsTrigger value="registrations">
+            Registros
+          </TabsTrigger>
+          <TabsTrigger value="information">
+            Información adicional
+          </TabsTrigger>
+        </TabsList>
+        <TabsContent value="registrations">
+          <DataTable :columns="columns" :data="datatable"/>
+        </TabsContent>
+        <TabsContent value="information">
+          <p>Municipio: {{ blockdata.municipality.name }}</p>
+          <p>Votos obtenidos: {{ blockdata.votes_obtained }}</p>
+          <p>Votación válida emitida: {{ blockdata.valid_vote_issued }}</p>
+          <h5 class="text-md font-semibold leading-none tracking-tight my-3">Propiedades</h5>
+          <div class="flex flex-col">
+            <span>Identificador del bloque: {{ blockdata.uuid }}</span>
+            <span class="text-gray-600 leading-none text-xs">Si tiene algún problema con la información presentada, comparta este identificador al área de soporte.</span>
+          </div>
+        </TabsContent>
+      </Tabs>
       <DialogFooter class="flex items-center !justify-between">
 
       </DialogFooter>
