@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@pdf-lib/fontkit": "^1.1.1",
     "@tabler/icons-vue": "^3.22.0",
     "@tanstack/vue-table": "^8.20.5",
     "@unovis/ts": "^1.5.0-beta.0",
@@ -23,6 +24,7 @@
     "epic-spinners": "^2.0.0",
     "lucide-vue-next": "^0.456.0",
     "maska": "^3.0.3",
+    "pdf-lib": "^1.17.1",
     "pinia": "^2.2.6",
     "radix-vue": "^1.9.9",
     "tailwind-merge": "^2.5.4",

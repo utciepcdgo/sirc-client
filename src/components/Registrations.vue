@@ -169,10 +169,11 @@ onUnmounted(() => {
                 <TooltipTrigger as-child>
                   <Button variant="secondary" @click="openModalDetails(block)">
                     <IconInfoCircle/>
+                    Detalles
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent align="center" :align-offset="0" :arrow-padding="0" avoid-collisions :collision-boundary="[]" :collision-padding="0" hide-when-detached side="top" sticky="partial">
-                  <p>Más detalles</p>
+                  <p>Vea los registros y gestione la información</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -218,9 +219,9 @@ onUnmounted(() => {
   <DialogRoot v-model:open="openDetails">
     <DialogScrollContent class="min-w-[80%]">
       <DialogHeader>
-        <DialogTitle>Detalles en {{ blockdata.municipality.name }}</DialogTitle>
+        <DialogTitle>Registros en {{ blockdata.municipality.name }}</DialogTitle>
         <DialogDescription>
-          Revise, edite o elimine los registros del bloque seleccionado.
+          Revise, edite o sustituya los registros del bloque seleccionado.
         </DialogDescription>
       </DialogHeader>
       <Tabs default-value="registrations">
@@ -246,9 +247,6 @@ onUnmounted(() => {
           </div>
         </TabsContent>
       </Tabs>
-      <DialogFooter class="flex items-center !justify-between">
-
-      </DialogFooter>
     </DialogScrollContent>
   </DialogRoot>
 

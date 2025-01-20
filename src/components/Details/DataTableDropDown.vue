@@ -9,6 +9,9 @@ import {
   IconPencil
 } from '@tabler/icons-vue';
 
+import {amceePdf, candidacyPdf, disabilityPdf, diversityPdf, indigenousPdf, migrantPdf, reelectionPdf} from '@/components/Documents/functions';
+import {currentUnixTime} from '@/components/Documents/utils';
+
 defineProps<{
   registration: {
     id: string,
@@ -19,6 +22,23 @@ defineProps<{
 function copy(id: string) {
   navigator.clipboard.writeText(id)
 }
+
+async function message(registration: object) {
+
+  const disabilityPdfFormat = await amceePdf(registration)
+
+  // Crear un enlace de descarga
+  const blob = new Blob([disabilityPdfFormat], {type: 'application/pdf'})
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = registration.name + '_' + currentUnixTime() + '.pdf'
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
+}
+
 </script>
 
 <template>
@@ -43,10 +63,10 @@ function copy(id: string) {
         </DropdownMenuSubTrigger>
         <DropdownMenuPortal>
           <DropdownMenuSubContent>
-            <DropdownMenuItem>
+            <DropdownMenuItem @click="message(registration)">
               <span>1. Discapacidad permanente</span>
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem disabled>
               <span>2. Diversidad sexual</span>
             </DropdownMenuItem>
             <DropdownMenuItem>
