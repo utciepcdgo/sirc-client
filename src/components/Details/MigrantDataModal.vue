@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import {DialogRoot, VisuallyHidden} from "radix-vue";
-import {DialogDescription, DialogFooter, DialogHeader, DialogScrollContent, DialogTitle} from "@/components/ui/dialog";
+import {DialogDescription, DialogFooter, DialogHeader, DialogScrollContent, DialogTitle, DialogClose} from "@/components/ui/dialog";
 import {FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form";
 import {Input} from "@/components/ui/input";
 import axios from "axios";
@@ -47,10 +47,8 @@ const {values, handleSubmit} = useForm({
   }
 });
 
-const emits = defineEmits(["update:open"]);
-
 const onSubmit = handleSubmit(async (values) => {
-    await axios.post('http://localhost:8000/api/migrants', values).then(emits('update:open', false))
+    await axios.post('http://localhost:8000/api/migrants', values)
 })
 
 </script>
@@ -119,6 +117,11 @@ const onSubmit = handleSubmit(async (values) => {
         <Button type="submit" form="migrant_form">
           Guardar información
         </Button>
+        <DialogClose as-child>
+          <Button type="button" variant="secondary">
+            Cerrar
+          </Button>
+        </DialogClose>
       </DialogFooter>
     </DialogScrollContent>
   </DialogRoot>
