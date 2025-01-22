@@ -2,15 +2,17 @@
 import {Button} from '@/components/ui/button'
 import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuPortal, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger,} from '@/components/ui/dropdown-menu'
 import {MoreHorizontal} from 'lucide-vue-next'
+import {ref} from "vue";
 import {
   IconClipboard,
   IconPdf,
   IconExchange,
-  IconPencil
+  IconPencil, IconFilePlus, IconNavigationNorth
 } from '@tabler/icons-vue';
 
 import {amceePdf, candidacyPdf, disabilityPdf, diversityPdf, indigenousPdf, migrantPdf, reelectionPdf} from '@/components/Documents/functions';
 import {currentUnixTime} from '@/components/Documents/utils';
+import MigrantDataModal from '@/components/Details/MigrantDataModal.vue';
 
 defineProps<{
   registration: {
@@ -24,7 +26,17 @@ function copy(id: string) {
   navigator.clipboard.writeText(id)
 }
 
+let openingMigrantDetails = ref(false)
+
 async function downloadPdf(pdfFunction: Function, registration: object, fileName: string) {
+  // If the pdf function is 'migrantPdf', first, check if the migrant data in registration.migrant isn't null,
+  // next and if it is, open the modal, otherwise, generate the pdf
+  if (pdfFunction === migrantPdf && registration.migrant == null) {
+    openingMigrantDetails.value = true
+    console.log(openingMigrantDetails.value)
+    return
+  }
+
   const pdfFormat = await pdfFunction(registration)
 
   // Create a download link
@@ -42,6 +54,7 @@ async function downloadPdf(pdfFunction: Function, registration: object, fileName
 </script>
 
 <template>
+  <MigrantDataModal :registration="registration" v-model:open="openingMigrantDetails"/>
   <DropdownMenu>
     <DropdownMenuTrigger as-child>
       <Button variant="ghost" class="w-8 h-8 p-0">
@@ -102,6 +115,20 @@ async function downloadPdf(pdfFunction: Function, registration: object, fileName
         <IconExchange class="mr-2 h-4 w-4"/>
         Sustituír
       </DropdownMenuItem>
+      <DropdownMenuSub>
+        <DropdownMenuSubTrigger :disabled="registration.compensatory.id == 5">
+          <IconNavigationNorth class="mr-2 h-4 w-4"/>
+          <span>Migrante</span>
+        </DropdownMenuSubTrigger>
+        <DropdownMenuPortal>
+          <DropdownMenuSubContent>
+            <DropdownMenuItem>
+              <IconFilePlus class="mr-2 h-4 w-4"/>
+              Editar información
+            </DropdownMenuItem>
+          </DropdownMenuSubContent>
+        </DropdownMenuPortal>
+      </DropdownMenuSub>
     </DropdownMenuContent>
   </DropdownMenu>
 </template>

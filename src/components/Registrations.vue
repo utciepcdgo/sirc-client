@@ -186,7 +186,7 @@ onUnmounted(() => {
     </div>
   </div>
 
-  <DialogRoot v-model:open="open" @close-registration-modal="open = false">
+  <DialogRoot v-model:open="open" :update:open="open">
     <DialogScrollContent class="min-w-[80%]">
       <DialogHeader>
         <div class="flex items-center space-x-2.5">

@@ -198,12 +198,14 @@ const {values, handleSubmit} = useForm({
   }
 });
 
+const emits = defineEmits(["update:open"]);
+
 const onSubmit = handleSubmit(async (values) => {
   // Submit values to API...
   // alert(JSON.stringify(values, null, 4));
 
   try {
-    await axios.post('http://localhost:8000/api/registrations', values);
+    await axios.post('http://localhost:8000/api/registrations', values).then(emits('update:open', false));
     // successMessage.value = 'Formulario enviado con éxito';
   } catch (error) {
     isError.value = {there: true, error: error.response.data.message};
