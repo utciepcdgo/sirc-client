@@ -56,8 +56,8 @@ const components = RegistrationRoutes
 
   <div class="px-4 w-full lg:px-8">
     <nav>
-      <RouterLink to="/">Home</RouterLink>
-      <RouterLink to="/registrations">Registrations</RouterLink>
+<!--      <RouterLink to="/">Inicio</RouterLink>-->
+      <RouterLink to="/registrations">Registros</RouterLink>
     </nav>
 
     <main>

@@ -16,6 +16,7 @@ defineProps<{
   registration: {
     id: string,
     uuid: string,
+    name: string
   }
 }>()
 
@@ -23,16 +24,15 @@ function copy(id: string) {
   navigator.clipboard.writeText(id)
 }
 
-async function message(registration: object) {
+async function downloadPdf(pdfFunction: Function, registration: object, fileName: string) {
+  const pdfFormat = await pdfFunction(registration)
 
-  const disabilityPdfFormat = await amceePdf(registration)
-
-  // Crear un enlace de descarga
-  const blob = new Blob([disabilityPdfFormat], {type: 'application/pdf'})
+  // Create a download link
+  const blob = new Blob([pdfFormat], {type: 'application/pdf'})
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
-  a.download = registration.name + '_' + currentUnixTime() + '.pdf'
+  a.download = fileName + '_' + currentUnixTime() + '.pdf'
   document.body.appendChild(a)
   a.click()
   document.body.removeChild(a)
@@ -63,31 +63,31 @@ async function message(registration: object) {
         </DropdownMenuSubTrigger>
         <DropdownMenuPortal>
           <DropdownMenuSubContent>
-            <DropdownMenuItem @click="message(registration)">
+            <DropdownMenuItem @click="downloadPdf(disabilityPdf, registration, 'Discapacidad_Permanente')">
               <span>1. Discapacidad permanente</span>
             </DropdownMenuItem>
-            <DropdownMenuItem disabled>
+            <DropdownMenuItem @click="downloadPdf(diversityPdf, registration, 'Diversidad_Sexual')">
               <span>2. Diversidad sexual</span>
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem @click="downloadPdf(migrantPdf, registration, 'Migrante')">
               <span>3. Migrante</span>
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem @click="downloadPdf(indigenousPdf, registration, 'Indígena')">
               <span>4. Indígena</span>
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem @click="downloadPdf(candidacyPdf, registration, 'Aceptación_de_Candidatura')">
               <span>6. Aceptación de Candidatura</span>
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem disabled>
               <span>7. Carta bajo protesta</span>
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem @click="downloadPdf(reelectionPdf, registration, 'Elección_Consecutiva')">
               <span>8. Elección consecutiva</span>
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem disabled>
               <span>9. 8 de 8 contra la violencia</span>
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem @click="downloadPdf(amceePdf, registration, 'Red_Candidatas')">
               <span>10. Red de Candidatas y Mujeres Electas.</span>
             </DropdownMenuItem>
           </DropdownMenuSubContent>
