@@ -29,6 +29,7 @@ import {
 
 import {DialogRoot, VisuallyHidden} from "radix-vue";
 import axios from "axios";
+import {Toaster} from "@/components/ui/toast";
 
 const store = useBlocksStore()
 
@@ -95,6 +96,7 @@ onUnmounted(() => {
 </script>
 
 <template>
+  <Toaster />
   <div>
     <div class="relative w-full max-w-sm items-center">
       <Input v-model="municipalitySearch" id="search" type="search" name="search" placeholder="Buscar municipio..." class="pl-10"/>

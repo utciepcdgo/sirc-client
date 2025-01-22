@@ -14,6 +14,8 @@ import {computed, onMounted, ref} from "vue";
 import {AlertDialog, AlertDialogContent, AlertDialogTitle} from "@/components/ui/alert-dialog";
 import {FingerprintSpinner} from "epic-spinners";
 import {Button} from "@/components/ui/button";
+import { Toaster } from '@/components/ui/toast'
+import { useToast } from '@/components/ui/toast/use-toast'
 
 const store = useCountriesStore()
 
@@ -47,8 +49,15 @@ const {values, handleSubmit} = useForm({
   }
 });
 
+const { toast } = useToast()
+
 const onSubmit = handleSubmit(async (values) => {
-    await axios.post('http://localhost:8000/api/migrants', values)
+    await axios.post('http://localhost:8000/api/migrants', values).then((res) => {
+      toast({
+        title: 'Información actualizada correctamente',
+        variant: 'default',
+      })
+    })
 })
 
 </script>
