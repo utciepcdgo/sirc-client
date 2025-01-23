@@ -14,8 +14,8 @@ import {computed, onMounted, ref} from "vue";
 import {AlertDialog, AlertDialogContent, AlertDialogTitle} from "@/components/ui/alert-dialog";
 import {FingerprintSpinner} from "epic-spinners";
 import {Button} from "@/components/ui/button";
-import { Toaster } from '@/components/ui/toast'
-import { useToast } from '@/components/ui/toast/use-toast'
+import {Toaster} from '@/components/ui/toast'
+import {useToast} from '@/components/ui/toast/use-toast'
 
 const store = useCountriesStore()
 
@@ -31,6 +31,11 @@ const props = defineProps({
     type: Object,
     required: true
   },
+  initialData: {
+    type: Object,
+    required: false,
+    default: () => ({})
+  }
 });
 
 onMounted(() => {
@@ -46,18 +51,19 @@ const {values, handleSubmit} = useForm({
   })),
   initialValues: {
     registration_id: props.registration?.id,
+    ...props.initialData
   }
 });
 
-const { toast } = useToast()
+const {toast} = useToast()
 
 const onSubmit = handleSubmit(async (values) => {
-    await axios.post('http://localhost:8000/api/migrants', values).then((res) => {
-      toast({
-        title: 'Información actualizada correctamente',
-        variant: 'default',
-      })
+  await axios.post('http://localhost:8000/api/migrants', values).then((res) => {
+    toast({
+      title: 'Información actualizada correctamente',
+      variant: 'default',
     })
+  })
 })
 
 </script>
@@ -73,7 +79,6 @@ const onSubmit = handleSubmit(async (values) => {
       </DialogHeader>
       <form @submit.prevent="onSubmit" id="migrant_form">
         <div class="grid grid-cols-1 gap-4">
-
           <div>
             <FormField v-slot="{ componentField }" name="address">
               <FormItem>
@@ -123,9 +128,14 @@ const onSubmit = handleSubmit(async (values) => {
         </div>
       </form>
       <DialogFooter class="flex items-center !justify-between">
-        <Button type="submit" form="migrant_form">
-          Guardar información
-        </Button>
+        <div class="space-x-3">
+          <Button type="submit" form="migrant_form">
+            Guardar información
+          </Button>
+          <Button type="submit" @click="">
+            Generar formato
+          </Button>
+        </div>
         <DialogClose as-child>
           <Button type="button" variant="secondary">
             Cerrar

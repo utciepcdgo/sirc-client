@@ -115,20 +115,6 @@ async function downloadPdf(pdfFunction: Function, registration: object, fileName
         <IconExchange class="mr-2 h-4 w-4"/>
         Sustituír
       </DropdownMenuItem>
-      <DropdownMenuSub>
-        <DropdownMenuSubTrigger :disabled="registration.compensatory.id == 5">
-          <IconNavigationNorth class="mr-2 h-4 w-4"/>
-          <span>Migrante</span>
-        </DropdownMenuSubTrigger>
-        <DropdownMenuPortal>
-          <DropdownMenuSubContent>
-            <DropdownMenuItem>
-              <IconFilePlus class="mr-2 h-4 w-4"/>
-              Editar información
-            </DropdownMenuItem>
-          </DropdownMenuSubContent>
-        </DropdownMenuPortal>
-      </DropdownMenuSub>
     </DropdownMenuContent>
   </DropdownMenu>
 </template>
