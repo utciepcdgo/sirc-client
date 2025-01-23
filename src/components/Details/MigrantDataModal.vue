@@ -39,9 +39,9 @@ onMounted(() => {
 
 const {values, handleSubmit} = useForm({
   validationSchema: toTypedSchema(object().shape({
-    address: string().required().min(3),
-    zip_code: string().required().min(3),
-    country_id: number().required(),
+    address: string().required('El campo es requerido').min(3).label('Dirección'),
+    zip_code: string().required('El campo es requerido').min(3).label('Código Postal'),
+    country_id: number().required('El campo es requerido').label('País'),
     registration_id: number().required(),
   })),
   initialValues: {

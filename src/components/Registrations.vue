@@ -24,7 +24,8 @@ import {
   IconWomanFilled,
   IconManFilled,
   IconInfoCircle,
-  IconSearch
+  IconSearch,
+  IconRefresh
 } from '@tabler/icons-vue';
 
 import {DialogRoot, VisuallyHidden} from "radix-vue";
@@ -96,14 +97,15 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <Toaster />
-  <div>
+  <Toaster/>
+  <div class="flex justify-between mb-5">
     <div class="relative w-full max-w-sm items-center">
       <Input v-model="municipalitySearch" id="search" type="search" name="search" placeholder="Buscar municipio..." class="pl-10"/>
       <span class="absolute start-0 inset-y-0 flex items-center justify-center px-2">
         <IconSearch class="size-6 text-muted-foreground"/>
       </span>
     </div>
+    <Button variant="destructive" @click="store.fetchBlocks()"> <IconRefresh class="mr-2 h-4 w-4"/> Recargar</Button>
   </div>
   <!--  SHOW ALERT LOADING FEED -->
   <AlertDialog v-model:open="store.isLoading">
@@ -251,9 +253,6 @@ onUnmounted(() => {
       </Tabs>
     </DialogScrollContent>
   </DialogRoot>
-
-  <Label>Test</Label>
-  <Button variant="destructive" @click="store.fetchBlocks()">Refresh</Button>
 </template>
 
 <style scoped>
