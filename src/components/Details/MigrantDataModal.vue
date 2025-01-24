@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import {DialogRoot, VisuallyHidden} from "radix-vue";
+import {DialogRoot} from "radix-vue";
 import {DialogDescription, DialogFooter, DialogHeader, DialogScrollContent, DialogTitle, DialogClose} from "@/components/ui/dialog";
 import {FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form";
 import {Input} from "@/components/ui/input";
@@ -11,11 +11,10 @@ import {number, object, string} from "yup";
 import {Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 import {useCountriesStore} from "@/stores/countries";
 import {computed, onMounted, ref} from "vue";
-import {AlertDialog, AlertDialogContent, AlertDialogTitle} from "@/components/ui/alert-dialog";
-import {FingerprintSpinner} from "epic-spinners";
 import {Button} from "@/components/ui/button";
-import {Toaster} from '@/components/ui/toast'
 import {useToast} from '@/components/ui/toast/use-toast'
+import {migrantPdf} from "@/components/Documents/functions";
+import {currentUnixTime} from "@/components/Documents/utils";
 
 const store = useCountriesStore()
 
@@ -24,18 +23,13 @@ const getCountries = computed(() => {
 })
 
 let isOpen = ref(false)
-let setOpen = ref(false)
+let setEnableButton = ref(true)
 
 const props = defineProps({
   registration: {
     type: Object,
     required: true
   },
-  initialData: {
-    type: Object,
-    required: false,
-    default: () => ({})
-  }
 });
 
 onMounted(() => {
@@ -51,11 +45,12 @@ const {values, handleSubmit} = useForm({
   })),
   initialValues: {
     registration_id: props.registration?.id,
-    ...props.initialData
+    ...props.registration.migrant
   }
 });
 
 const {toast} = useToast()
+let initialRegistration = computed(() => props.registration)
 
 const onSubmit = handleSubmit(async (values) => {
   await axios.post('http://localhost:8000/api/migrants', values).then((res) => {
@@ -64,6 +59,38 @@ const onSubmit = handleSubmit(async (values) => {
       variant: 'default',
     })
   })
+  // Retrieve the update registration object from the API and assign to registration prop
+  await axios.get(`http://localhost:8000/api/registrations/${props.registration.id}`).then((res) => {
+    initialRegistration = res.data.data;
+  }).then(() => {
+    toast({
+      title: 'La información cargada inicialmente ha cambiado',
+      variant: 'destructive',
+    })
+    setEnableButton.value = false
+  })
+})
+
+async function downloadPdf() {
+
+  const pdfFormat = await migrantPdf(initialRegistration)
+
+  // Create a download link
+  const blob = new Blob([pdfFormat], {type: 'application/pdf'})
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = "FORMATO_MIGRANTE" + '_' + currentUnixTime() + '.pdf'
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
+}
+
+onMounted(() => {
+  if (props.registration.migrant) {
+    setEnableButton.value = false
+  }
 })
 
 </script>
@@ -122,6 +149,7 @@ const onSubmit = handleSubmit(async (values) => {
                   </Select>
                 </FormControl>
                 <FormMessage/>
+                <FormDescription>País seleccionado: {{ initialRegistration?.migrant?.country?.name ?? "(Ninguno)" }}, use el selector para modificar la selección.</FormDescription>
               </FormItem>
             </FormField>
           </div>
@@ -132,7 +160,7 @@ const onSubmit = handleSubmit(async (values) => {
           <Button type="submit" form="migrant_form">
             Guardar información
           </Button>
-          <Button type="submit" @click="">
+          <Button type="submit" @click="downloadPdf()" :disabled="setEnableButton">
             Generar formato
           </Button>
         </div>

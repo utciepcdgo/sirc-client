@@ -31,9 +31,8 @@ let openingMigrantDetails = ref(false)
 async function downloadPdf(pdfFunction: Function, registration: object, fileName: string) {
   // If the pdf function is 'migrantPdf', first, check if the migrant data in registration.migrant isn't null,
   // next and if it is, open the modal, otherwise, generate the pdf
-  if (pdfFunction === migrantPdf && registration.migrant == null) {
+  if (pdfFunction === migrantPdf) {
     openingMigrantDetails.value = true
-    console.log(openingMigrantDetails.value)
     return
   }
 
@@ -54,7 +53,7 @@ async function downloadPdf(pdfFunction: Function, registration: object, fileName
 </script>
 
 <template>
-  <MigrantDataModal :registration="registration" v-model:open="openingMigrantDetails"/>
+  <MigrantDataModal :registration="registration" v-model:open="openingMigrantDetails" />
   <DropdownMenu>
     <DropdownMenuTrigger as-child>
       <Button variant="ghost" class="w-8 h-8 p-0">
