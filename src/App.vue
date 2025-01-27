@@ -30,6 +30,10 @@ const components = RegistrationRoutes
             <span class="mx-2">Inicio</span>
           </RouterLink>
         </NavigationMenuItem>
+<!--        OPEN DIALOG MODAL FOR GENERATE A LATEST-->
+        <NavigationMenuItem>
+
+        </NavigationMenuItem>
       </NavigationMenuList>
     </div>
   </NavigationMenu>

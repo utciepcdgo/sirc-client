@@ -40,3 +40,9 @@ export const defineAgeRange = (age) => {
         return '60plus'
     }
 }
+
+export async function loadRemoteFontBase64(url: string): Promise<string> {
+    const response = await fetch(url);
+    const fontBytes = await response.arrayBuffer();
+    return btoa(String.fromCharCode(...new Uint8Array(fontBytes)));
+}

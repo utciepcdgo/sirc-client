@@ -72,8 +72,7 @@ const onSubmit = handleSubmit(async (values) => {
 })
 
 async function downloadPdf() {
-
-  const pdfFormat = await migrantPdf(initialRegistration)
+  await migrantPdf(initialRegistration.valie)
 
   // Create a download link
   const blob = new Blob([pdfFormat], {type: 'application/pdf'})
@@ -135,7 +134,7 @@ onMounted(() => {
               <FormItem>
                 <FormLabel>País</FormLabel>
                 <FormControl>
-                  <Select v-bind="componentField">
+                  <Select v-bind="componentField" :default-value="initialRegistration?.migrant?.country?.id.toString()">
                     <SelectTrigger>
                       <SelectValue placeholder="Seleccione una opción"/>
                     </SelectTrigger>
@@ -149,7 +148,7 @@ onMounted(() => {
                   </Select>
                 </FormControl>
                 <FormMessage/>
-                <FormDescription>País seleccionado: {{ initialRegistration?.migrant?.country?.name ?? "(Ninguno)" }}, use el selector para modificar la selección.</FormDescription>
+                <FormDescription>País seleccionado: {{ initialRegistration?.migrant?.country?.name ?? "(Ninguno)" }}, puede modificar la selección.</FormDescription>
               </FormItem>
             </FormField>
           </div>

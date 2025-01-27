@@ -10,7 +10,7 @@ import {
   IconPencil, IconFilePlus, IconNavigationNorth
 } from '@tabler/icons-vue';
 
-import {amceePdf, candidacyPdf, disabilityPdf, diversityPdf, indigenousPdf, migrantPdf, reelectionPdf} from '@/components/Documents/functions';
+import {amceePdf, candidacyPdf, disabilityPdf, diversityPdf, indigenousPdf, migrantPdf, protestPdf, reelectionPdf} from '@/components/Documents/functions';
 import {currentUnixTime} from '@/components/Documents/utils';
 import MigrantDataModal from '@/components/Details/MigrantDataModal.vue';
 
@@ -39,21 +39,23 @@ async function downloadPdf(pdfFunction: Function, registration: object, fileName
   const pdfFormat = await pdfFunction(registration)
 
   // Create a download link
-  const blob = new Blob([pdfFormat], {type: 'application/pdf'})
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = fileName + '_' + currentUnixTime() + '.pdf'
-  document.body.appendChild(a)
-  a.click()
-  document.body.removeChild(a)
-  URL.revokeObjectURL(url)
+  if (pdfFunction !== protestPdf) {
+    const blob = new Blob([pdfFormat], {type: 'application/pdf'})
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = fileName + '_' + currentUnixTime() + '.pdf'
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
 }
 
 </script>
 
 <template>
-  <MigrantDataModal :registration="registration" v-model:open="openingMigrantDetails" />
+  <MigrantDataModal :registration="registration" v-model:open="openingMigrantDetails"/>
   <DropdownMenu>
     <DropdownMenuTrigger as-child>
       <Button variant="ghost" class="w-8 h-8 p-0">
@@ -90,7 +92,7 @@ async function downloadPdf(pdfFunction: Function, registration: object, fileName
             <DropdownMenuItem @click="downloadPdf(candidacyPdf, registration, 'Aceptación_de_Candidatura')">
               <span>6. Aceptación de Candidatura</span>
             </DropdownMenuItem>
-            <DropdownMenuItem disabled>
+            <DropdownMenuItem @click="downloadPdf(protestPdf, registration, 'Carta_Bajo_Protesta')">
               <span>7. Carta bajo protesta</span>
             </DropdownMenuItem>
             <DropdownMenuItem @click="downloadPdf(reelectionPdf, registration, 'Elección_Consecutiva')">

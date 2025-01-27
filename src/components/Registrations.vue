@@ -1,15 +1,13 @@
-<script setup lang="ts">
-import {ref, onMounted, onUnmounted, computed} from 'vue'
+<script lang="ts" setup>
+import {computed, onMounted, onUnmounted, ref} from 'vue'
 import {useBlocksStore} from "@/stores/blocks.js";
 import {FingerprintSpinner} from 'epic-spinners'
 
 import Form from "@/components/Registration/Form.vue";
-
-import {Label} from "@/components/ui/label";
 import {Button} from "@/components/ui/button";
 import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle,} from '@/components/ui/card'
 import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from '@/components/ui/tooltip'
-import {DialogScrollContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,} from '@/components/ui/dialog'
+import {DialogDescription, DialogFooter, DialogHeader, DialogScrollContent, DialogTitle,} from '@/components/ui/dialog'
 import {AlertDialog, AlertDialogContent, AlertDialogTitle} from '@/components/ui/alert-dialog'
 import {Tabs, TabsContent, TabsList, TabsTrigger} from '@/components/ui/tabs'
 
@@ -18,19 +16,13 @@ import type {Registration} from './Details/columns'
 import {columns} from './Details/columns'
 import DataTable from './Details/DataTable.vue'
 
-
-import {
-  IconPlus,
-  IconWomanFilled,
-  IconManFilled,
-  IconInfoCircle,
-  IconSearch,
-  IconRefresh
-} from '@tabler/icons-vue';
+import {registrationRequestPdf} from '@/components/Documents/RegistrationRequestPdf';
+import {IconChevronDown, IconInfoCircle, IconManFilled, IconPlus, IconRefresh, IconSearch, IconWomanFilled} from '@tabler/icons-vue';
 
 import {DialogRoot, VisuallyHidden} from "radix-vue";
 import axios from "axios";
 import {Toaster} from "@/components/ui/toast";
+import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger} from '@/components/ui/dropdown-menu'
 
 const store = useBlocksStore()
 
@@ -94,18 +86,60 @@ onUnmounted(() => {
   clearInterval(intervalId);
 });
 
+async function downloadregistrationRequestPdf(id: number) {
+  // Show a loading spinner while the pdf is being generated
+  store.isLoading = true
+  // Call the registrationRequestPdf function and pass the entity id as an argument
+  await registrationRequestPdf(id).finally(() => {
+    store.isLoading = false
+  })
+}
+
 </script>
 
 <template>
   <Toaster/>
   <div class="flex justify-between mb-5">
     <div class="relative w-full max-w-sm items-center">
-      <Input v-model="municipalitySearch" id="search" type="search" name="search" placeholder="Buscar municipio..." class="pl-10"/>
+      <Input id="search" v-model="municipalitySearch" class="pl-10" name="search" placeholder="Buscar municipio..." type="search"/>
       <span class="absolute start-0 inset-y-0 flex items-center justify-center px-2">
         <IconSearch class="size-6 text-muted-foreground"/>
       </span>
     </div>
-    <Button variant="destructive" @click="store.fetchBlocks()"> <IconRefresh class="mr-2 h-4 w-4"/> Recargar</Button>
+    <div class="flex items-center space-x-2.5">
+      <!--        Generador de formato "Solicitud de registro. El botón acciona un Dropdown -->
+      <DropdownMenu>
+        <DropdownMenuTrigger>
+          <Button variant="secondary">
+            Solicitud de registro
+            <IconChevronDown class="ml-2"/>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem @click="downloadregistrationRequestPdf(4)">Partido</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <Button variant="default" @click="store.fetchBlocks()">
+        <IconRefresh class="mr-2 h-4 w-4"/>
+        Recargar
+      </Button>
+      <DropdownMenu>
+        <DropdownMenuTrigger>
+          <Button variant="destructive">
+            Presentar solicitud de registro
+            <IconChevronDown class="ml-2"/>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuLabel>My Account</DropdownMenuLabel>
+          <DropdownMenuSeparator/>
+          <DropdownMenuItem>Profile</DropdownMenuItem>
+          <DropdownMenuItem>Billing</DropdownMenuItem>
+          <DropdownMenuItem>Team</DropdownMenuItem>
+          <DropdownMenuItem>Subscription</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
   </div>
   <!--  SHOW ALERT LOADING FEED -->
   <AlertDialog v-model:open="store.isLoading">
@@ -115,8 +149,8 @@ onUnmounted(() => {
       </VisuallyHidden>
       <fingerprint-spinner
           :animation-duration="1500"
-          :size="128"
-          :color="'#ffffff'"/>
+          :color="'#ffffff'"
+          :size="128"/>
       <p class="text-center font-bold text-white">Cargando...</p>
     </AlertDialogContent>
   </AlertDialog>
@@ -176,14 +210,14 @@ onUnmounted(() => {
                     Detalles
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent align="center" :align-offset="0" :arrow-padding="0" avoid-collisions :collision-boundary="[]" :collision-padding="0" hide-when-detached side="top" sticky="partial">
+                <TooltipContent :align-offset="0" :arrow-padding="0" :collision-boundary="[]" :collision-padding="0" align="center" avoid-collisions hide-when-detached side="top" sticky="partial">
                   <p>Vea los registros y gestione la información</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </div>
           <div class="flex items-center">
-            <img :src="block.entity.logo" :alt="block.entity.name" class="rounded-full" width="24">
+            <img :alt="block.entity.name" :src="block.entity.logo" class="rounded-full" width="24">
           </div>
         </CardFooter>
       </Card>
@@ -194,7 +228,7 @@ onUnmounted(() => {
     <DialogScrollContent class="min-w-[80%]">
       <DialogHeader>
         <div class="flex items-center space-x-2.5">
-          <img :src="selectedBlock.municipality.shield" :alt="'Escudo del municipio de ' + selectedBlock.municipality.name" class="w-16 h-16"/>
+          <img :alt="'Escudo del municipio de ' + selectedBlock.municipality.name" :src="selectedBlock.municipality.shield" class="w-16 h-16"/>
           <div>
             <DialogTitle>Nuevo registro</DialogTitle>
             <DialogDescription>
@@ -207,13 +241,13 @@ onUnmounted(() => {
       <Form :selectedBlock="selectedBlock"/>
       <DialogFooter class="flex items-center !justify-between">
         <div class="flex items-center space-x-2.5">
-          <img :src="selectedBlock.entity.logo" :alt="selectedBlock.entity.name" class="rounded-md" width="32">
+          <img :alt="selectedBlock.entity.name" :src="selectedBlock.entity.logo" class="rounded-md" width="32">
           <div class="flex flex-col">
             <p class="text-sm">{{ selectedBlock.entity.name }}</p>
             <p class="text-xs text-slate-600">{{ currentTime.toLocaleString() }}</p>
           </div>
         </div>
-        <Button type="submit" form="registration_form">
+        <Button form="registration_form" type="submit">
           Guardar registro
         </Button>
       </DialogFooter>
@@ -244,13 +278,25 @@ onUnmounted(() => {
           <p>Municipio: {{ blockdata.municipality.name }}</p>
           <p>Votos obtenidos: {{ blockdata.votes_obtained }}</p>
           <p>Votación válida emitida: {{ blockdata.valid_vote_issued }}</p>
-          <h5 class="text-md font-semibold leading-none tracking-tight my-3">Propiedades</h5>
-          <div class="flex flex-col">
-            <span>Identificador del bloque: {{ blockdata.uuid }}</span>
+          <h5 class="text-md font-bold leading-none tracking-tight my-3">Propiedades</h5>
+          <div class="flex flex-col mb-2">
+            <span class="font-semibold">Identificador del bloque:</span>
+            <span>{{ blockdata.uuid }}</span>
             <span class="text-gray-600 leading-none text-xs">Si tiene algún problema con la información presentada, comparta este identificador al área de soporte.</span>
+          </div>
+          <div class="flex flex-col">
+            <span class="font-semibold">Siglados:</span>
+            <span class="text-gray-600">Presidencia Municipal: {{ blockdata.assignments.municipality ? "Sí" : "No" }}</span>
+            <span class="text-gray-600">Sindicatura: {{ blockdata.assignments.syndic ? "Sí" : "No" }}</span>
+            <span class="text-gray-600">Regidurías (Posiciones): {{ blockdata.assignments.councils.list }}</span>
           </div>
         </TabsContent>
       </Tabs>
+      <DialogFooter>
+        <Button variant="secondary" @click="openDetails = false">
+          Cerrar ventana
+        </Button>
+      </DialogFooter>
     </DialogScrollContent>
   </DialogRoot>
 </template>
