@@ -117,6 +117,7 @@ async function downloadregistrationRequestPdf(id: number) {
         </DropdownMenuTrigger>
         <DropdownMenuContent>
           <DropdownMenuItem @click="downloadregistrationRequestPdf(4)">Partido</DropdownMenuItem>
+          <DropdownMenuItem @click="downloadregistrationRequestPdf(11)">Coalición</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
       <Button variant="default" @click="store.fetchBlocks()">
