@@ -27,7 +27,7 @@ import {useAuthStore} from "@/stores/auth";
 
 const authStore = useAuthStore();
 
-const handleLogout = async() => {
+const handleLogout = async () => {
   store.isLoading = true
   await authStore.logout().finally(() => {
     store.isLoading = false
@@ -103,11 +103,11 @@ onUnmounted(() => {
   clearInterval(intervalId);
 });
 
-async function downloadregistrationRequestPdf(id: number) {
+async function downloadregistrationRequestPdf(id: number, type: string) {
   // Show a loading spinner while the pdf is being generated
   store.isLoading = true
   // Call the registrationRequestPdf function and pass the entity id as an argument
-  await registrationRequestPdf(id).finally(() => {
+  await registrationRequestPdf(id, type).finally(() => {
     store.isLoading = false
   })
 }
@@ -137,8 +137,9 @@ async function downloadregistrationRequestPdf(id: number) {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
-          <DropdownMenuItem @click="downloadregistrationRequestPdf(4)">Partido</DropdownMenuItem>
-          <DropdownMenuItem @click="downloadregistrationRequestPdf(11)">Coalición</DropdownMenuItem>
+          <DropdownMenuItem v-for="entity in authStore.entities" :key="entity.id" @click="downloadregistrationRequestPdf(entity.id)">
+            {{ entity.name }}
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
       <Button variant="default" @click="store.fetchBlocks()">
