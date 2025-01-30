@@ -443,10 +443,10 @@ const onSubmit = handleSubmit(async (values) => {
               <Label for="council_number">Posición</Label>
               <Field as="select" name="council_number">
                 <option :value="undefined">Seleccione una opción</option>
-                <option v-for="i in selectedBlock.municipality.councils" :key="i" :value="i" :disabled="!selectedBlock.assignments?.councils.list.includes(i) && selectedBlock.assignments?.councils.list.length > 0">{{ i }}</option>
+                <option v-for="i in selectedBlock.municipality.councils" :key="i" :value="i" :disabled="!selectedBlock.assignments?.councils?.list.includes(i) && selectedBlock.assignments?.councils?.list.length > 0">{{ i }}</option>
               </Field>
               <ErrorMessage name="council_number"/>
-              {{ selectedBlock.assignments?.councils.list }}
+              {{ selectedBlock.assignments?.councils?.list }}
             </div>
           </div>
           <div class="grid grid-cols-1 2xl:grid-cols-2 gap-4">

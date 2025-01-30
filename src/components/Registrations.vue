@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import {computed, onMounted, onUnmounted, ref} from 'vue'
+import {computed, onMounted, onUnmounted, ref, watch} from 'vue'
 import {useBlocksStore} from "@/stores/blocks.js";
 import {FingerprintSpinner} from 'epic-spinners'
 
@@ -23,6 +23,16 @@ import {DialogRoot, VisuallyHidden} from "radix-vue";
 import axios from "axios";
 import {Toaster} from "@/components/ui/toast";
 import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger} from '@/components/ui/dropdown-menu'
+import {useAuthStore} from "@/stores/auth";
+
+const authStore = useAuthStore();
+
+const handleLogout = async() => {
+  store.isLoading = true
+  await authStore.logout().finally(() => {
+    store.isLoading = false
+  });
+};
 
 const store = useBlocksStore()
 
@@ -30,9 +40,16 @@ const getBlocks = computed(() => {
   return store.getBlocks || []
 })
 
-onMounted(() => {
-  store.fetchBlocks()
-})
+// ⏳ Esperar a que `authStore.user` se cargue antes de llamar a `fetchBlocks()`
+watch(
+    () => authStore.user,
+    (newUser) => {
+      if (newUser) {
+        store.fetchBlocks();
+      }
+    },
+    {immediate: true} // Se ejecuta inmediatamente si `user` ya existe
+);
 
 let municipalitySearch = ref('')
 let selectedBlock = ref(null)
@@ -99,6 +116,10 @@ async function downloadregistrationRequestPdf(id: number) {
 
 <template>
   <Toaster/>
+  <div>
+    <h1>Bienvenido, {{ authStore.user?.name }}</h1>
+    <p>Entities: {{ authStore.entities }}</p>
+  </div>
   <div class="flex justify-between mb-5">
     <div class="relative w-full max-w-sm items-center">
       <Input id="search" v-model="municipalitySearch" class="pl-10" name="search" placeholder="Buscar municipio..." type="search"/>
@@ -140,6 +161,9 @@ async function downloadregistrationRequestPdf(id: number) {
           <DropdownMenuItem>Subscription</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+      <Button variant="secondary" @click="handleLogout">
+        Cerrar sesión
+      </Button>
     </div>
   </div>
   <!--  SHOW ALERT LOADING FEED -->
