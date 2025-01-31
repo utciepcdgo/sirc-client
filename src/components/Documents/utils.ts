@@ -24,7 +24,7 @@ export const createDownloadLink = (blob: Blob, fileName: string) => {
 }
 
 // Define the sex of the registration in the PDF form
-export const defineSex = (registration) => registration.gender.id === '1' ? 'man' : (registration.gender.id === '2' ? 'woman' : 'queer')
+export const defineSex = (registration) => registration.sex.id === 1 ? 'woman' : (registration.sex.id === 2 ? 'man' : 'queer')
 
 // Define age range, possible values are 18-30, 31-40, 41-50, 51-60, 60+
 export const defineAgeRange = (age) => {

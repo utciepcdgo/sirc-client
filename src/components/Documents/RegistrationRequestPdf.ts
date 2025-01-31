@@ -8,9 +8,9 @@ import axios from 'axios'
  * This format is created from scratch, using jsPDF library due to the complexity of the format.
  * @param id - The data to be included in the PDF.
  */
-export async function registrationRequestPdf(id: number) {
+export async function registrationRequestPdf(id: number, type: string) {
     // Get the registration data from the API using id at the endpoint /api/format?entity_id={id} with axios
-    const registration = await axios.get(import.meta.env.VITE_SIRC_API_URI + `format?entity_id=${id}`);
+    const registration = await axios.get(import.meta.env.VITE_SIRC_API_URI + `format?entity_id=${id}&entity_type=${type}`);
     const registrationData = registration.data.data;
     // console.log(registrationData);
     let municipalities = registrationData.municipalities.map(municipality => municipality.name).join(', ')

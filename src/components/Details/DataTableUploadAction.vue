@@ -36,32 +36,6 @@ let openUploadModal = ref(false)
     </Button>
   </div>
 
-  <!--  Modal for upload files-->
-  <DialogRoot v-model:open="openUploadModal">
-    <DialogContent>
-      <DialogHeader>
-        <DialogTitle>Cargar archivo</DialogTitle>
-        <DialogClose/>
-      </DialogHeader>
-      <DialogScrollContent>
-        <div class="flex flex-col space-y-4">
-          <div class="flex flex-col space-y-2">
-            <label class="text-sm font-medium text-gray-700" for="file">Archivo</label>
-            <input id="file" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" name="file" type="file">
-          </div>
-          <div class="flex flex-col space-y-2">
-            <label class="text-sm font-medium text-gray-700" for="description">Descripción</label>
-            <textarea id="description" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" name="description" rows="3"></textarea>
-          </div>
-        </div>
-      </DialogScrollContent>
-      <DialogFooter>
-        <Button>Cancelar</Button>
-        <Button>Guardar</Button>
-      </DialogFooter>
-    </DialogContent>
-  </DialogRoot>
-
 </template>
 
 <style scoped>
