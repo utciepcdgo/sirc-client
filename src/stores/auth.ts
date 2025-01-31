@@ -1,7 +1,7 @@
 import {defineStore} from "pinia";
-import api from "@/api";
 import axios from "axios";
 import {useRouter} from "vue-router";
+import { useBlocksStore } from "@/stores/blocks";
 
 export const useAuthStore = defineStore("auth", {
     state: () => ({
@@ -21,7 +21,10 @@ export const useAuthStore = defineStore("auth", {
                 this.entities = response.data.user.entities;
 
                 localStorage.setItem("token", this.token);
-                api.defaults.headers.common["Authorization"] = `Bearer ${this.token}`;
+                // api.defaults.headers.common["Authorization"] = `Bearer ${this.token}`;
+                // ✅ Esperar a que el usuario se guarde en el estado antes de ejecutar fetchBlocks()
+                const blocksStore = useBlocksStore();
+                await blocksStore.fetchBlocks();
             } catch (error) {
                 console.error("Error en login:", error);
             }
@@ -40,7 +43,7 @@ export const useAuthStore = defineStore("auth", {
 
             } catch (error) {
                 console.error("No autenticado:", error.response?.data || error);
-                this.logout();
+                await this.logout();
             }
         },
 

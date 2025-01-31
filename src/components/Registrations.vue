@@ -24,16 +24,10 @@ import axios from "axios";
 import {Toaster} from "@/components/ui/toast";
 import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger} from '@/components/ui/dropdown-menu'
 import {useAuthStore} from "@/stores/auth";
+import { useLoadingStore } from '@/stores/loading';
 
 const authStore = useAuthStore();
-
-const handleLogout = async() => {
-  store.isLoading = true
-  await authStore.logout().finally(() => {
-    store.isLoading = false
-  });
-};
-
+const loadingStore = useLoadingStore();
 const store = useBlocksStore()
 
 const getBlocks = computed(() => {
@@ -45,7 +39,9 @@ watch(
     () => authStore.user,
     (newUser) => {
       if (newUser) {
-        store.fetchBlocks();
+        store.fetchBlocks().catch((error) => {
+          console.error('Error al obtener los bloques:', error)
+        });
       }
     },
     {immediate: true} // Se ejecuta inmediatamente si `user` ya existe
@@ -72,7 +68,7 @@ const openModal = (block) => {
 const openModalDetails = async (block) => {
   // Get all registrations from the selected block through the API using axios
   // and show them in a modal
-  store.isLoading = true
+  loadingStore.showLoading()
   console.log('block: ', block.id)
   try {
     const response = await axios.get(import.meta.env.VITE_SIRC_API_URI + `blocks/${block.id}?include=registrations`)
@@ -81,7 +77,7 @@ const openModalDetails = async (block) => {
   } catch (error) {
     console.error('Error al obtener los registros:', error)
   } finally {
-    store.isLoading = false
+    loadingStore.hideLoading()
     openDetails.value = true
   }
   console.log('blockData', blockdata)
@@ -105,10 +101,10 @@ onUnmounted(() => {
 
 async function downloadregistrationRequestPdf(id: number) {
   // Show a loading spinner while the pdf is being generated
-  store.isLoading = true
+  loadingStore.showLoading()
   // Call the registrationRequestPdf function and pass the entity id as an argument
   await registrationRequestPdf(id).finally(() => {
-    store.isLoading = false
+    loadingStore.hideLoading()
   })
 }
 
@@ -117,6 +113,7 @@ async function downloadregistrationRequestPdf(id: number) {
 <template>
   <Toaster/>
   <div>
+    {{ store.isLoading }}
     <h1>Bienvenido, {{ authStore.user?.name }}</h1>
     <p>Entities: {{ authStore.entities }}</p>
   </div>
@@ -161,24 +158,8 @@ async function downloadregistrationRequestPdf(id: number) {
           <DropdownMenuItem>Subscription</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      <Button variant="secondary" @click="handleLogout">
-        Cerrar sesión
-      </Button>
     </div>
   </div>
-  <!--  SHOW ALERT LOADING FEED -->
-  <AlertDialog v-model:open="store.isLoading">
-    <AlertDialogContent class="w-[177.6px] bg-transparent border-0 shadow-none">
-      <VisuallyHidden>
-        <AlertDialogTitle>Cargando...</AlertDialogTitle>
-      </VisuallyHidden>
-      <fingerprint-spinner
-          :animation-duration="1500"
-          :color="'#ffffff'"
-          :size="128"/>
-      <p class="text-center font-bold text-white">Cargando...</p>
-    </AlertDialogContent>
-  </AlertDialog>
 
   <AlertDialog v-model:open="store.blocksError">
     <AlertDialogContent class="min-w-[128]">

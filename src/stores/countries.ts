@@ -1,11 +1,12 @@
 import {defineStore} from 'pinia'
 // Import axios to make HTTP requests
 import axios from "axios"
+import {useLoadingStore} from '@/stores/loading';
 
 export const useCountriesStore = defineStore("country", {
     state: () => ({
         countries: [],
-        isLoading: false,
+        isLoading: useLoadingStore(),
         countriesError: null,
     }),
     getters: {
@@ -16,7 +17,7 @@ export const useCountriesStore = defineStore("country", {
     actions: {
         async fetchCountries() {
             // Set isLoading to true to show a loading spinner
-            this.isLoading = true
+            this.isLoading.showLoading()
             try {
                 const data = await axios.get('http://127.0.0.1:8000/api/countries')
                 this.countries = data.data
@@ -26,7 +27,7 @@ export const useCountriesStore = defineStore("country", {
                 console.log(error)
             } finally {
                 // Set isLoading to false for hide the loading spinner
-                this.isLoading = false
+                this.isLoading.hideLoading()
             }
         }
     },
