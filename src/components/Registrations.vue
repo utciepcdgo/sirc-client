@@ -113,9 +113,9 @@ async function downloadregistrationRequestPdf(id: number) {
 <template>
   <Toaster/>
   <div>
-    {{ store.isLoading }}
-    <h1>Bienvenido, {{ authStore.user?.name }}</h1>
-    <p>Entities: {{ authStore.entities }}</p>
+<!--    {{ store.isLoading }}-->
+<!--    <h1>Bienvenido, {{ authStore.user?.name }}</h1>-->
+<!--    <p>Entities: {{ authStore.entities }}</p>-->
   </div>
   <div class="flex justify-between mb-5">
     <div class="relative w-full max-w-sm items-center">
@@ -138,10 +138,6 @@ async function downloadregistrationRequestPdf(id: number) {
           <DropdownMenuItem @click="downloadregistrationRequestPdf(11)">Coalición</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      <Button variant="default" @click="store.fetchBlocks()">
-        <IconRefresh class="mr-2 h-4 w-4"/>
-        Recargar
-      </Button>
       <DropdownMenu>
         <DropdownMenuTrigger>
           <Button variant="destructive">

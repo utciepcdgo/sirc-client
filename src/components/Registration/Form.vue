@@ -180,22 +180,23 @@ const {values, handleSubmit} = useForm({
       },
       then: (s) => s.label('Género').required(),
       otherwise: (s) => s,
-    })
+    }),
+    mote: string().optional(),
   })),
 
-  initialValues: {
-    block_id: props.selectedBlock?.id,
-    name: 'ALEJANDRO',
-    first_name: 'PARRA',
-    second_name: 'VILLA',
-    birthplace: {
-      birth: '1995-04-24',
-      municipality: 'DURANGO'
-    },
-    voter_card: {
-      section: '0000',
-    },
-  }
+  // initialValues: {
+  //   block_id: props.selectedBlock?.id,
+  //   name: 'ALEJANDRO',
+  //   first_name: 'PARRA',
+  //   second_name: 'VILLA',
+  //   birthplace: {
+  //     birth: '1995-04-24',
+  //     municipality: 'DURANGO'
+  //   },
+  //   voter_card: {
+  //     section: '0000',
+  //   },
+  // }
 });
 
 const emits = defineEmits(["update:open"]);
@@ -485,6 +486,11 @@ const onSubmit = handleSubmit(async (values) => {
                 <option v-for="gender in getGenres" :key="gender.id" :value="gender.id">{{ gender.name }}</option>
               </Field>
               <ErrorMessage name="gender_id"/>
+            </div>
+            <div>
+              <Label for="mote">Sobrenombre / Mote</Label>
+              <Field as="input" type="text" name="mote"/>
+              <ErrorMessage name="residence.state"/>
             </div>
           </div>
         </div>

@@ -42,7 +42,7 @@ export const useBlocksStore = defineStore("block", {
             console.log("Pasa la validación");
 
             try {
-                const data = await axios.get(`http://127.0.0.1:8000/api/blocks?filters[entity][id][$in][]=${authStore.user.entities[0].id}`)
+                const data = await axios.get(import.meta.env.VITE_SIRC_API_URI + `blocks?filters[entity][id][$in][]=${authStore.user.entities[0].id}`)
                 this.blocks = data.data
             } catch (error) {
                 this.blocksError = error.message || "Error desconocido";

@@ -19,7 +19,7 @@ export const useCountriesStore = defineStore("country", {
             // Set isLoading to true to show a loading spinner
             this.isLoading.showLoading()
             try {
-                const data = await axios.get('http://127.0.0.1:8000/api/countries')
+                const data = await axios.get(import.meta.env.VITE_SIRC_API_URI + 'countries')
                 this.countries = data.data
             } catch (error) {
                 // alert(error)

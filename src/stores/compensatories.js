@@ -18,7 +18,7 @@ export const useCompensatoryStore = defineStore("compensatory", {
             // Set isLoading to true to show a loading spinner
             this.isLoading = true
             try {
-                const data = await axios.get('http://127.0.0.1:8000/api/compensatories')
+                const data = await axios.get(import.meta.env.VITE_SIRC_API_URI + 'compensatories')
                 this.compensatory = data.data
             } catch (error) {
                 // alert(error)

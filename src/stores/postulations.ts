@@ -14,7 +14,7 @@ export const usePostulationsStore = defineStore("postulation", {
     actions: {
         async fetchPostulations() {
             try {
-                const data = await axios.get('http://127.0.0.1:8000/api/postulations')
+                const data = await axios.get(import.meta.env.VITE_SIRC_API_URI + 'postulations')
                 this.postulations = data.data
             } catch (error) {
                 alert(error)

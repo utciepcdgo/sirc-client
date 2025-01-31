@@ -18,7 +18,7 @@ export const useGenresStore = defineStore("genre", {
         async fetchGenres() {
             this.isLoading.showLoading()
             try {
-                const data = await axios.get('http://127.0.0.1:8000/api/genres')
+                const data = await axios.get(import.meta.env.VITE_SIRC_API_URI + 'genres')
                 this.genres = data.data
                 console.log("from store", this.genres)
             } catch (error) {

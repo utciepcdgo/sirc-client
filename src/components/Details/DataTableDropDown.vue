@@ -3,16 +3,14 @@ import {Button} from '@/components/ui/button'
 import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuPortal, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger,} from '@/components/ui/dropdown-menu'
 import {MoreHorizontal} from 'lucide-vue-next'
 import {ref} from "vue";
-import {
-  IconClipboard,
-  IconPdf,
-  IconExchange,
-  IconPencil, IconFilePlus, IconNavigationNorth
-} from '@tabler/icons-vue';
+import {IconClipboard, IconPdf, IconExchange, IconPencil, IconFilePlus, IconNavigationNorth} from '@tabler/icons-vue';
 
 import {amceePdf, candidacyPdf, disabilityPdf, diversityPdf, indigenousPdf, migrantPdf, protestPdf, reelectionPdf} from '@/components/Documents/functions';
 import {currentUnixTime} from '@/components/Documents/utils';
 import MigrantDataModal from '@/components/Details/MigrantDataModal.vue';
+import { useLoadingStore } from '@/stores/loading';
+
+const loadingStore = useLoadingStore();
 
 defineProps<{
   registration: {
@@ -35,9 +33,11 @@ async function downloadPdf(pdfFunction: Function, registration: object, fileName
     openingMigrantDetails.value = true
     return
   }
+  loadingStore.showLoading()
 
   const pdfFormat = await pdfFunction(registration)
 
+  loadingStore.hideLoading()
   // Create a download link
   if (pdfFunction !== protestPdf) {
     const blob = new Blob([pdfFormat], {type: 'application/pdf'})
