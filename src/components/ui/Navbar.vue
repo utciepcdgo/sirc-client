@@ -1,12 +1,15 @@
 <!--suppress ALL -->
-<script setup lang="ts">
+<script lang="ts" setup>
 
-import {NavigationMenu, NavigationMenuItem, NavigationMenuList, navigationMenuTriggerStyle} from "@/components/ui/navigation-menu";
+import {NavigationMenu, NavigationMenuItem, NavigationMenuList} from "@/components/ui/navigation-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import {Button} from "@/components/ui/button";
-import {IconHome, IconRefresh} from "@tabler/icons-vue";
+import {IconDoorExit, IconRefresh, IconMoon, IconSun} from "@tabler/icons-vue";
 import {useLoadingStore} from '@/stores/loading';
 import {useAuthStore} from "@/stores/auth";
 import {useBlocksStore} from "@/stores/blocks";
+import TooltipWrapper from "@/components/ui/TooltipWrapper.vue";
+import { useColorMode } from '@vueuse/core'
 
 const authStore = useAuthStore();
 const loadingStore = useLoadingStore();
@@ -18,37 +21,65 @@ const handleLogout = async () => {
     loadingStore.hideLoading()
   });
 };
+
+const mode = useColorMode()
 </script>
 
 <template>
-  <NavigationMenu v-if="authStore.user" class="w-full">
+  <NavigationMenu v-if="authStore.user" class="w-full shadow bg-slate-50 dark:bg-gray-800">
     <div class="px-4 mx-auto w-full sm:px-6 lg:px-8">
       <NavigationMenuList class="w-full">
         <div class="flex items-center space-x-3 justify-between h-16 w-full">
           <div class="w-100">
-            <NavigationMenuItem>
-              <RouterLink :class="navigationMenuTriggerStyle()" to="/registrations">
-                <IconHome/>
-                <span class="mx-2">Inicio</span>
-              </RouterLink>
-            </NavigationMenuItem>
+            <small>Bienvenida/o</small>
+            <p>{{ authStore.user.name }}</p>
+
           </div>
-          <div>
+          <div class="flex items-center space-x-3.5">
             <!--            Logo-->
-            <img alt="IEPC Durango Logo" class="mb-5" src="@/assets/LOGO.png" width="100"/>
+            <img alt="IEPC Durango Logo" src="@/assets/LOGO.png" width="100" class="dark:invert"/>
+            <div class="flex flex-col text-center">
+              <span class=" font-semibold text-md">INSTITUTO ELECTORAL Y DE PARTICIPACIÓN CIUDADANA DEL ESTADO DE DURANGO</span>
+              <span class=" font-semibold text-xs">SISTEMA DE REGISTRO DE CANDIDATURAS</span>
+            </div>
           </div>
           <div class="w-100 flex space-x-3 justify-end">
             <NavigationMenuItem>
-              <Button variant="ghost" @click="store.fetchBlocks()">
-                <IconRefresh class="h-4 w-4"/>
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger as-child>
+                  <Button variant="ghost">
+                    <IconMoon class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"/>
+                    <IconSun class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"/>
+                    <span class="sr-only">Alternar colores</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem @click="mode = 'light'">
+                    Claro
+                  </DropdownMenuItem>
+                  <DropdownMenuItem @click="mode = 'dark'">
+                    Oscuro
+                  </DropdownMenuItem>
+                  <DropdownMenuItem @click="mode = 'auto'">
+                    Sistema
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </NavigationMenuItem>
             <NavigationMenuItem>
-              <Button variant="secondary" @click="handleLogout">
-                Cerrar sesión
-              </Button>
+              <TooltipWrapper message="Actualizar">
+                <Button variant="ghost" @click="store.fetchBlocks()">
+                  <IconRefresh/>
+                </Button>
+              </TooltipWrapper>
             </NavigationMenuItem>
-
+            <NavigationMenuItem>
+              <TooltipWrapper message="Cerrar sesión">
+                <Button variant="secondary" @click="handleLogout">
+                  <IconDoorExit/>
+                </Button>
+              </TooltipWrapper>
+            </NavigationMenuItem>
           </div>
         </div>
       </NavigationMenuList>

@@ -1,59 +1,8 @@
 <script setup lang="ts">
-
-import {FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form";
-import {Separator} from "@/components/ui/separator";
-import {Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
+import {FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form";
 import {Input} from "@/components/ui/input";
-import {computed, onMounted, ref, watch} from "vue";
-import axios from "axios";
-import {useGenresStore} from "@/stores/genres";
-
-const store = {storeGender: useGenresStore()}
-
-const getGenres = computed(() => {
-  return store.storeGender.getGenres || []
-})
-
-onMounted(() => {
-  store.storeGender.fetchGenres()
-})
-
-const [states, municipalities, selectedState, selectedMunicipality, loadingStates, loadingMunicipalities] = [ref(), ref(), ref(null), ref(null), ref(false), ref(false)];
-
-// Obtener los estados al montar el componente
-const statesOptions = {
-  method: 'GET',
-  url: import.meta.env.VITE_SERVICES_API_URI + 'states',
-  headers: {authorization: 'Bearer ' + import.meta.env.VITE_SERVICES_API_TOKEN}
-};
-
-onMounted(async () => {
-  try {
-    loadingStates.value = true;
-    const {data} = await axios.request(statesOptions);
-    states.value = data.data;
-  } catch (error) {
-    console.error(error);
-  } finally {
-    loadingStates.value = false;
-  }
-
-  watch(selectedState, async (newState) => {
-    console.log("selectedState ", selectedState)
-    if (newState) {
-      try {
-        const response = await axios.get(import.meta.env.VITE_SERVICES_API_URI + `municipalities/${newState.id}`, {
-          headers: {authorization: 'Bearer ' + import.meta.env.VITE_SERVICES_API_TOKEN}
-        });
-        municipalities.value = response.data.data;
-      } catch (error) {
-        console.error('Error al obtener los municipios:', error);
-      }
-    } else {
-      municipalities.value = [];
-    }
-  });
-});
+import {vMaska} from "maska/vue"
+import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 </script>
 
 <template>

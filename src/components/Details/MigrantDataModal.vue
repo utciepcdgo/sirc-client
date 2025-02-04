@@ -72,7 +72,7 @@ const onSubmit = handleSubmit(async (values) => {
 })
 
 async function downloadPdf() {
-  await migrantPdf(initialRegistration.valie)
+  const pdfFormat = await migrantPdf(initialRegistration.value)
 
   // Create a download link
   const blob = new Blob([pdfFormat], {type: 'application/pdf'})

@@ -1,23 +1,12 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import type {ColumnDef, SortingState} from '@tanstack/vue-table'
-import {h, ref} from 'vue'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
+import {FlexRender, getCoreRowModel, getPaginationRowModel, getSortedRowModel, useVueTable,} from '@tanstack/vue-table'
+import {computed, defineProps, ref} from 'vue'
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow,} from '@/components/ui/table'
 import {Button} from '@/components/ui/button'
+import {columns as baseColumns} from '@/components/Details/columns'
+import UploadModal from "@/components/Details/UploadModal.vue";
 
-import {
-  FlexRender,
-  getCoreRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useVueTable,
-} from '@tanstack/vue-table'
 
 const props = defineProps<{
   columns: ColumnDef<TData, TValue>[]
@@ -54,6 +43,7 @@ const table = useVueTable({
   },
 })
 
+
 </script>
 
 <template>
@@ -64,8 +54,8 @@ const table = useVueTable({
           <TableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
             <TableHead v-for="header in headerGroup.headers" :key="header.id">
               <FlexRender
-                  v-if="!header.isPlaceholder" :render="header.column.columnDef.header"
-                  :props="header.getContext()"
+                  v-if="!header.isPlaceholder" :props="header.getContext()"
+                  :render="header.column.columnDef.header"
               />
             </TableHead>
           </TableRow>
@@ -77,7 +67,7 @@ const table = useVueTable({
                 :data-state="row.getIsSelected() ? 'selected' : undefined"
             >
               <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
-                <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()"/>
+                <FlexRender :props="cell.getContext()" :render="cell.column.columnDef.cell"/>
               </TableCell>
             </TableRow>
           </template>
@@ -93,17 +83,17 @@ const table = useVueTable({
     </div>
     <div class="flex items-center justify-start py-4 space-x-2">
       <Button
-          variant="outline"
-          size="sm"
           :disabled="!table.getCanPreviousPage()"
+          size="sm"
+          variant="outline"
           @click="table.previousPage()"
       >
         Anterior
       </Button>
       <Button
-          variant="outline"
-          size="sm"
           :disabled="!table.getCanNextPage()"
+          size="sm"
+          variant="outline"
           @click="table.nextPage()"
       >
         Siguiente

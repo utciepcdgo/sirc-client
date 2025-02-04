@@ -3,7 +3,7 @@ import colors from 'tailwindcss/colors';
 
 /** @type {import('tailwindcss').Config} */
 export default {
-    darkMode: "media",
+    darkMode: "class",
     prefix: "",
 
     content: [

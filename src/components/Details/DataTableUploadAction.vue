@@ -1,28 +1,28 @@
 <script lang="ts" setup>
 import {Button} from '@/components/ui/button'
 import {IconExchange, IconPencil, IconUpload} from '@tabler/icons-vue'
-import {DialogFooter, DialogHeader, DialogScrollContent, DialogTitle,} from '@/components/ui/dialog'
-import {DialogRoot} from "radix-vue";
-import {ref} from "vue";
+import {defineEmits, defineProps, ref} from "vue";
+import UploadModal from "@/components/Details/UploadModal.vue";
 
-defineProps<{
+const props = defineProps<{
   registration: {
     id: string,
     uuid: string,
   }
 }>()
 
-function message(id: string) {
-  alert(id)
-}
+const openModal = ref(false);
 
-let openUploadModal = ref(false)
+// Función para abrir el modal y enviar `registration`
+const openUploadModal = () => {
+  openModal.value = true;
+};
 
 </script>
 
 <template>
   <div class="space-x-2.5">
-    <Button @click="openUploadModal = true">
+    <Button @click="openUploadModal">
       <IconUpload/>
       Cargar
     </Button>
@@ -35,7 +35,7 @@ let openUploadModal = ref(false)
       Editar
     </Button>
   </div>
-
+  <UploadModal v-model:open="openModal" :registration="registration"/>
 </template>
 
 <style scoped>

@@ -1,12 +1,10 @@
 <script lang="ts" setup>
 import {computed, onMounted, onUnmounted, ref, watch} from 'vue'
 import {useBlocksStore} from "@/stores/blocks.js";
-import {FingerprintSpinner} from 'epic-spinners'
 
 import Form from "@/components/Registration/Form.vue";
 import {Button} from "@/components/ui/button";
 import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle,} from '@/components/ui/card'
-import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from '@/components/ui/tooltip'
 import {DialogDescription, DialogFooter, DialogHeader, DialogScrollContent, DialogTitle,} from '@/components/ui/dialog'
 import {AlertDialog, AlertDialogContent, AlertDialogTitle} from '@/components/ui/alert-dialog'
 import {Tabs, TabsContent, TabsList, TabsTrigger} from '@/components/ui/tabs'
@@ -17,14 +15,17 @@ import {columns} from './Details/columns'
 import DataTable from './Details/DataTable.vue'
 
 import {registrationRequestPdf} from '@/components/Documents/RegistrationRequestPdf';
-import {IconChevronDown, IconInfoCircle, IconManFilled, IconPlus, IconRefresh, IconSearch, IconWomanFilled} from '@tabler/icons-vue';
+import {IconChevronDown, IconFilter, IconInfoCircle, IconManFilled, IconPlus, IconSearch, IconWomanFilled} from '@tabler/icons-vue';
 
 import {DialogRoot, VisuallyHidden} from "radix-vue";
 import axios from "axios";
 import {Toaster} from "@/components/ui/toast";
-import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger} from '@/components/ui/dropdown-menu'
+import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from '@/components/ui/dropdown-menu'
+import {Label} from '@/components/ui/label'
+import {Switch} from '@/components/ui/switch'
 import {useAuthStore} from "@/stores/auth";
-import { useLoadingStore } from '@/stores/loading';
+import {useLoadingStore} from '@/stores/loading';
+import TooltipWrapper from "@/components/ui/TooltipWrapper.vue";
 
 const authStore = useAuthStore();
 const loadingStore = useLoadingStore();
@@ -48,15 +49,34 @@ watch(
 );
 
 let municipalitySearch = ref('')
+const showOnlyWithRegistrations = ref(false);
+const showOnlyWithCompensatories = ref(false);
 let selectedBlock = ref(null)
-let open = ref(false)
+const open = ref(false)
 let openDetails = ref(false)
 const blockdata = ref(null)
 const datatable = ref<Registration[]>([])
 
+const closeModal = () => {
+  open.value = false;
+};
+
 const filterBlocks = computed(() => {
   return getBlocks.value.filter(block => {
-    return block.municipality.name.toLowerCase().includes(municipalitySearch.value.toLowerCase())
+    const matchesSearch = block.municipality.name.toLowerCase().includes(municipalitySearch.value.toLowerCase());
+    const hasRegistrations = block.registrations?.stats?.total > 0;
+    const hasCompensatories = block.registrations?.stats?.compensatories > 0;
+
+    if (showOnlyWithRegistrations.value && showOnlyWithCompensatories.value) {
+      return matchesSearch && hasRegistrations && hasCompensatories;
+    } else if (showOnlyWithRegistrations.value) {
+      return matchesSearch && hasRegistrations;
+    } else if (showOnlyWithCompensatories.value) {
+      return matchesSearch && hasCompensatories;
+    } else {
+      return matchesSearch;
+    }
+    // return showOnlyWithRegistrations.value ? matchesSearch && hasRegistrations : matchesSearch;
   })
 })
 
@@ -113,22 +133,55 @@ async function downloadregistrationRequestPdf(id: number) {
 <template>
   <Toaster/>
   <div>
-<!--    {{ store.isLoading }}-->
-<!--    <h1>Bienvenido, {{ authStore.user?.name }}</h1>-->
-<!--    <p>Entities: {{ authStore.entities }}</p>-->
+    <!--    {{ store.isLoading }}-->
+    <!--    <h1>Bienvenido, {{ authStore.user?.name }}</h1>-->
+    <!--    <p>Entities: {{ authStore.entities }}</p>-->
   </div>
   <div class="flex justify-between mb-5">
-    <div class="relative w-full max-w-sm items-center">
-      <Input id="search" v-model="municipalitySearch" class="pl-10" name="search" placeholder="Buscar municipio..." type="search"/>
-      <span class="absolute start-0 inset-y-0 flex items-center justify-center px-2">
-        <IconSearch class="size-6 text-muted-foreground"/>
-      </span>
+    <div class="relative items-center">
+      <div class="flex space-x-3.5">
+        <div class="flex-grow">
+          <Input id="search" v-model="municipalitySearch" class="pl-10" name="search" placeholder="Buscar municipio..." type="search"/>
+          <span class="absolute start-0 inset-y-0 flex items-center justify-center px-2">
+          <IconSearch class="size-6 text-muted-foreground"/>
+        </span>
+        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger>
+            <TooltipWrapper message="Filtros">
+              <Button variant="link">
+                <IconFilter/>
+                <IconChevronDown class="ml-2"/>
+              </Button>
+            </TooltipWrapper>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem>
+              <div class="flex items-center space-x-2">
+                <Switch id="only-with-compensatories" v-model:checked="showOnlyWithRegistrations"/>
+                <div class="flex flex-col">
+                  <Label for="only-with-compensatories">Solo registrados</Label>
+                  <small>Muestre los municipios con un registro o más.</small>
+                </div>
+              </div>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <div class="flex items-center space-x-2">
+                <Switch id="only-with-registrations" v-model:checked="showOnlyWithCompensatories"/>
+                <div class="flex flex-col">
+                  <Label for="only-with-registrations">Solo Medidas Compensatorias</Label>
+                  <small>Muestre los municipios con registros en alguna Medida Compensatoria.</small>
+                </div>
+              </div>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
     </div>
     <div class="flex items-center space-x-2.5">
-      <!--        Generador de formato "Solicitud de registro. El botón acciona un Dropdown -->
       <DropdownMenu>
         <DropdownMenuTrigger>
-          <Button variant="secondary">
+          <Button variant="link">
             Solicitud de registro
             <IconChevronDown class="ml-2"/>
           </Button>
@@ -140,17 +193,12 @@ async function downloadregistrationRequestPdf(id: number) {
       </DropdownMenu>
       <DropdownMenu>
         <DropdownMenuTrigger>
-          <Button variant="destructive">
+          <Button variant="link">
             Presentar solicitud de registro
             <IconChevronDown class="ml-2"/>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
-          <DropdownMenuLabel>My Account</DropdownMenuLabel>
-          <DropdownMenuSeparator/>
-          <DropdownMenuItem>Profile</DropdownMenuItem>
-          <DropdownMenuItem>Billing</DropdownMenuItem>
-          <DropdownMenuItem>Team</DropdownMenuItem>
           <DropdownMenuItem>Subscription</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -168,9 +216,9 @@ async function downloadregistrationRequestPdf(id: number) {
     </AlertDialogContent>
   </AlertDialog>
 
-  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
     <div v-for="(block) in filterBlocks" :key="block.id">
-      <Card>
+      <Card class="relative">
         <CardHeader>
           <div class="flex items-center space-x-2.5">
             <div>
@@ -199,24 +247,17 @@ async function downloadregistrationRequestPdf(id: number) {
           </div>
         </CardContent>
         <CardFooter class="justify-between">
-          <div class="flex space-x-2.5 items-center">
+          <div class="flex space-x-2.5 md:space-x-1 sm:space-x-3.5 lg:space-x-1 xl:space-x-3.5 items-center">
             <Button variant="default" @click="openModal(block)">
               <IconPlus stroke-width="3"/>
               Registrar
             </Button>
-            <TooltipProvider :delay-duration="100">
-              <Tooltip>
-                <TooltipTrigger as-child>
-                  <Button variant="secondary" @click="openModalDetails(block)">
-                    <IconInfoCircle/>
-                    Detalles
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent :align-offset="0" :arrow-padding="0" :collision-boundary="[]" :collision-padding="0" align="center" avoid-collisions hide-when-detached side="top" sticky="partial">
-                  <p>Vea los registros y gestione la información</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            <TooltipWrapper message="Vea los registros y gestione la información">
+              <Button variant="secondary" @click="openModalDetails(block)">
+                <IconInfoCircle/>
+                Detalles
+              </Button>
+            </TooltipWrapper>
           </div>
           <div class="flex items-center">
             <img :alt="block.entity.name" :src="block.entity.logo" class="rounded-full" width="24">
@@ -236,11 +277,10 @@ async function downloadregistrationRequestPdf(id: number) {
             <DialogDescription>
               <p>Municipio de {{ selectedBlock.municipality.name }}</p>
             </DialogDescription>
-            Bloque seleccionado: {{ selectedBlock.id }}
           </div>
         </div>
       </DialogHeader>
-      <Form :selectedBlock="selectedBlock"/>
+      <Form :selectedBlock="selectedBlock" @closeModal="closeModal"/>
       <DialogFooter class="flex items-center !justify-between">
         <div class="flex items-center space-x-2.5">
           <img :alt="selectedBlock.entity.name" :src="selectedBlock.entity.logo" class="rounded-md" width="32">
@@ -290,7 +330,7 @@ async function downloadregistrationRequestPdf(id: number) {
             <span class="font-semibold">Siglados:</span>
             <span class="text-gray-600">Presidencia Municipal: {{ blockdata.assignments.municipality ? "Sí" : "No" }}</span>
             <span class="text-gray-600">Sindicatura: {{ blockdata.assignments.syndic ? "Sí" : "No" }}</span>
-            <span class="text-gray-600">Regidurías (Posiciones): {{ blockdata.assignments.councils.list }}</span>
+            <span class="text-gray-600">Regidurías (Posiciones): {{ blockdata?.assignments?.councils?.list }}</span>
           </div>
         </TabsContent>
       </Tabs>

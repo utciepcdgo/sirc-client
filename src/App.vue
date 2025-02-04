@@ -31,7 +31,7 @@ const loadingStore = useLoadingStore();
 
   <Navbar/>
 
-  <div class="px-4 w-full lg:px-8 mt-5">
+  <div>
     <main>
       <RouterView :isLoading="isLoading"/>
     </main>
