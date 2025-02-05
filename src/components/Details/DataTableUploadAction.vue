@@ -3,6 +3,7 @@ import {Button} from '@/components/ui/button'
 import {IconExchange, IconPencil, IconUpload} from '@tabler/icons-vue'
 import {defineEmits, defineProps, ref} from "vue";
 import UploadModal from "@/components/Details/UploadModal.vue";
+import EditionModal from "@/components/Edition/EditionModal.vue";
 
 const props = defineProps<{
   registration: {
@@ -12,11 +13,17 @@ const props = defineProps<{
 }>()
 
 const openModal = ref(false);
+const openEditionModal = ref(false);
 
 // Función para abrir el modal y enviar `registration`
 const openUploadModal = () => {
   openModal.value = true;
 };
+
+const openEditModal = () => {
+  openEditionModal.value = true;
+};
+
 
 </script>
 
@@ -30,12 +37,13 @@ const openUploadModal = () => {
       <IconExchange/>
       Sustituír
     </Button>
-    <Button @click="message(registration.id)">
+    <Button @click="openEditModal">
       <IconPencil/>
       Editar
     </Button>
   </div>
   <UploadModal v-model:open="openModal" :registration="registration"/>
+  <EditionModal :registration="registration" v-model:open="openEditionModal"/>
 </template>
 
 <style scoped>

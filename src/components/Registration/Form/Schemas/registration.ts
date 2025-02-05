@@ -81,4 +81,5 @@ export const registrationSchema = {
         otherwise: (s) => s,
     }),
     mote: Yup.string().optional(),
+    id: Yup.number().optional(),
 }

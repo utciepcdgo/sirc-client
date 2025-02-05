@@ -8,6 +8,14 @@ import {computed, onMounted} from "vue";
 import {useSexesStore} from "@/stores/sexes";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 
+
+const props = defineProps({
+  registration: {
+    type: Object,
+    required: false
+  },
+});
+
 const store = {storeSex: useSexesStore()}
 
 const getSexes = computed(() => {
@@ -87,7 +95,7 @@ onMounted(() => {
             <FormItem>
               <FormLabel>Sexo</FormLabel>
               <FormControl>
-                <Select v-bind="componentField">
+                <Select v-bind="componentField" :default-value="registration?.sex?.id.toString()">
                   <SelectTrigger>
                     <SelectValue placeholder="Seleccione una opción"/>
                   </SelectTrigger>

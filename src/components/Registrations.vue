@@ -131,216 +131,213 @@ async function downloadregistrationRequestPdf(id: number) {
 </script>
 
 <template>
-  <Toaster/>
-  <div>
-    <!--    {{ store.isLoading }}-->
-    <!--    <h1>Bienvenido, {{ authStore.user?.name }}</h1>-->
-    <!--    <p>Entities: {{ authStore.entities }}</p>-->
-  </div>
-  <div class="flex justify-between mb-5">
-    <div class="relative items-center">
-      <div class="flex space-x-3.5">
-        <div class="flex-grow">
-          <Input id="search" v-model="municipalitySearch" class="pl-10" name="search" placeholder="Buscar municipio..." type="search"/>
-          <span class="absolute start-0 inset-y-0 flex items-center justify-center px-2">
+  <div class="p-6">
+    <Toaster/>
+    <div class="flex justify-between mb-5">
+      <div class="relative items-center">
+        <div class="flex space-x-3.5">
+          <div class="flex-grow">
+            <Input id="search" v-model="municipalitySearch" class="pl-10" name="search" placeholder="Buscar municipio..." type="search"/>
+            <span class="absolute start-0 inset-y-0 flex items-center justify-center px-2">
           <IconSearch class="size-6 text-muted-foreground"/>
         </span>
+          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger>
+              <TooltipWrapper message="Filtros">
+                <Button variant="link">
+                  <IconFilter/>
+                  <IconChevronDown class="ml-2"/>
+                </Button>
+              </TooltipWrapper>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem>
+                <div class="flex items-center space-x-2">
+                  <Switch id="only-with-compensatories" v-model:checked="showOnlyWithRegistrations"/>
+                  <div class="flex flex-col">
+                    <Label for="only-with-compensatories">Solo registrados</Label>
+                    <small>Muestre los municipios con un registro o más.</small>
+                  </div>
+                </div>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <div class="flex items-center space-x-2">
+                  <Switch id="only-with-registrations" v-model:checked="showOnlyWithCompensatories"/>
+                  <div class="flex flex-col">
+                    <Label for="only-with-registrations">Solo Medidas Compensatorias</Label>
+                    <small>Muestre los municipios con registros en alguna Medida Compensatoria.</small>
+                  </div>
+                </div>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
+      </div>
+      <div class="flex items-center space-x-2.5">
         <DropdownMenu>
           <DropdownMenuTrigger>
-            <TooltipWrapper message="Filtros">
-              <Button variant="link">
-                <IconFilter/>
-                <IconChevronDown class="ml-2"/>
-              </Button>
-            </TooltipWrapper>
+            <Button variant="link">
+              Solicitud de registro
+              <IconChevronDown class="ml-2"/>
+            </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            <DropdownMenuItem>
-              <div class="flex items-center space-x-2">
-                <Switch id="only-with-compensatories" v-model:checked="showOnlyWithRegistrations"/>
-                <div class="flex flex-col">
-                  <Label for="only-with-compensatories">Solo registrados</Label>
-                  <small>Muestre los municipios con un registro o más.</small>
-                </div>
-              </div>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <div class="flex items-center space-x-2">
-                <Switch id="only-with-registrations" v-model:checked="showOnlyWithCompensatories"/>
-                <div class="flex flex-col">
-                  <Label for="only-with-registrations">Solo Medidas Compensatorias</Label>
-                  <small>Muestre los municipios con registros en alguna Medida Compensatoria.</small>
-                </div>
-              </div>
-            </DropdownMenuItem>
+            <DropdownMenuItem @click="downloadregistrationRequestPdf(4)">Partido</DropdownMenuItem>
+<!--            <DropdownMenuItem @click="downloadregistrationRequestPdf(11)">Coalición</DropdownMenuItem>-->
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <DropdownMenu>
+          <DropdownMenuTrigger>
+            <Button variant="link">
+              Presentar solicitud de registro
+              <IconChevronDown class="ml-2"/>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem></DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
     </div>
-    <div class="flex items-center space-x-2.5">
-      <DropdownMenu>
-        <DropdownMenuTrigger>
-          <Button variant="link">
-            Solicitud de registro
-            <IconChevronDown class="ml-2"/>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <DropdownMenuItem @click="downloadregistrationRequestPdf(4)">Partido</DropdownMenuItem>
-          <DropdownMenuItem @click="downloadregistrationRequestPdf(11)">Coalición</DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-      <DropdownMenu>
-        <DropdownMenuTrigger>
-          <Button variant="link">
-            Presentar solicitud de registro
-            <IconChevronDown class="ml-2"/>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <DropdownMenuItem>Subscription</DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div>
-  </div>
 
-  <AlertDialog v-model:open="store.blocksError">
-    <AlertDialogContent class="min-w-[128]">
-      <VisuallyHidden asChild>
-        <AlertDialogTitle>Error</AlertDialogTitle>
-      </VisuallyHidden>
-      <p>Hubo un error al intentar cargar el contenido, contacte al administrador.</p>
-      <p class="mt-3 text-sm p-0 leading-none">Detalles:</p>
-      <small class="italic text-red-600 leading-none">{{ store.blocksError }}</small>
-    </AlertDialogContent>
-  </AlertDialog>
+    <AlertDialog v-model:open="store.blocksError">
+      <AlertDialogContent class="min-w-[128]">
+        <VisuallyHidden asChild>
+          <AlertDialogTitle>Error</AlertDialogTitle>
+        </VisuallyHidden>
+        <p>Hubo un error al intentar cargar el contenido, contacte al administrador.</p>
+        <p class="mt-3 text-sm p-0 leading-none">Detalles:</p>
+        <small class="italic text-red-600 leading-none">{{ store.blocksError }}</small>
+      </AlertDialogContent>
+    </AlertDialog>
 
-  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-    <div v-for="(block) in filterBlocks" :key="block.id">
-      <Card class="relative">
-        <CardHeader>
-          <div class="flex items-center space-x-2.5">
-            <div>
-              <img :src="block.municipality.shield" alt="logo" class="w-16 h-16"/>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+      <div v-for="(block) in filterBlocks" :key="block.id">
+        <Card class="relative">
+          <CardHeader>
+            <div class="flex items-center space-x-2.5">
+              <div>
+                <img :src="block.municipality.shield" alt="logo" class="w-16 h-16"/>
+              </div>
+              <div>
+                <CardTitle>{{ block.municipality.name }}</CardTitle>
+                <CardDescription>
+                  {{ block.entity.name }}
+                </CardDescription>
+              </div>
             </div>
-            <div>
-              <CardTitle>{{ block.municipality.name }}</CardTitle>
-              <CardDescription>
-                {{ block.entity.name }}
-              </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div class="flex text-center justify-around">
+              <div class="flex flex-col">
+                <IconWomanFilled class="self-center"/>
+                <small class="text-[8pt]">MUJERES</small>
+                <span class="font-bold text-2xl mt-3">{{ block.registrations.stats.women }}</span>
+              </div>
+              <div class="flex flex-col">
+                <IconManFilled class="self-center"/>
+                <small class="text-[8pt]">HOMBRES</small>
+                <span class="font-bold text-2xl mt-3">{{ block.registrations.stats.man }}</span>
+              </div>
             </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div class="flex text-center justify-around">
-            <div class="flex flex-col">
-              <IconWomanFilled class="self-center"/>
-              <small class="text-[8pt]">MUJERES</small>
-              <span class="font-bold text-2xl mt-3">{{ block.registrations.stats.women }}</span>
-            </div>
-            <div class="flex flex-col">
-              <IconManFilled class="self-center"/>
-              <small class="text-[8pt]">HOMBRES</small>
-              <span class="font-bold text-2xl mt-3">{{ block.registrations.stats.man }}</span>
-            </div>
-          </div>
-        </CardContent>
-        <CardFooter class="justify-between">
-          <div class="flex space-x-2.5 md:space-x-1 sm:space-x-3.5 lg:space-x-1 xl:space-x-3.5 items-center">
-            <Button variant="default" @click="openModal(block)">
-              <IconPlus stroke-width="3"/>
-              Registrar
-            </Button>
-            <TooltipWrapper message="Vea los registros y gestione la información">
-              <Button variant="secondary" @click="openModalDetails(block)">
-                <IconInfoCircle/>
-                Detalles
+          </CardContent>
+          <CardFooter class="justify-between">
+            <div class="flex space-x-2.5 md:space-x-1 sm:space-x-3.5 lg:space-x-1 xl:space-x-3.5 items-center">
+              <Button variant="default" @click="openModal(block)">
+                <IconPlus stroke-width="3"/>
+                Registrar
               </Button>
-            </TooltipWrapper>
-          </div>
-          <div class="flex items-center">
-            <img :alt="block.entity.name" :src="block.entity.logo" class="rounded-full" width="24">
-          </div>
-        </CardFooter>
-      </Card>
+              <TooltipWrapper message="Vea los registros y gestione la información">
+                <Button variant="secondary" @click="openModalDetails(block)">
+                  <IconInfoCircle/>
+                  Detalles
+                </Button>
+              </TooltipWrapper>
+            </div>
+            <div class="flex items-center">
+              <img :alt="block.entity.name" :src="block.entity.logo" class="rounded-full" width="24">
+            </div>
+          </CardFooter>
+        </Card>
+      </div>
     </div>
+
+    <DialogRoot v-model:open="open" :update:open="open">
+      <DialogScrollContent class="min-w-[80%]">
+        <DialogHeader>
+          <div class="flex items-center space-x-2.5">
+            <img :alt="'Escudo del municipio de ' + selectedBlock.municipality.name" :src="selectedBlock.municipality.shield" class="w-16 h-16"/>
+            <div>
+              <DialogTitle>Nuevo registro</DialogTitle>
+              <DialogDescription>
+                <p>Municipio de {{ selectedBlock.municipality.name }}</p>
+              </DialogDescription>
+            </div>
+          </div>
+        </DialogHeader>
+        <Form :selectedBlock="selectedBlock" @closeModal="closeModal"/>
+        <DialogFooter class="flex items-center !justify-between">
+          <div class="flex items-center space-x-2.5">
+            <img :alt="selectedBlock.entity.name" :src="selectedBlock.entity.logo" class="rounded-md" width="32">
+            <div class="flex flex-col">
+              <p class="text-sm">{{ selectedBlock.entity.name }}</p>
+              <p class="text-xs text-slate-600">{{ currentTime.toLocaleString() }}</p>
+            </div>
+          </div>
+          <Button form="registration_form" type="submit">
+            Guardar registro
+          </Button>
+        </DialogFooter>
+      </DialogScrollContent>
+    </DialogRoot>
+
+    <DialogRoot v-model:open="openDetails">
+      <DialogScrollContent class="min-w-[80%]">
+        <DialogHeader>
+          <DialogTitle>Registros en {{ blockdata.municipality.name }}</DialogTitle>
+          <DialogDescription>
+            Revise, edite o sustituya los registros del bloque seleccionado.
+          </DialogDescription>
+        </DialogHeader>
+        <Tabs default-value="registrations">
+          <TabsList>
+            <TabsTrigger value="registrations">
+              Registros
+            </TabsTrigger>
+            <TabsTrigger value="information">
+              Información adicional
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="registrations">
+            <DataTable :columns="columns" :data="datatable"/>
+          </TabsContent>
+          <TabsContent value="information">
+            <p>Municipio: {{ blockdata.municipality.name }}</p>
+            <p>Votos obtenidos: {{ blockdata.votes_obtained }}</p>
+            <p>Votación válida emitida: {{ blockdata.valid_vote_issued }}</p>
+            <h5 class="text-md font-bold leading-none tracking-tight my-3">Propiedades</h5>
+            <div class="flex flex-col mb-2">
+              <span class="font-semibold">Identificador del bloque:</span>
+              <span>{{ blockdata.uuid }}</span>
+              <span class="text-gray-600 leading-none text-xs">Si tiene algún problema con la información presentada, comparta este identificador al área de soporte.</span>
+            </div>
+            <div class="flex flex-col">
+              <span class="font-semibold">Siglados:</span>
+              <span class="text-gray-600">Presidencia Municipal: {{ blockdata.assignments.municipality ? "Sí" : "No" }}</span>
+              <span class="text-gray-600">Sindicatura: {{ blockdata.assignments.syndic ? "Sí" : "No" }}</span>
+              <span class="text-gray-600">Regidurías (Posiciones): {{ blockdata?.assignments?.councils?.list }}</span>
+            </div>
+          </TabsContent>
+        </Tabs>
+        <DialogFooter>
+          <Button variant="secondary" @click="openDetails = false">
+            Cerrar ventana
+          </Button>
+        </DialogFooter>
+      </DialogScrollContent>
+    </DialogRoot>
   </div>
-
-  <DialogRoot v-model:open="open" :update:open="open">
-    <DialogScrollContent class="min-w-[80%]">
-      <DialogHeader>
-        <div class="flex items-center space-x-2.5">
-          <img :alt="'Escudo del municipio de ' + selectedBlock.municipality.name" :src="selectedBlock.municipality.shield" class="w-16 h-16"/>
-          <div>
-            <DialogTitle>Nuevo registro</DialogTitle>
-            <DialogDescription>
-              <p>Municipio de {{ selectedBlock.municipality.name }}</p>
-            </DialogDescription>
-          </div>
-        </div>
-      </DialogHeader>
-      <Form :selectedBlock="selectedBlock" @closeModal="closeModal"/>
-      <DialogFooter class="flex items-center !justify-between">
-        <div class="flex items-center space-x-2.5">
-          <img :alt="selectedBlock.entity.name" :src="selectedBlock.entity.logo" class="rounded-md" width="32">
-          <div class="flex flex-col">
-            <p class="text-sm">{{ selectedBlock.entity.name }}</p>
-            <p class="text-xs text-slate-600">{{ currentTime.toLocaleString() }}</p>
-          </div>
-        </div>
-        <Button form="registration_form" type="submit">
-          Guardar registro
-        </Button>
-      </DialogFooter>
-    </DialogScrollContent>
-  </DialogRoot>
-
-  <DialogRoot v-model:open="openDetails">
-    <DialogScrollContent class="min-w-[80%]">
-      <DialogHeader>
-        <DialogTitle>Registros en {{ blockdata.municipality.name }}</DialogTitle>
-        <DialogDescription>
-          Revise, edite o sustituya los registros del bloque seleccionado.
-        </DialogDescription>
-      </DialogHeader>
-      <Tabs default-value="registrations">
-        <TabsList>
-          <TabsTrigger value="registrations">
-            Registros
-          </TabsTrigger>
-          <TabsTrigger value="information">
-            Información adicional
-          </TabsTrigger>
-        </TabsList>
-        <TabsContent value="registrations">
-          <DataTable :columns="columns" :data="datatable"/>
-        </TabsContent>
-        <TabsContent value="information">
-          <p>Municipio: {{ blockdata.municipality.name }}</p>
-          <p>Votos obtenidos: {{ blockdata.votes_obtained }}</p>
-          <p>Votación válida emitida: {{ blockdata.valid_vote_issued }}</p>
-          <h5 class="text-md font-bold leading-none tracking-tight my-3">Propiedades</h5>
-          <div class="flex flex-col mb-2">
-            <span class="font-semibold">Identificador del bloque:</span>
-            <span>{{ blockdata.uuid }}</span>
-            <span class="text-gray-600 leading-none text-xs">Si tiene algún problema con la información presentada, comparta este identificador al área de soporte.</span>
-          </div>
-          <div class="flex flex-col">
-            <span class="font-semibold">Siglados:</span>
-            <span class="text-gray-600">Presidencia Municipal: {{ blockdata.assignments.municipality ? "Sí" : "No" }}</span>
-            <span class="text-gray-600">Sindicatura: {{ blockdata.assignments.syndic ? "Sí" : "No" }}</span>
-            <span class="text-gray-600">Regidurías (Posiciones): {{ blockdata?.assignments?.councils?.list }}</span>
-          </div>
-        </TabsContent>
-      </Tabs>
-      <DialogFooter>
-        <Button variant="secondary" @click="openDetails = false">
-          Cerrar ventana
-        </Button>
-      </DialogFooter>
-    </DialogScrollContent>
-  </DialogRoot>
 </template>
 
 <style scoped>
