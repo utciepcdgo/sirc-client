@@ -15,6 +15,7 @@ import {VisuallyHidden} from "radix-vue";
 import {useCompensatoryStore} from "@/stores/compensatories";
 import {useGenresStore} from "@/stores/genres";
 import {usePostulationsStore} from "@/stores/postulations";
+import {useLoadingStore} from "@/stores/loading";
 import FormHeader from "@/components/Registration/Form/Modules/FormHeader.vue";
 import VoterCard from "@/components/Registration/Form/Modules/VoterCard.vue";
 import {registrationSchema} from "@/components/Registration/Form/Schemas/registration";
@@ -22,7 +23,7 @@ import {FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/compon
 import {Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 import {useToast} from "@/components/ui/toast";
 
-const store = {storeCompensatory: useCompensatoryStore(), storeGender: useGenresStore(), storePostulation: usePostulationsStore()}
+const store = {storeCompensatory: useCompensatoryStore(), storeGender: useGenresStore(), storePostulation: usePostulationsStore(), storeLoading: useLoadingStore()}
 
 const getCompensatory = computed(() => {
   return store.storeCompensatory.getCompensatory || []
@@ -51,12 +52,11 @@ const selectedState = ref(null);
 const selectedMunicipality = ref(null);
 const selectedStateFromResidence = ref(null);
 const selectedMunicipalityFromResidence = ref(null);
-const isLoading = ref(false);
 const isError = ref({there: false, error: ''});
 
 const fetchStates = async () => {
   loadingStates.value = true;
-  isLoading.value = true;
+  store.storeLoading.showLoading()
   try {
     const response = await axios.get(import.meta.env.VITE_SERVICES_API_URI + 'states', {
       headers: {authorization: 'Bearer ' + import.meta.env.VITE_SERVICES_API_TOKEN}
@@ -67,12 +67,12 @@ const fetchStates = async () => {
     console.error(error);
   } finally {
     loadingStates.value = false;
-    isLoading.value = false;
+    store.storeLoading.hideLoading()
   }
 };
 
 const fetchMunicipalities = async (stateId, field) => {
-  isLoading.value = true;
+  store.storeLoading.showLoading()
   try {
     const response = await axios.get(import.meta.env.VITE_SERVICES_API_URI + `municipalities/${stateId}`, {
       headers: {authorization: 'Bearer ' + import.meta.env.VITE_SERVICES_API_TOKEN}
@@ -84,7 +84,7 @@ const fetchMunicipalities = async (stateId, field) => {
   } catch (error) {
     console.error('Error al obtener los municipios:', error);
   } finally {
-    isLoading.value = false;
+    store.storeLoading.hideLoading()
   }
 };
 
@@ -170,19 +170,6 @@ const showMote = computed(() => values.postulation_id === 3 && values.position_i
         <AlertDialogFooter>
           <AlertDialogAction>Aceptar</AlertDialogAction>
         </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
-
-    <AlertDialog v-model:open="isLoading">
-      <AlertDialogContent class="w-[177.6px] bg-transparent border-0 shadow-none">
-        <VisuallyHidden>
-          <AlertDialogTitle>Cargando...</AlertDialogTitle>
-        </VisuallyHidden>
-        <fingerprint-spinner
-            :animation-duration="1500"
-            :color="'#ffffff'"
-            :size="128"/>
-        <p class="text-center font-bold text-white">Cargando...</p>
       </AlertDialogContent>
     </AlertDialog>
 

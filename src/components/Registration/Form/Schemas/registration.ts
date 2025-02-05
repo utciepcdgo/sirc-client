@@ -16,7 +16,7 @@ export const registrationSchema = {
             id: Yup.number().required(),
             name: Yup.string().required(),
             abbreviation: Yup.string().required(),
-            shield: Yup.string().optional(),
+            shield: Yup.string().optional().default('https://www.ine.mx/wp-content/uploads/2021/03/escudo-ine.png'),
         }).label('Estado').nonNullable('El campo Estado no puede dejarlo vacío'),
         municipality: Yup.object().shape({
             id: Yup.string().required(),

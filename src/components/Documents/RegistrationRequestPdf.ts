@@ -163,7 +163,7 @@ export async function registrationRequestPdf(id: number, type: string) {
     const pageWidthX = doc.internal.pageSize.getWidth();
     const textWidthX = doc.getTextWidth('ATENTAMENTE');
     const centerX = (pageWidthX - textWidthX) / 2;
-    doc.setFont('ARIALNB', 'normal').text('ATENTAMENTE', centerX, 19.3);
+    doc.setFont('ARIALNB', 'normal').text('ATENTAMENTE', centerX, (signatureNameY - 2));
 
     // Firma 1
     doc.setLineWidth(signatureLineThickness)

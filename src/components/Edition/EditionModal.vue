@@ -1,11 +1,9 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 
-import {DialogDescription, DialogFooter, DialogHeader, DialogScrollContent, DialogTitle} from "@/components/ui/dialog";
+import {DialogFooter, DialogHeader, DialogScrollContent, DialogTitle} from "@/components/ui/dialog";
 import {DialogRoot} from "radix-vue";
 import {Button} from "@/components/ui/button";
 import Form from "@/components/Edition/Form.vue";
-import {ref} from "vue";
-import FilePondUploader from "@/components/Details/FilePondUploader.vue";
 
 const props = defineProps({
   registration: {
@@ -14,7 +12,8 @@ const props = defineProps({
   }
 });
 
-const openEditModal = ref(false)
+const emit = defineEmits(['closeEditionModal']);
+
 </script>
 
 <template>
@@ -27,6 +26,9 @@ const openEditModal = ref(false)
       <DialogFooter>
         <Button form="edition_form" type="submit">
           Guardar registro
+        </Button>
+        <Button variant="destructive" @click="$emit('closeEditionModal')">
+          Cancelar
         </Button>
       </DialogFooter>
     </DialogScrollContent>

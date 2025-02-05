@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 
 import Form from "@/components/Registration/Form.vue";
 import {Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
@@ -6,21 +6,32 @@ import {FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/compon
 import VoterCard from "@/components/Registration/Form/Modules/VoterCard.vue";
 import FormHeader from "@/components/Registration/Form/Modules/FormHeader.vue";
 import GeneralInformation from "@/components/Registration/Form/Modules/GeneralInformation.vue";
-import {VisuallyHidden} from "radix-vue";
 import {Input} from "@/components/ui/input";
 import {computed, onMounted, ref, watch} from "vue";
 import {useCompensatoryStore} from "@/stores/compensatories";
 import {useGenresStore} from "@/stores/genres";
 import {useLoadingStore} from "@/stores/loading";
 import {usePostulationsStore} from "@/stores/postulations";
+import {useBlocksStore} from "@/stores/blocks";
 import {registrationSchema} from "@/components/Registration/Form/Schemas/registration";
 import {vMaska} from "maska/vue"
 import axios from "axios";
 import {useForm} from "vee-validate";
 import {toTypedSchema} from "@vee-validate/yup";
 import {object} from "yup";
+import {useToast} from "@/components/ui/toast";
 
-const store = {storeCompensatory: useCompensatoryStore(), storeGender: useGenresStore(), storePostulation: usePostulationsStore(), storeLoading: useLoadingStore()}
+// Hook para el Toast
+const {toast} = useToast();
+
+const props = defineProps({
+  registration: {
+    type: Object,
+    required: true
+  }
+});
+
+const store = {storeCompensatory: useCompensatoryStore(), storeGender: useGenresStore(), storePostulation: usePostulationsStore(), storeLoading: useLoadingStore(), storeBlocks: useBlocksStore()};
 
 const getCompensatory = computed(() => {
   return store.storeCompensatory.getCompensatory || []
@@ -34,13 +45,20 @@ const getPostulations = computed(() => {
   return store.storePostulation.getPostulations || []
 })
 
+const getBlocks = computed(() => {
+  return store.storeBlocks.getBlocks || []
+})
+
+// Emitir eventos al padre
+const emit = defineEmits(["closeEditionModal"]);
+
 const states = ref([]);
 const municipalities = ref([]);
 const municipalitiesFromResidence = ref([]);
-const selectedState = ref(null);
-const selectedMunicipality = ref(null);
-const selectedStateFromResidence = ref(null);
-const selectedMunicipalityFromResidence = ref(null);
+const selectedState = ref(props.registration.birthplace.state);
+const selectedMunicipality = ref(props.registration.birthplace.municipality);
+const selectedStateFromResidence = ref(props.registration.residence.state);
+const selectedMunicipalityFromResidence = ref(props.registration.residence.municipality);
 
 const fetchStates = async () => {
   store.storeLoading.showLoading();
@@ -101,16 +119,41 @@ onMounted(async () => {
   });
 });
 
-const props = defineProps({
-  registration: {
-    type: Object,
-    required: true
-  }
-});
 
 const {values, handleSubmit} = useForm({
   validationSchema: toTypedSchema(object().shape(registrationSchema)),
-  initialValues: props.registration
+  initialValues: {
+    name: props.registration.name,
+    first_name: props.registration.first_name,
+    second_name: props.registration.second_name,
+    birthplace: {
+      birth: new Date(props.registration.birthplace.birth).toISOString().split('T')[0],
+    },
+    residence: {
+      city: props.registration.residence.city,
+      colony: props.registration.residence.colony,
+      street: props.registration.residence.street,
+      postal_code: props.registration.residence.postal_code,
+      outside_number: props.registration.residence.outside_number,
+      inside_number: props.registration.residence.inside_number,
+      length: {
+        years: props.registration.residence.length.years,
+        months: props.registration.residence.length.months
+      }
+    },
+    occupation: props.registration.occupation,
+    voter_key: props.registration.voter_key,
+    curp: props.registration.curp,
+    postulation_id: props.registration.postulation.id,
+    position_id: props.registration.position.id,
+    reelection: props.registration.reelection,
+    compensatory_id: props.registration.compensatory.id,
+    sex_id: props.registration.sex.id,
+    block_id: props.registration.block.id,
+    gender_id: props.registration.gender.id,
+    mote: props.registration.mote
+
+  }
 });
 
 const onSubmit = handleSubmit(async (values) => {
@@ -118,28 +161,28 @@ const onSubmit = handleSubmit(async (values) => {
     await axios.patch(`http://localhost:8000/api/registrations/${props.registration.id}`, values);
 
     // Emitir evento al padre para cerrar el modal
-    emit("closeModal");
+    emit("closeEditionModal");
 
     // Mostrar Toast de éxito
     toast({
       title: "Éxito",
-      description: "Registro creado correctamente.",
+      description: "Registro actualizado correctamente.",
     });
+    await store.storeBlocks.fetchBlocks();
   } catch (error) {
-    console.error('Error al enviar el formulario:', error.response.data.message);
-  } finally {
-    // Close modal
+    console.error('Error al enviar el formulario:', error);
   }
 })
 
 const showCouncilNumber = computed(() => values.postulation_id === 5);
 const showMote = computed(() => values.postulation_id === 3 && values.position_id === 1 || props.registration.postulation.id === 4 && props.registration.position.id === 1);
 
+
 </script>
 
 <template>
-  <form id="redition_form" @submit.prevent="onSubmit">
-    {{showMote}}
+  <form id="edition_form" @submit.prevent="onSubmit">
+    {{ showMote }}
     <div class="grid sm:grid-cols-1 xl:grid-cols-2 gap-4">
       <div>
         <GeneralInformation :registration="registration"/>
@@ -159,7 +202,7 @@ const showMote = computed(() => values.postulation_id === 3 && values.position_i
               <FormItem>
                 <FormLabel>Fecha de nacimiento</FormLabel>
                 <FormControl>
-                  <Input type="date" v-bind="componentField"/>
+                  <Input :default-value="registration.birthplace.birth" type="date" v-bind="componentField"/>
                 </FormControl>
                 <FormMessage/>
               </FormItem>
@@ -170,10 +213,10 @@ const showMote = computed(() => values.postulation_id === 3 && values.position_i
               <FormItem>
                 <FormLabel>Estado</FormLabel>
                 <FormControl>
-                  <Select v-bind="componentField" :default-value="registration?.birthplace?.state">
+                  <Select v-bind="componentField">
                     <SelectTrigger>
                       <SelectValue placeholder="Seleccione una opción">
-                        {{ registration?.birthplace?.state?.name }}
+                        {{ selectedState ? selectedState.name : '' }}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
@@ -226,7 +269,7 @@ const showMote = computed(() => values.postulation_id === 3 && values.position_i
                 <FormItem>
                   <FormLabel>Estado</FormLabel>
                   <FormControl>
-                    <Select v-bind="componentField" >
+                    <Select v-bind="componentField">
                       <SelectTrigger>
                         <SelectValue placeholder="Seleccione una opción">
                           {{ selectedStateFromResidence ? selectedStateFromResidence.name : '' }}
@@ -252,7 +295,9 @@ const showMote = computed(() => values.postulation_id === 3 && values.position_i
                   <FormControl>
                     <Select v-bind="componentField">
                       <SelectTrigger>
-                        <SelectValue placeholder="Seleccione una opción"/>
+                        <SelectValue placeholder="Seleccione una opción">
+                          {{ selectedMunicipalityFromResidence ? selectedMunicipalityFromResidence.name : '' }}
+                        </SelectValue>
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup v-for="municipality in municipalitiesFromResidence" :key="municipality.id">
@@ -380,7 +425,7 @@ const showMote = computed(() => values.postulation_id === 3 && values.position_i
               <FormItem>
                 <FormLabel>Postulación</FormLabel>
                 <FormControl>
-                  <Select v-bind="componentField" :default-value="registration?.postulation.id">
+                  <Select :default-value="registration?.postulation.id" v-bind="componentField">
                     <SelectTrigger>
                       <SelectValue placeholder="Seleccione una opción"/>
                     </SelectTrigger>
@@ -424,7 +469,7 @@ const showMote = computed(() => values.postulation_id === 3 && values.position_i
               <FormItem>
                 <FormLabel>Carácter</FormLabel>
                 <FormControl>
-                  <Select v-bind="componentField" :default-value="registration?.position?.id">
+                  <Select :default-value="registration?.position?.id" v-bind="componentField">
                     <SelectTrigger>
                       <SelectValue placeholder="Seleccione una opción"/>
                     </SelectTrigger>
@@ -449,7 +494,7 @@ const showMote = computed(() => values.postulation_id === 3 && values.position_i
               <FormItem>
                 <FormLabel>Periodo de reelección</FormLabel>
                 <FormControl>
-                  <Select v-bind="componentField" :default-value="registration?.reelection">
+                  <Select :default-value="registration?.reelection" v-bind="componentField">
                     <SelectTrigger>
                       <SelectValue placeholder="Seleccione una opción"/>
                     </SelectTrigger>
@@ -474,7 +519,7 @@ const showMote = computed(() => values.postulation_id === 3 && values.position_i
               <FormItem>
                 <FormLabel>Medida Compensatoria</FormLabel>
                 <FormControl>
-                  <Select v-bind="componentField" :default-value="registration?.compensatory?.id">
+                  <Select :default-value="registration?.compensatory?.id" v-bind="componentField">
                     <SelectTrigger>
                       <SelectValue placeholder="Seleccione una opción"/>
                     </SelectTrigger>
@@ -496,7 +541,7 @@ const showMote = computed(() => values.postulation_id === 3 && values.position_i
               <FormItem>
                 <FormLabel>Género</FormLabel>
                 <FormControl>
-                  <Select v-bind="componentField"  :default-value="registration?.gender?.id.toString()">
+                  <Select :default-value="registration?.gender?.id.toString()" v-bind="componentField">
                     <SelectTrigger>
                       <SelectValue placeholder="Seleccione una opción"/>
                     </SelectTrigger>

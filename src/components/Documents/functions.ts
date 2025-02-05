@@ -367,6 +367,9 @@ export async function reelectionPdf(registration: object) {
     return await pdfDoc.save()
 }
 
+// Formato 9 - 8  de 8 contra la violencia
+
+
 // Formato 10 - Red de Candidatas
 export async function amceePdf(registration: object) {
     const templatePdfUrl = 'https://s3.us-east-1.amazonaws.com/static-test.appsiepcdurango.mx/sirc_template_forms/FORMATO_10_FORM.pdf'

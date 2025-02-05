@@ -24,6 +24,9 @@ const openEditModal = () => {
   openEditionModal.value = true;
 };
 
+const closeEditionModal = () => {
+  openEditionModal.value = false;
+};
 
 </script>
 
@@ -43,7 +46,7 @@ const openEditModal = () => {
     </Button>
   </div>
   <UploadModal v-model:open="openModal" :registration="registration"/>
-  <EditionModal :registration="registration" v-model:open="openEditionModal"/>
+  <EditionModal :registration="registration" v-model:open="openEditionModal" @close-edition-modal="closeEditionModal"/>
 </template>
 
 <style scoped>
