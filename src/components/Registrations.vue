@@ -26,6 +26,7 @@ import {Switch} from '@/components/ui/switch'
 import {useAuthStore} from "@/stores/auth";
 import {useLoadingStore} from '@/stores/loading';
 import TooltipWrapper from "@/components/ui/TooltipWrapper.vue";
+import RequestRegistrationModal from "@/components/RequestRegistrationModal.vue";
 
 const authStore = useAuthStore();
 const loadingStore = useLoadingStore();
@@ -53,12 +54,21 @@ const showOnlyWithRegistrations = ref(false);
 const showOnlyWithCompensatories = ref(false);
 let selectedBlock = ref(null)
 const open = ref(false)
+const requestRegistrationModal = ref(false)
 let openDetails = ref(false)
 const blockdata = ref(null)
 const datatable = ref<Registration[]>([])
 
 const closeModal = () => {
   open.value = false;
+};
+
+const openRequestRegistrationModal = () => {
+  requestRegistrationModal.value = true;
+};
+
+const closeRequestRegistrationModal = () => {
+  requestRegistrationModal.value = false;
 };
 
 const filterBlocks = computed(() => {
@@ -183,8 +193,8 @@ async function downloadregistrationRequestPdf(id: number) {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            <DropdownMenuItem @click="downloadregistrationRequestPdf(4)">Partido</DropdownMenuItem>
-<!--            <DropdownMenuItem @click="downloadregistrationRequestPdf(11)">Coalición</DropdownMenuItem>-->
+            <DropdownMenuItem @click="openRequestRegistrationModal">Partido</DropdownMenuItem>
+            <!--            <DropdownMenuItem @click="downloadregistrationRequestPdf(11)">Coalición</DropdownMenuItem>-->
           </DropdownMenuContent>
         </DropdownMenu>
         <DropdownMenu>
@@ -200,6 +210,8 @@ async function downloadregistrationRequestPdf(id: number) {
         </DropdownMenu>
       </div>
     </div>
+
+    <RequestRegistrationModal v-model:open="requestRegistrationModal"/>
 
     <AlertDialog v-model:open="store.blocksError">
       <AlertDialogContent class="min-w-[128]">
