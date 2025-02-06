@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 
 import {DialogClose, DialogDescription, DialogFooter, DialogHeader, DialogScrollContent, DialogTitle} from "@/components/ui/dialog";
-import {onMounted, reactive, ref} from 'vue';
+import {computed, onMounted, reactive, ref} from 'vue';
 import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from '@/components/ui/form'; // Ajusta las importaciones según tu proyecto
 import {Input} from '@/components/ui/input'
 import {Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue} from '@/components/ui/select';
@@ -11,10 +11,12 @@ import {DialogRoot} from "radix-vue";
 import {IconMinus, IconPlus} from "@tabler/icons-vue";
 import TooltipWrapper from "@/components/ui/TooltipWrapper.vue";
 import {useLoadingStore} from "@/stores/loading";
+import {useAuthStore} from "@/stores/auth";
 import axios from "axios";
 
 let setEnableButton = ref(false)
 const loading = useLoadingStore()
+const authStore = useAuthStore();
 const {toast} = useToast()
 
 // Declaramos un objeto reactivo con los valores iniciales del formulario
@@ -27,6 +29,7 @@ const formData = reactive({
     }
   ]
 });
+
 
 // Creamos un ref para acceder a la instancia del <Form>
 const formRef = ref(null);
@@ -98,7 +101,8 @@ onMounted(() => {
   // Primero se obtiene la información de la API a través del endpoint /representatives?entity_id=4
   // Luego se asigna la información al objeto formData
   loading.showLoading();
-  axios.get(import.meta.env.VITE_SIRC_API_URI + 'representatives?entity_id=4')
+  console.log("Usuario autenticado: ", authStore?.user?.entities[0].id)
+  axios.get(import.meta.env.VITE_SIRC_API_URI + 'representatives?entity_id=' + authStore?.user?.entities[0]?.id)
       .then(response => {
         // Se asigna la información al objeto formData
         formData.persons = response.data.data
