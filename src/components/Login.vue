@@ -22,9 +22,14 @@ const router = useRouter();
 
 const login = async () => {
   isLoading.showLoading();
-  await authStore.login({email: email.value, password: password.value}).finally(() => {
-    isLoading.hideLoading();
-  });
+  await authStore.login({email: email.value, password: password.value})
+      .catch((error) => {
+        errorMessage.value = error.response.data.message;
+        console.log("Erroooor: ", error.response.request)
+      })
+      .finally(() => {
+        isLoading.hideLoading();
+      })
   // Redirect to /registrations
   if (authStore.token) {
     await router.push("/registrations");

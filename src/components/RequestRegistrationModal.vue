@@ -45,7 +45,7 @@ function handleAddPerson() {
     if (current.persons.length < 2) {
       // Actualizamos el array de personas agregando una nueva entrada
       formRef.value.setValues({
-        persons: [...current.persons, { name: '', ownership: '' }]
+        persons: [...current.persons, {name: '', ownership: ''}]
       });
     }
   }
@@ -76,7 +76,6 @@ function onSubmit(values) {
 
   // Mostramos pantalla de carga
   loading.showLoading();
-  // Ejemplo de envío a la API (descomenta y ajusta según tu endpoint)
   axios.post(import.meta.env.VITE_SIRC_API_URI + 'representatives', payload)
       .then(response => {
         // Ocultamos pantalla de carga
@@ -97,26 +96,32 @@ function onSubmit(values) {
       });
 }
 
-onMounted(() => {
-  // Primero se obtiene la información de la API a través del endpoint /representatives?entity_id=4
+onMounted(async () => {
+  // Si no hay usuario, llamamos a fetchUser() y esperamos a que se complete.
+  if (!authStore.user) {
+    await authStore.fetchUser();
+  }
+  // Se obtiene la información de la API a través del endpoint /representatives?entity_id=4
   // Luego se asigna la información al objeto formData
   loading.showLoading();
-  console.log("Usuario autenticado: ", authStore?.user?.entities[0].id)
-  axios.get(import.meta.env.VITE_SIRC_API_URI + 'representatives?entity_id=' + authStore?.user?.entities[0]?.id)
-      .then(response => {
-        // Se asigna la información al objeto formData
-        formData.persons = response.data.data
-        loading.hideLoading()
-        console.log('Información obtenida:', response.data.data);
-      })
-      .catch(error => {
-        console.error(error)
-        toast({
-          title: 'Ocurrió un error al obtener la información',
-          variant: 'destructive',
+
+  if (authStore.user && authStore.user.entities && authStore.user.entities.length > 0) {
+    axios.get(import.meta.env.VITE_SIRC_API_URI + 'representatives?entity_id=' + authStore.user.entities[0].id)
+        .then(response => {
+          // Se asigna la información al objeto formData
+          formData.persons = response.data.data
+          loading.hideLoading()
+          console.log('Información obtenida:', response.data.data);
+        })
+        .catch(error => {
+          console.error(error)
+          toast({
+            title: 'Ocurrió un error al obtener la información',
+            variant: 'destructive',
+          });
+          loading.hideLoading()
         });
-        loading.hideLoading()
-      });
+  }
   // Ejemplo de cómo habilitar/deshabilitar el botón de "Generar formato"
   // Se deshabilita si no hay al menos un nombre y un puesto
   setEnableButton = ref(formData.persons.some(person => person.name && person.ownership))

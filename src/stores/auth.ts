@@ -2,13 +2,15 @@ import {defineStore} from "pinia";
 import axios from "axios";
 import {useRouter} from "vue-router";
 import { useBlocksStore } from "@/stores/blocks";
+import { useLoadingStore } from "@/stores/loading";
 
 export const useAuthStore = defineStore("auth", {
     state: () => ({
         user: null,
         token: localStorage.getItem("token") || null,
         entities: [],
-        route: useRouter()
+        route: useRouter(),
+        loader: useLoadingStore(),
     }),
 
     actions: {
@@ -32,7 +34,8 @@ export const useAuthStore = defineStore("auth", {
 
         async fetchUser() {
             if (!this.token) return; // Si no hay token, no hacer la petición
-
+            // Mostramos la pantalla de carga
+            this.loader.showLoading();
             try {
                 const response = await axios.get(import.meta.env.VITE_SIRC_API_URI + "user", {
                     headers: {Authorization: `Bearer ${this.token}`},
@@ -41,8 +44,15 @@ export const useAuthStore = defineStore("auth", {
                 this.user = response.data;
                 this.entities = response.data.entities;
 
+                // Ocultamos la pantalla de carga
+                this.loader.hideLoading();
+
             } catch (error) {
                 console.error("No autenticado:", error.response?.data || error);
+
+                // Ocultamos la pantalla de carga
+                this.loader.hideLoading();
+
                 await this.logout();
             }
         },
