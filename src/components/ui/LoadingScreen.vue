@@ -14,7 +14,7 @@ const props = defineProps({
   <div v-if="show" class="loading-overlay">
     <div class="loading-content">
       <FingerprintSpinner :animation-duration="1500" :color="'#ffffff'" :size="128"/>
-      <p>Cargando...</p>
+      <p class="text-white font-bold">Cargando...</p>
     </div>
   </div>
 </template>

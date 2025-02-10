@@ -127,7 +127,7 @@ const {values, handleSubmit} = useForm({
     first_name: props.registration.first_name,
     second_name: props.registration.second_name,
     birthplace: {
-      birth: new Date(props.registration.birthplace.birth).toISOString().split('T')[0],
+      birth: props.registration.birthplace.birth
     },
     residence: {
       city: props.registration.residence.city,

@@ -8,7 +8,7 @@ import {Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVal
 import {Button} from '@/components/ui/button';
 import {useToast} from "@/components/ui/toast";
 import {DialogRoot} from "radix-vue";
-import {IconMinus, IconPlus} from "@tabler/icons-vue";
+import {IconMinus, IconPlus, IconFileTypePdf} from "@tabler/icons-vue";
 import TooltipWrapper from "@/components/ui/TooltipWrapper.vue";
 import {useLoadingStore} from "@/stores/loading";
 import {useAuthStore} from "@/stores/auth";
@@ -16,7 +16,7 @@ import axios from "axios";
 import {Label} from "@/components/ui/label";
 import {registrationRequestPdf} from "@/components/Documents/RegistrationRequestPdf";
 
-let setEnableButton = ref(false)
+let setEnableButton = ref(true)
 const selectedEntity = ref(null)
 const selectedEntityType = ref(null)
 
@@ -98,6 +98,8 @@ function onSubmit(values) {
           title: 'Información guardada correctamente',
           variant: 'default',
         });
+        // Enable the button
+        setEnableButton = ref(false)
       })
       .catch(error => {
         console.error(error)
@@ -118,9 +120,11 @@ async function fetchRepresentatives(entityId) {
     );
     // Actualiza la información de personas en el formulario
     if (formRef.value && typeof formRef.value.setValues === 'function') {
-      formRef.value.setValues({ persons: response.data.data });
+      formRef.value.setValues({persons: response.data.data});
     }
+
     loading.hideLoading();
+
     console.log('Información obtenida:', response.data.data);
   } catch (error) {
     console.error(error);
@@ -150,6 +154,9 @@ onMounted(async () => {
         .then(response => {
           // Se asigna la información al objeto formData
           formData.persons = response.data.data
+          // Check if there are at least two persons for enabling the button
+          setEnableButton = ref(!formData.persons.some(person => person.name && person.ownership))
+
           loading.hideLoading()
         })
         .catch(error => {
@@ -163,7 +170,7 @@ onMounted(async () => {
   }
   // Ejemplo de cómo habilitar/deshabilitar el botón de "Generar formato"
   // Se deshabilita si no hay al menos un nombre y un puesto
-  setEnableButton = ref(formData.persons.some(person => person.name && person.ownership))
+  // setEnableButton = ref(formData.persons.some(person => person.name && person.ownership))
 })
 
 async function downloadRegistrationRequestPdf() {
@@ -192,7 +199,6 @@ async function downloadRegistrationRequestPdf() {
           {{ entity.name }}
         </Button>
       </div>
-      {{ selectedEntityType }}
       <Form id="request_format_form" ref="formRef" v-slot="{ values, setValues }" :initial-values="formData" @submit="onSubmit">
         <!-- Recorremos el array de personas (values.persons) -->
         <div
@@ -242,7 +248,7 @@ async function downloadRegistrationRequestPdf() {
 
         <!-- Botón para agregar una segunda persona (solo si hay menos de 2 personas) -->
         <div v-if="values.persons.length < 2" class="mb-6">
-          <TooltipWrapper message="Agregar segunda persona">
+          <TooltipWrapper message="Agregar persona">
             <Button type="button" variant="secondary" @click="handleAddPerson(setValues, values)">
               <IconPlus/>
             </Button>
@@ -251,7 +257,7 @@ async function downloadRegistrationRequestPdf() {
 
         <!-- Botón para eliminar una persona (visible solo cuando hay 2 personas) -->
         <div v-if="values.persons.length === 2" class="mb-6">
-          <TooltipWrapper message="Remover segunda persona">
+          <TooltipWrapper message="Remover persona">
             <Button type="button" variant="destructive" @click="handleRemovePerson(setValues, values)">
               <IconMinus/>
             </Button>
@@ -263,7 +269,8 @@ async function downloadRegistrationRequestPdf() {
           <Button form="request_format_form" type="submit">
             Guardar información
           </Button>
-          <Button :disabled="setEnableButton" type="submit" @click="downloadRegistrationRequestPdf">
+          <Button variant="outline" :disabled="setEnableButton" type="submit" @click="downloadRegistrationRequestPdf">
+            <IconFileTypePdf />
             Generar formato
           </Button>
         </div>

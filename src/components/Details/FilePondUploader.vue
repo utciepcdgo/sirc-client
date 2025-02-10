@@ -36,8 +36,10 @@ const filePondServer = {
     // Puedes enviar información extra, por ejemplo el "fieldName" y datos del archivo.
     axios
         .post(import.meta.env.VITE_SIRC_API_URI + 'aws_s3_signed_url', {
-          document: fieldName,
+          document: fieldName.replace(/\s+/g, '_').toUpperCase(),
           fileName: file.name,
+          partyAcronym: (props.registration.coalition.is_assigned ? props.registration.coalition.acronym : props.registration.party.acronym),
+          municipality: props.registration.municipality.name.toUpperCase(),
           contentType: file.type,
         })
         .then((response) => {

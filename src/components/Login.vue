@@ -39,7 +39,11 @@ const login = async () => {
 
 <template>
   <div class="flex flex-col min-h-screen items-center justify-center bg-gray-100 dark:bg-gray-900">
-    <img src="@/assets/LOGO.png" alt="IEPC Durango Logo" class="w-64 md:w-1/12 mb-10"/>
+    <div class="flex items-center justify-between mb-10 space-x-5">
+      <img src="@/assets/LOGO.png" alt="IEPC Durango Logo" class="max-w-48 md:w-1/12 flex-1"/>
+      <div class="h-20 w-0.5 bg-black"></div>
+      <p class="w-32 text-sm font-bold">SIRC</p>
+    </div>
     <Card class="w-full max-w-sm shadow-lg border dark:border-gray-800">
       <CardHeader class="text-center">
         <CardTitle class="text-2xl font-semibold">Iniciar Sesión</CardTitle>
