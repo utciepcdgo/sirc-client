@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 
 import {DialogClose, DialogDescription, DialogFooter, DialogHeader, DialogScrollContent, DialogTitle} from "@/components/ui/dialog";
-import {computed, onMounted, reactive, ref} from 'vue';
+import {onMounted, reactive, ref} from 'vue';
 import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from '@/components/ui/form'; // Ajusta las importaciones según tu proyecto
 import {Input} from '@/components/ui/input'
 import {Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue} from '@/components/ui/select';
@@ -13,8 +13,13 @@ import TooltipWrapper from "@/components/ui/TooltipWrapper.vue";
 import {useLoadingStore} from "@/stores/loading";
 import {useAuthStore} from "@/stores/auth";
 import axios from "axios";
+import {Label} from "@/components/ui/label";
+import {registrationRequestPdf} from "@/components/Documents/RegistrationRequestPdf";
 
 let setEnableButton = ref(false)
+const selectedEntity = ref(null)
+const selectedEntityType = ref(null)
+
 const loading = useLoadingStore()
 const authStore = useAuthStore();
 const {toast} = useToast()
@@ -29,6 +34,14 @@ const formData = reactive({
     }
   ]
 });
+
+// Función que se ejecuta al seleccionar una entidad.
+// Se encarga de actualizar selectedEntity y llamar a fetchRepresentatives.
+function handleEntitySelection(entityId, entityType) {
+  selectedEntity.value = entityId;
+  selectedEntityType.value = entityType;
+  fetchRepresentatives(entityId);
+}
 
 
 // Creamos un ref para acceder a la instancia del <Form>
@@ -70,7 +83,7 @@ function handleRemovePerson() {
 function onSubmit(values) {
   const payload = values.persons.map(person => ({
     ...person,
-    entity_id: 4
+    entity_id: selectedEntity.value
   }));
   console.log('Payload enviado:', payload);
 
@@ -96,6 +109,30 @@ function onSubmit(values) {
       });
 }
 
+async function fetchRepresentatives(entityId) {
+  try {
+    loading.showLoading();
+
+    const response = await axios.get(
+        import.meta.env.VITE_SIRC_API_URI + 'representatives?entity_id=' + entityId
+    );
+    // Actualiza la información de personas en el formulario
+    if (formRef.value && typeof formRef.value.setValues === 'function') {
+      formRef.value.setValues({ persons: response.data.data });
+    }
+    loading.hideLoading();
+    console.log('Información obtenida:', response.data.data);
+  } catch (error) {
+    console.error(error);
+    toast({
+      title: 'Ocurrió un error al obtener la información',
+      variant: 'destructive'
+    });
+
+    loading.hideLoading();
+  }
+}
+
 onMounted(async () => {
   // Si no hay usuario, llamamos a fetchUser() y esperamos a que se complete.
   if (!authStore.user) {
@@ -105,13 +142,15 @@ onMounted(async () => {
   // Luego se asigna la información al objeto formData
   loading.showLoading();
 
+  selectedEntity.value = authStore.user?.entities[0].id;
+  selectedEntityType.value = authStore.user?.entities[0].type;
+
   if (authStore.user && authStore.user.entities && authStore.user.entities.length > 0) {
     axios.get(import.meta.env.VITE_SIRC_API_URI + 'representatives?entity_id=' + authStore.user.entities[0].id)
         .then(response => {
           // Se asigna la información al objeto formData
           formData.persons = response.data.data
           loading.hideLoading()
-          console.log('Información obtenida:', response.data.data);
         })
         .catch(error => {
           console.error(error)
@@ -127,6 +166,15 @@ onMounted(async () => {
   setEnableButton = ref(formData.persons.some(person => person.name && person.ownership))
 })
 
+async function downloadRegistrationRequestPdf() {
+  // Show a loading spinner while the pdf is being generated
+  loading.showLoading()
+  // Call the registrationRequestPdf function and pass the entity id as an argument
+  await registrationRequestPdf(authStore.user.entities[0].id, selectedEntityType.value).finally(() => {
+    loading.hideLoading()
+  })
+}
+
 </script>
 
 <template>
@@ -138,7 +186,14 @@ onMounted(async () => {
           Proporcione la información de quienes suscriben al presente formato.
         </DialogDescription>
       </DialogHeader>
-      <Form ref="formRef" id="request_format_form" v-slot="{ values, setValues }" :initial-values="formData" @submit="onSubmit">
+      <Label>Generar formato para:</Label>
+      <div class="flex justify-center space-x-1">
+        <Button v-for="entity in authStore.user.entities" :key="entity.id" :variant="selectedEntity === entity.id ? 'default' : 'outline' " size="sm" @click="handleEntitySelection(entity.id, entity.type)">
+          {{ entity.name }}
+        </Button>
+      </div>
+      {{ selectedEntityType }}
+      <Form id="request_format_form" ref="formRef" v-slot="{ values, setValues }" :initial-values="formData" @submit="onSubmit">
         <!-- Recorremos el array de personas (values.persons) -->
         <div
             v-for="(person, index) in values.persons"
@@ -164,7 +219,7 @@ onMounted(async () => {
               <FormLabel>Puesto</FormLabel>
               <FormControl>
                 <!-- Componente Select con dos opciones -->
-                <Select v-bind="field" :default-value="person?.ownership">
+                <Select v-bind="field">
                   <SelectTrigger>
                     <SelectValue placeholder="Seleccione una opción"/>
                   </SelectTrigger>
@@ -208,7 +263,7 @@ onMounted(async () => {
           <Button form="request_format_form" type="submit">
             Guardar información
           </Button>
-          <Button :disabled="setEnableButton" type="submit" @click="downloadPdf()">
+          <Button :disabled="setEnableButton" type="submit" @click="downloadRegistrationRequestPdf">
             Generar formato
           </Button>
         </div>

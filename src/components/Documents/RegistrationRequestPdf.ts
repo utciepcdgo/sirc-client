@@ -7,13 +7,16 @@ import axios from 'axios'
 /**
  * This format is created from scratch, using jsPDF library due to the complexity of the format.
  * @param id - The data to be included in the PDF.
+ * @param type - The type of the Entity.
  */
 export async function registrationRequestPdf(id: number, type: string) {
     // Get the registration data from the API using id at the endpoint /api/format?entity_id={id} with axios
     const registration = await axios.get(import.meta.env.VITE_SIRC_API_URI + `format?entity_id=${id}&entity_type=${type}`);
     const registrationData = registration.data.data;
+
+    console.log("Registration Data ", registrationData);
     // console.log(registrationData);
-    let municipalities = registrationData.municipalities.map(municipality => municipality.name).join(', ')
+    let municipalities = registrationData.municipalities.join(', ')
     console.log("Municipalities ", municipalities)
 
 
@@ -56,7 +59,7 @@ export async function registrationRequestPdf(id: number, type: string) {
     // As subscribers can be 1 or two, we need to adjust the text accordingly
 
     let subscribers = registrationData.subscribed.length > 1 ? `Los que suscriben ${registrationData.subscribed[0].name} y ${registrationData.subscribed[1].name} en su carácter de ${registrationData.subscribed[0].ownership} y ${registrationData.subscribed[1].ownership}` : `El que suscribe ${registrationData.subscribed[0].name} en su carácter de ${registrationData.subscribed[0].ownership}`
-    let pharagraph = `${subscribers} del ${registrationData.entity}, personalidad que se encuentra debidamente acreditada y reconocida ante este Organismo Público Local, con fundamento en lo dispuesto por los artículos 35, fracción II, 41  fracción I y 115, fracción I de la Constitución Política de los Estados Unidos Mexicanos; 3, numeral 1 de la Ley General de Partidos Políticos; 147 y 148 de la Constitución Política del Estado Libre y Soberano de Durango; 10, numeral 1, 19, 20 numeral 1, fracción III; 25, 27 numeral 1, fracción I, 184 numeral 1; 186 numeral 1, fracción II, 187 y demás relativos y aplicables de la Ley de Instituciones y Procedimientos Electorales para el Estado de Durango; 36, 37, 38, 40, 41 y 43 de los Lineamientos para el Registro de Candidaturas para la Renovación de los Ayuntamientos del Estado de Durango, para el Proceso Electoral Local 2024 – 2025; que presenta el ${registrationData.entity}, manifestando expresamente que dichas candidaturas fueron seleccionadas de conformidad con las normas estatutarias que rigen a nuestro partido.`
+    let pharagraph = `${subscribers} del ${registrationData.entity.name}, personalidad que se encuentra debidamente acreditada y reconocida ante este Organismo Público Local, con fundamento en lo dispuesto por los artículos 35, fracción II, 41  fracción I y 115, fracción I de la Constitución Política de los Estados Unidos Mexicanos; 3, numeral 1 de la Ley General de Partidos Políticos; 147 y 148 de la Constitución Política del Estado Libre y Soberano de Durango; 10, numeral 1, 19, 20 numeral 1, fracción III; 25, 27 numeral 1, fracción I, 184 numeral 1; 186 numeral 1, fracción II, 187 y demás relativos y aplicables de la Ley de Instituciones y Procedimientos Electorales para el Estado de Durango; 36, 37, 38, 40, 41 y 43 de los Lineamientos para el Registro de Candidaturas para la Renovación de los Ayuntamientos del Estado de Durango, para el Proceso Electoral Local 2024 – 2025; que presenta el ${registrationData.entity.name}, manifestando expresamente que dichas candidaturas fueron seleccionadas de conformidad con las normas estatutarias que rigen a nuestro partido.`
     pharagraph += `\n\nDe conformidad con lo establecido en el artículo 187 de la Ley de Instituciones y Procedimientos Electorales para el Estado de Durango y 36 de los Lineamientos adjunto a la presente solicitud se ${registrationData.total_registrations > 1 ? ('entregan ' + registrationData.total_registrations + ' Formatos') : ('entrega ' + registrationData.total_registrations + ' Formato')} de Registro de Candidatura a Presidencia Municipal, Sindicatura y Regidurías, correspondientes a los municipios de ${municipalities}`
     pharagraph += `, en donde se precisan los siguientes datos de cada una de las candidaturas`
     const listPositionsY = [18, 18.5, 19, 19.5, 20, 20.5, 21, 22, 23.5]
@@ -94,36 +97,41 @@ export async function registrationRequestPdf(id: number, type: string) {
     // Cuerpo
     // Tabla de candidaturas con las columnas Nombre, Cargo, Calidad (Propietario, Suplente), Grupo vulnerable al que representa.
     // Usando el paquete https://github.com/simonbengtsson/jsPDF-AutoTable
-    autoTable(doc, {
-        body: registrationData.compensatories.map((row, index) => ({
-            index: index + 1,
-            ...row,
-            name: row.name.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ') // 😖
-        })),
-        columns: [
-            {header: 'No.', dataKey: 'index'},
-            {header: 'Nombre', dataKey: 'name'},
-            {header: 'Cargo', dataKey: 'postulation'},
-            {header: 'Calidad', dataKey: 'position'},
-            {header: 'Grupo vulnerable', dataKey: 'compensatory'}
-        ],
-        headStyles: {
-            fillColor: [0, 0, 0],
-            textColor: [255, 255, 255]
-        },
-        startY: 4.5,
-        styles: {
-            font: 'ARIALN-Normal',
-            fontStyle: 'normal',
-            fontSize: 12,
-            lineWidth: 0.01,
-            lineColor: [0, 0, 0]
-        }
-    })
+    // Verificar que existan candidaturas pertenecientes a alguna medida compensatoria, si no, agregar un texto que lo indique y ocultar la tabla
+    if (registrationData.compensatories.length === 0) {
+        doc.setFont('ARIALN-Normal', 'normal').text(`\nNo se han encontrado candidaturas pertenecientes a grupos o sectores sociales vulnerables.`, 3, 4.5, {align: 'justify', maxWidth: contentWidth})
+    } else {
+        autoTable(doc, {
+            body: registrationData.compensatories.map((row, index) => ({
+                index: index + 1,
+                ...row,
+                name: row.name.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ') // 😖
+            })),
+            columns: [
+                {header: 'No.', dataKey: 'index'},
+                {header: 'Nombre', dataKey: 'name'},
+                {header: 'Cargo', dataKey: 'postulation'},
+                {header: 'Calidad', dataKey: 'position'},
+                {header: 'Grupo vulnerable', dataKey: 'compensatory'}
+            ],
+            headStyles: {
+                fillColor: [0, 0, 0],
+                textColor: [255, 255, 255]
+            },
+            startY: 4.5,
+            styles: {
+                font: 'ARIALN-Normal',
+                fontStyle: 'normal',
+                fontSize: 12,
+                lineWidth: 0.01,
+                lineColor: [0, 0, 0]
+            }
+        })
+    }
     // Add text dynamically positioned at Y axis  after the table
     // En Y = 4.5 (Punto donde empieza la tabla) + número de candidaturas + 1 (margen de error)
     let dinamicYafterTable = 4.5 + registrationData.compensatories.length + 1;
-    doc.setFont('ARIALN-Normal', 'normal').text(`A la presente solicitud se anexa también la documentación requerida de conformidad a la legislación aplicable para efectos de acreditar los requisitos de elegibilidad de cada una de las candidaturas:`, 3, dinamicYafterTable, {align: 'justify', maxWidth: contentWidth})
+    doc.setFont('ARIALN-Normal', 'normal').text(`\nA la presente solicitud se anexa también la documentación requerida de conformidad a la legislación aplicable para efectos de acreditar los requisitos de elegibilidad de cada una de las candidaturas:`, 3, dinamicYafterTable, {align: 'justify', maxWidth: contentWidth})
 
     const listB = [
         'Declaración de aceptación de la candidatura. ',

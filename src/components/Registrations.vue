@@ -121,7 +121,11 @@ const updateCurrentTime = () => {
 
 let intervalId;
 
-onMounted(() => {
+onMounted(async () => {
+  if (!authStore.user) {
+    await authStore.fetchUser();
+  }
+
   intervalId = setInterval(updateCurrentTime, 1000);
 });
 
@@ -129,14 +133,6 @@ onUnmounted(() => {
   clearInterval(intervalId);
 });
 
-async function downloadregistrationRequestPdf(id: number) {
-  // Show a loading spinner while the pdf is being generated
-  loadingStore.showLoading()
-  // Call the registrationRequestPdf function and pass the entity id as an argument
-  await registrationRequestPdf(id).finally(() => {
-    loadingStore.hideLoading()
-  })
-}
 
 </script>
 
@@ -185,18 +181,10 @@ async function downloadregistrationRequestPdf(id: number) {
         </div>
       </div>
       <div class="flex items-center space-x-2.5">
-        <DropdownMenu>
-          <DropdownMenuTrigger>
-            <Button variant="link">
-              Solicitud de registro
-              <IconChevronDown class="ml-2"/>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuItem @click="openRequestRegistrationModal">Partido</DropdownMenuItem>
-            <!--            <DropdownMenuItem @click="downloadregistrationRequestPdf(11)">Coalición</DropdownMenuItem>-->
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <Button variant="default" @click="openRequestRegistrationModal">
+          <IconPlus/>
+          Crear formato de solicitud de registro
+        </Button>
         <DropdownMenu>
           <DropdownMenuTrigger>
             <Button variant="link">

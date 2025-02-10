@@ -10,8 +10,6 @@ import {vMaska} from "maska/vue"
 import {Input} from '@/components/ui/input'
 import GeneralInformation from "@/components/Registration/Form/Modules/GeneralInformation.vue";
 import {AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle} from "@/components/ui/alert-dialog";
-import {FingerprintSpinner} from "epic-spinners";
-import {VisuallyHidden} from "radix-vue";
 import {useCompensatoryStore} from "@/stores/compensatories";
 import {useGenresStore} from "@/stores/genres";
 import {usePostulationsStore} from "@/stores/postulations";
@@ -116,7 +114,7 @@ onMounted(async () => {
 });
 
 const props = defineProps({
-  selectedBlock: {
+  registration: {
     type: Object,
     required: false
   }
@@ -125,13 +123,27 @@ const props = defineProps({
 const {values, handleSubmit} = useForm({
   validationSchema: toTypedSchema(object().shape(registrationSchema)),
   initialValues: {
-    block_id: props.selectedBlock?.id,
+    block_id: props.registration?.block?.id,
+    registration_id: props.registration?.id,
+    postulation_id: props.registration?.postulation?.id,
+    position_id: props.registration?.position.id,
   }
 });
 
 const onSubmit = handleSubmit(async (values) => {
   try {
-    await axios.post( import.meta.env.VITE_SIRC_API_URI + 'registrations', values);
+    // Evitar que se envíe el formulario si postulation_id y position_id no coinciden con los valores de registration
+    if (values.postulation_id !== props.registration.postulation.id || values.position_id !== props.registration.position.id) {
+      toast({
+        title: "Éxito",
+        description: "No se permite cambiar la postulación o el carácter del registro tratándose de una sustitución.",
+        variant: 'destructive'
+      });
+
+      return;
+    }
+
+    await axios.post(import.meta.env.VITE_SIRC_API_URI + `registrations/${props.registration.id}/substitute`, values);
 
     // Emitir evento al padre para cerrar el modal
     emit("closeModal");
@@ -139,7 +151,7 @@ const onSubmit = handleSubmit(async (values) => {
     // Mostrar Toast de éxito
     toast({
       title: "Éxito",
-      description: "Registro creado correctamente.",
+      description: "Registro sustituido correctamente.",
     });
   } catch (error) {
     isError.value = {there: true, error: error.response.data.message};
@@ -155,7 +167,7 @@ const showMote = computed(() => values.postulation_id === 3 && values.position_i
 </script>
 
 <template>
-  <form id="registration_form" @submit.prevent="onSubmit">
+  <form id="substitution_form" @submit.prevent="onSubmit">
 
     <AlertDialog v-model:open="isError.there">
       <AlertDialogContent>
@@ -413,7 +425,7 @@ const showMote = computed(() => values.postulation_id === 3 && values.position_i
               <FormItem>
                 <FormLabel>Postulación</FormLabel>
                 <FormControl>
-                  <Select v-bind="componentField">
+                  <Select v-bind="componentField" :disabled="true">
                     <SelectTrigger>
                       <SelectValue placeholder="Seleccione una opción"/>
                     </SelectTrigger>
@@ -440,8 +452,8 @@ const showMote = computed(() => values.postulation_id === 3 && values.position_i
                       <SelectValue placeholder="Seleccione una opción"/>
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectGroup v-for="i in selectedBlock.municipality.councils" :key="i">
-                        <SelectItem :disabled="!selectedBlock.assignments?.councils?.list.includes(i) && selectedBlock.assignments?.councils?.list.length > 0" :value="i">
+                      <SelectGroup v-for="i in registration.block.councils" :key="i">
+                        <SelectItem :disabled="!registration?.block?.assignments.includes(i) && registration?.assignments?.length > 0" :value="i">
                           {{ i }}
                         </SelectItem>
                       </SelectGroup>
@@ -457,7 +469,7 @@ const showMote = computed(() => values.postulation_id === 3 && values.position_i
               <FormItem>
                 <FormLabel>Carácter</FormLabel>
                 <FormControl>
-                  <Select v-bind="componentField">
+                  <Select v-bind="componentField" :disabled="true">
                     <SelectTrigger>
                       <SelectValue placeholder="Seleccione una opción"/>
                     </SelectTrigger>

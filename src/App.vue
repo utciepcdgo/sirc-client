@@ -10,7 +10,16 @@ const loadingStore = useLoadingStore();
 </script>
 
 <style scoped>
-
+.slide-enter-active,
+.slide-leave-active {
+  @apply transition-transform duration-500;
+}
+.slide-enter-from {
+  @apply translate-x-full;
+}
+.slide-leave-to {
+  @apply -translate-x-full;
+}
 </style>
 
 <template>
@@ -18,12 +27,13 @@ const loadingStore = useLoadingStore();
   <Navbar/>
 
 
-    <main>
-
+  <main>
+    <transition name="slide" mode="out-in">
       <RouterView :isLoading="loadingStore.isLoading"/>
-      <!--  SHOW ALERT LOADING FEED -->
-      <LoadingScreen :show="loadingStore.isLoading"/>
+    </transition>
+    <!--  SHOW ALERT LOADING FEED -->
+    <LoadingScreen :show="loadingStore.isLoading"/>
 
-    </main>
+  </main>
 
 </template>

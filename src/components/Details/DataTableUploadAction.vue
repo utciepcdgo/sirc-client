@@ -4,6 +4,7 @@ import {IconExchange, IconPencil, IconUpload} from '@tabler/icons-vue'
 import {defineEmits, defineProps, ref} from "vue";
 import UploadModal from "@/components/Details/UploadModal.vue";
 import EditionModal from "@/components/Edition/EditionModal.vue";
+import SubstitutionModal from "@/components/Substitution/SubstitutionModal.vue";
 
 const props = defineProps<{
   registration: {
@@ -14,6 +15,7 @@ const props = defineProps<{
 
 const openModal = ref(false);
 const openEditionModal = ref(false);
+const openedSubstitutionModal = ref(false);
 
 // Función para abrir el modal y enviar `registration`
 const openUploadModal = () => {
@@ -28,6 +30,14 @@ const closeEditionModal = () => {
   openEditionModal.value = false;
 };
 
+const openSubstitutionModal = () => {
+  openedSubstitutionModal.value = true;
+};
+
+const closeSubstitutionModal = () => {
+  openedSubstitutionModal.value = false;
+};
+
 </script>
 
 <template>
@@ -36,7 +46,7 @@ const closeEditionModal = () => {
       <IconUpload/>
       Cargar
     </Button>
-    <Button>
+    <Button @click="openSubstitutionModal">
       <IconExchange/>
       Sustituír
     </Button>
@@ -47,6 +57,7 @@ const closeEditionModal = () => {
   </div>
   <UploadModal v-model:open="openModal" :registration="registration"/>
   <EditionModal :registration="registration" v-model:open="openEditionModal" @close-edition-modal="closeEditionModal"/>
+  <SubstitutionModal :registration="registration" v-model:open="openedSubstitutionModal" @close-edition-modal="closeSubstitutionModal"/>
 </template>
 
 <style scoped>
