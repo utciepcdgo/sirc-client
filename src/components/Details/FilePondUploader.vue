@@ -39,7 +39,8 @@ const filePondServer = {
           document: fieldName.replace(/\s+/g, '_').toUpperCase(),
           fileName: file.name,
           partyAcronym: (props.registration.coalition.is_assigned ? props.registration.coalition.acronym : props.registration.party.acronym),
-          municipality: props.registration.municipality.name.toUpperCase(),
+          municipality: props.registration.block.municipality.abbreviation,
+          postulation: props.registration.postulation.name.replace(/\s+/g, '_').toUpperCase(),
           contentType: file.type,
         })
         .then((response) => {
