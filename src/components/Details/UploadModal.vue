@@ -45,9 +45,9 @@ onMounted(fetchFileTypes);
       <p v-else>Cargando...</p>
 
       <div v-if="fileTypes.length">
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 items-end gap-4">
           <div v-for="file in fileTypes" :key="file.id">
-            <FilePondUploader :document="file" :registration="registration"/>
+            <FilePondUploader :document="file" :registration="registration" :disabled="true" />
           </div>
         </div>
       </div>

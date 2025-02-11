@@ -3,7 +3,7 @@ import {Button} from '@/components/ui/button'
 import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuPortal, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger,} from '@/components/ui/dropdown-menu'
 import {MoreHorizontal} from 'lucide-vue-next'
 import {ref} from "vue";
-import {IconClipboard, IconPdf, IconExchange, IconPencil, IconFilePlus, IconNavigationNorth} from '@tabler/icons-vue';
+import {IconClipboard, IconPdf, IconUpload, IconExchange, IconPencil, IconFilePlus, IconNavigationNorth} from '@tabler/icons-vue';
 
 import {amceePdf, candidacyPdf, disabilityPdf, diversityPdf, indigenousPdf, migrantPdf, protestPdf, reelectionPdf} from '@/components/Documents/functions';
 import {currentUnixTime} from '@/components/Documents/utils';
@@ -109,12 +109,8 @@ async function downloadPdf(pdfFunction: Function, registration: object, fileName
       </DropdownMenuSub>
       <DropdownMenuSeparator/>
       <DropdownMenuItem>
-        <IconPencil class="mr-2 h-4 w-4"/>
-        Editar
-      </DropdownMenuItem>
-      <DropdownMenuItem>
-        <IconExchange class="mr-2 h-4 w-4"/>
-        Sustituír
+        <IconUpload class="mr-2 h-4 w-4"/>
+        Archivos cargados
       </DropdownMenuItem>
     </DropdownMenuContent>
   </DropdownMenu>
