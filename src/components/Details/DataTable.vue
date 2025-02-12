@@ -4,9 +4,6 @@ import {FlexRender, getCoreRowModel, getPaginationRowModel, getSortedRowModel, u
 import {computed, defineProps, ref} from 'vue'
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow,} from '@/components/ui/table'
 import {Button} from '@/components/ui/button'
-import {columns as baseColumns} from '@/components/Details/columns'
-import UploadModal from "@/components/Details/UploadModal.vue";
-
 
 const props = defineProps<{
   columns: ColumnDef<TData, TValue>[]

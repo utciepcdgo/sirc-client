@@ -55,7 +55,7 @@ const closeSubstitutionModal = () => {
       Editar
     </Button>
   </div>
-  <UploadModal v-model:open="openModal" :registration="registration"/>
+  <UploadModal v-model:open="openModal" :registration="registration" :opened="openModal"/>
   <EditionModal :registration="registration" v-model:open="openEditionModal" @close-edition-modal="closeEditionModal"/>
   <SubstitutionModal :registration="registration" v-model:open="openedSubstitutionModal" @close-edition-modal="closeSubstitutionModal"/>
 </template>

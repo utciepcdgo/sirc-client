@@ -1,6 +1,7 @@
 <script setup>
 import vueFilePond from "vue-filepond";
 import {setOptions} from "filepond";
+import {IconCircleCheck} from '@tabler/icons-vue'
 import axios from 'axios';
 
 // Asegúrate de importar los complementos de FilePond si los usas
@@ -19,6 +20,7 @@ const props = defineProps({
   document: Object,// Este objeto contiene el nombre del documento y otros detalles
   registration: Object,// Este objeto contiene el registro al que se asocia el documento
   disabled: Boolean,// Esta propiedad deshabilita el componente si es verdadera
+  isLoaded: Boolean,// Esta propiedad indica si el archivo ya fue cargado
 })
 
 const {toast} = useToast()
@@ -48,13 +50,11 @@ const filePondServer = {
       municipality: props.registration.block.municipality.abbreviation,
       postulation: props.registration.postulation.name.slice(0, 4).toUpperCase(),
       position: props.registration.position.name.slice(0, 4).toUpperCase(),
-      candidacy: props.registration.name.toUpperCase() + '_' + props.registration.first_name.toUpperCase() + '_' + props.registration.second_name.toUpperCase(),
+      candidacy: props.registration.name.replace(/\s+/g, '_').toUpperCase() + '_' + props.registration.first_name.replace(/\s+/g, '_').toUpperCase() + '_' + props.registration.second_name.replace(/\s+/g, '_').toUpperCase(),
       fileFormat: file.name.split('.').pop().toLowerCase(),
       contentType: file.type,
     }
 
-    console.log("SIRC25/" + dataHeader.partyAcronym + "/" + dataHeader.municipality + "/" + dataHeader.postulation + "/" + dataHeader.position + "/" + dataHeader.formatId + "_" + dataHeader.candidacy)
-    console.log("File", file)
     axios
         .post(import.meta.env.VITE_SIRC_API_URI + 'aws_s3_signed_url', dataHeader)
         .then((response) => {
@@ -165,12 +165,21 @@ setOptions({
 </script>
 
 <template>
-  <div>
-    <h3>{{ document.name }}</h3>
+  <div class="relative">
+    <h3 v-show="!isLoaded">{{ document.name }}</h3>
+    <div v-show="isLoaded" class="text-white bg-gradient-to-t from-black to-green-600/90 rounded left-0 right-0 top-0 bottom-0 absolute z-10 flex items-start p-2 justify-start space-x-3.5">
+      <div class="flex items-center space-x-3.5">
+        <IconCircleCheck size="28px" class="grow"/>
+        <div class="flex flex-col flex-grow-0">
+          <span class="[text-shadow:_0_1px_0_rgb(0_0_0_/_40%)] text-sm">Formato "{{ document.name }}" cargado.</span>
+          <span class="[text-shadow:_0_1px_0_rgb(0_0_0_/_40%)] text-xs">Vaya a la pestaña "archivos cargados" para gestionar la información.</span>
+        </div>
+      </div>
+    </div>
     <file-pond
         :accepted-file-types="'image/*, application/pdf'"
-        :disabled="props.disabled"
         :allow-multiple="false"
+        :disabled="props.disabled"
         :max-files="1"
         :name="document.name"
         :server="filePondServer"
