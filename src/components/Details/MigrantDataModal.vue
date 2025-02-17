@@ -53,14 +53,14 @@ const {toast} = useToast()
 let initialRegistration = computed(() => props.registration)
 
 const onSubmit = handleSubmit(async (values) => {
-  await axios.post('http://localhost:8000/api/migrants', values).then((res) => {
+  await axios.post(import.meta.env.VITE_SIRC_API_URI + 'migrants', values).then((res) => {
     toast({
       title: 'Información actualizada correctamente',
       variant: 'default',
     })
   })
   // Retrieve the update registration object from the API and assign to registration prop
-  await axios.get(`http://localhost:8000/api/registrations/${props.registration.id}`).then((res) => {
+  await axios.get(import.meta.env.VITE_SIRC_API_URI + `registrations/${props.registration.id}`).then((res) => {
     initialRegistration = res.data.data;
   }).then(() => {
     toast({

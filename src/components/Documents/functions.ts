@@ -123,8 +123,8 @@ export async function migrantPdf(registration: object) {
     // Get the residence text field and fill it
     form.getTextField('residence.local').setFontSize(8)
     form.getTextField('residence.local').setText(registration.residence.street + local_residence_exterior_number + local_residence_interior_number + ', Col/Fracc. ' +
-        registration.residence.colony + ', ' + registration.residence.city + ', ' + registration.residence.municipality.toUpperCase() + ', ' +
-        registration.residence.state.abbreviation + ', C.P. ' + registration.residence.postal_code)
+        registration?.residence?.colony + ', ' + registration?.residence?.city + ', ' + registration?.residence?.municipality.toUpperCase() + ', ' +
+        registration?.residence?.state?.abbreviation + ', C.P. ' + registration?.residence?.postal_code)
 
     // Due to the Migrant information isn't obligatory, we need to check if the registration has the migrant object
     form.getTextField('residence.foreign').setFontSize(8)
