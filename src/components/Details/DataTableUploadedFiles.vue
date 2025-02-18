@@ -2,10 +2,13 @@
 
 import axios from 'axios';
 import {Button} from '@/components/ui/button'
+import {AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger} from '@/components/ui/alert-dialog'
+import {Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow} from '@/components/ui/table'
+import { Badge } from '@/components/ui/badge'
 import {IconDownload, IconLoader2, IconTrash} from "@tabler/icons-vue";
 import {useLoadingStore} from "@/stores/loading";
 import {useToast} from '@/components/ui/toast';
-import {defineEmits, ref} from "vue";
+import {defineEmits, ref, reactive} from "vue";
 
 
 const emit = defineEmits(['fileDeleted']);
@@ -13,7 +16,11 @@ const emit = defineEmits(['fileDeleted']);
 const {toast} = useToast();
 const loading = useLoadingStore();
 
-const isDownloading = ref(false);
+const downloadingFiles = reactive({});
+
+const isDownloading = (fileId) => {
+  return downloadingFiles[fileId] === true;
+};
 
 const props = defineProps<{
   files: {
@@ -45,7 +52,7 @@ async function deleteFormat(id: string) {
 
 const downloadFile = async (fileId) => {
   try {
-    isDownloading.value = true;
+    downloadingFiles[fileId] = true;
     // Solicitar el enlace a la API
     const {data} = await axios.get(import.meta.env.VITE_SIRC_API_URI + `request-download/${fileId}`);
 
@@ -64,48 +71,68 @@ const downloadFile = async (fileId) => {
       variant: 'destructive',
     });
 
-    isDownloading.value = false;
+    downloadingFiles[fileId] = false;
     // Aquí puedes agregar lógica para mostrar una alerta al usuario
   } finally {
-    isDownloading.value = false;
+    downloadingFiles[fileId] = false;
   }
 };
 
 </script>
 
 <template>
+
   <div>
     <h2 class="text-lg font-semibold mb-2">Archivos cargados</h2>
     <div class="overflow-x-auto">
-      <table class="w-full">
-        <thead>
-        <tr>
-          <th class="text-left">Formato</th>
-          <th class="text-left">Formato del archivo</th>
-          <th class="text-left">Fecha de carga</th>
-          <th class="text-left"></th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr v-for="file in files" :key="file.id">
-          <td>{{ file.filetype.name }}</td>
-          <td>{{ file.format }}</td>
-          <td>{{ file.created_at }}</td>
-          <td>
-            <Button class="text-red-400" variant="ghost" @click="deleteFormat(file.id)">
-              <IconTrash/>
-              Eliminar
-            </Button>
+      <Table>
+        <TableCaption>Lista de archivos cargados.</TableCaption>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Formato</TableHead>
+            <TableHead>Formato del archivo</TableHead>
+            <TableHead>Fecha de carga</TableHead>
+            <TableHead class="text-right"></TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow v-for="file in files" :key="file.id">
+            <TableCell class="font-medium">{{ file.filetype.name }}</TableCell>
+            <TableCell><Badge>{{ file.format.split('/')[1].toUpperCase() }}</Badge></TableCell>
+            <TableCell>{{ file.created_at }}</TableCell>
+            <TableCell class="text-right">
+              <AlertDialog>
+                <AlertDialogTrigger>
+                  <Button variant="ghost" class="text-red-400">
+                    <IconTrash/>
+                    Eliminar
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Eliminar {{ file.filetype.name.toLowerCase() }}</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      ¿Está seguro que desea eliminar este archivo permanentemente? Esta acción no se puede deshacer.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction @click="deleteFormat(file.id)">
+                      Eliminar
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
 
-            <Button :disabled="isDownloading" variant="link" @click="downloadFile(file.id)">
-              <IconDownload v-show="!isDownloading"/>
-              <IconLoader2 class="animate-spin" v-show="isDownloading"/>
-              {{ isDownloading ? 'Solicitando enlace...' : 'Descargar' }}
-            </Button>
-          </td>
-        </tr>
-        </tbody>
-      </table>
+              <Button :disabled="isDownloading(file.id)" variant="link" @click="downloadFile(file.id)">
+                <IconDownload v-show="!isDownloading(file.id)"/>
+                <IconLoader2 class="animate-spin" v-show="isDownloading(file.id)"/>
+                {{ isDownloading(file.id) ? 'Solicitando enlace...' : 'Descargar' }}
+              </Button>
+            </TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
     </div>
   </div>
 </template>

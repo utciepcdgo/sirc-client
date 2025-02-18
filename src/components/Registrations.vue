@@ -185,17 +185,10 @@ onUnmounted(() => {
           <IconPlus/>
           Crear formato de solicitud de registro
         </Button>
-        <DropdownMenu>
-          <DropdownMenuTrigger>
-            <Button variant="link">
-              Presentar solicitud de registro
-              <IconChevronDown class="ml-2"/>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuItem></DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <Button variant="default">
+          <IconPlus/>
+          Presentar registros formalmente.
+        </Button>
       </div>
     </div>
 
