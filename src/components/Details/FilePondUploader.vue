@@ -1,8 +1,11 @@
 <script setup>
 import vueFilePond from "vue-filepond";
+import {defineEmits} from "vue";
 import {setOptions} from "filepond";
 import {IconCircleCheck} from '@tabler/icons-vue'
 import axios from 'axios';
+
+const emit = defineEmits(['fileUploaded']);
 
 // Asegúrate de importar los complementos de FilePond si los usas
 import 'filepond/dist/filepond.min.css';
@@ -92,6 +95,8 @@ const filePondServer = {
                       title: 'Archivo cargado correctamente',
                       variant: 'default',
                     })
+                    // Emitir el evento fileUploaded
+                    emit('fileUploaded');
                   })
                   .catch((apiError) => {
                     console.error("Error saving file info to registration:", apiError);
@@ -172,7 +177,7 @@ setOptions({
         <IconCircleCheck size="28px" class="grow"/>
         <div class="flex flex-col flex-grow-0">
           <span class="[text-shadow:_0_1px_0_rgb(0_0_0_/_40%)] text-sm">Formato "{{ document.name }}" cargado.</span>
-          <span class="[text-shadow:_0_1px_0_rgb(0_0_0_/_40%)] text-xs">Vaya a la pestaña "archivos cargados" para gestionar la información.</span>
+          <span class="[text-shadow:_0_1px_0_rgb(0_0_0_/_40%)] text-xs">Vaya a la pestaña "Documentación registrada" para gestionar la información.</span>
         </div>
       </div>
     </div>

@@ -55,7 +55,7 @@ function handleAddPerson() {
   if (formRef.value) {
     // Obtenemos el estado actual del formulario
     const current = formRef.value.values;
-    if (current.persons.length < 2) {
+    if (current?.persons?.length < 2) {
       // Actualizamos el array de personas agregando una nueva entrada
       formRef.value.setValues({
         persons: [...current.persons, {name: '', ownership: ''}]
@@ -69,10 +69,10 @@ function handleAddPerson() {
  */
 function handleRemovePerson() {
   if (formRef.value) {
-    const current = formRef.value.values;
-    if (current.persons.length > 1) {
+    const current = formRef?.value?.values;
+    if (current?.persons?.length > 1) {
       formRef.value.setValues({
-        persons: current.persons.slice(0, current.persons.length - 1)
+        persons: current?.persons.slice(0, current.persons.length - 1)
       });
     }
   }
@@ -99,7 +99,7 @@ function onSubmit(values) {
           variant: 'default',
         });
         // Enable the button
-        setEnableButton = ref(false)
+        setEnableButton = ref(true)
       })
       .catch(error => {
         console.error(error)
@@ -247,7 +247,7 @@ async function downloadRegistrationRequestPdf() {
         </div>
 
         <!-- Botón para agregar una segunda persona (solo si hay menos de 2 personas) -->
-        <div v-if="values.persons.length < 2" class="mb-6">
+        <div v-if="values?.persons?.length < 2" class="mb-6">
           <TooltipWrapper message="Agregar persona">
             <Button type="button" variant="secondary" @click="handleAddPerson(setValues, values)">
               <IconPlus/>
@@ -256,7 +256,7 @@ async function downloadRegistrationRequestPdf() {
         </div>
 
         <!-- Botón para eliminar una persona (visible solo cuando hay 2 personas) -->
-        <div v-if="values.persons.length === 2" class="mb-6">
+        <div v-if="values?.persons?.length === 2" class="mb-6">
           <TooltipWrapper message="Remover persona">
             <Button type="button" variant="destructive" @click="handleRemovePerson(setValues, values)">
               <IconMinus/>
