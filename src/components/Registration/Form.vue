@@ -441,7 +441,7 @@ const showMote = computed(() => values.postulation_id === 3 && values.position_i
                     </SelectTrigger>
                     <SelectContent>
                       <SelectGroup v-for="i in selectedBlock.municipality.councils" :key="i">
-                        <SelectItem :disabled="!selectedBlock.assignments?.councils?.list.includes(i) && selectedBlock.assignments?.councils?.list.length > 0" :value="i">
+                        <SelectItem :disabled="!selectedBlock.assignments?.councils.includes(i) && selectedBlock.assignments?.councils.length > 0" :value="i">
                           {{ i }}
                         </SelectItem>
                       </SelectGroup>

@@ -41,7 +41,7 @@ const closeSubstitutionModal = () => {
 </script>
 
 <template>
-  <div class="space-x-2.5">
+  <div class="space-x-0 sm:space-y-1 2xl:space-x-2.5">
     <Button @click="openUploadModal">
       <IconUpload/>
       Cargar

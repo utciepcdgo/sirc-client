@@ -8,7 +8,7 @@ import {Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVal
 import {Button} from '@/components/ui/button';
 import {useToast} from "@/components/ui/toast";
 import {DialogRoot} from "radix-vue";
-import {IconMinus, IconPlus, IconFileTypePdf} from "@tabler/icons-vue";
+import {IconFileTypePdf, IconMinus, IconPlus} from "@tabler/icons-vue";
 import TooltipWrapper from "@/components/ui/TooltipWrapper.vue";
 import {useLoadingStore} from "@/stores/loading";
 import {useAuthStore} from "@/stores/auth";
@@ -68,6 +68,7 @@ function handleAddPerson() {
  * Función para eliminar la última persona.
  */
 function handleRemovePerson() {
+  console.log('formRef.value:', formRef.value)
   if (formRef.value) {
     const current = formRef?.value?.values;
     if (current?.persons?.length > 1) {
@@ -123,6 +124,8 @@ async function fetchRepresentatives(entityId) {
       formRef.value.setValues({persons: response.data.data});
     }
 
+    setEnableButton = ref(response.data.data.length > 0)
+
     loading.hideLoading();
 
     console.log('Información obtenida:', response.data.data);
@@ -177,6 +180,7 @@ async function downloadRegistrationRequestPdf() {
   // Show a loading spinner while the pdf is being generated
   loading.showLoading()
   // Call the registrationRequestPdf function and pass the entity id as an argument
+  console.log('authStore.user.entities[0].id: ', authStore.user.entities[0].id, 'selectedEntityType.value: ', selectedEntityType.value)
   await registrationRequestPdf(authStore.user.entities[0].id, selectedEntityType.value).finally(() => {
     loading.hideLoading()
   })
@@ -269,8 +273,8 @@ async function downloadRegistrationRequestPdf() {
           <Button form="request_format_form" type="submit">
             Guardar información
           </Button>
-          <Button variant="outline" :disabled="setEnableButton" type="submit" @click="downloadRegistrationRequestPdf">
-            <IconFileTypePdf />
+          <Button :disabled="setEnableButton" type="submit" variant="outline" @click="downloadRegistrationRequestPdf">
+            <IconFileTypePdf/>
             Generar formato
           </Button>
         </div>

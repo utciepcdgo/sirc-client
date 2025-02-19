@@ -5,7 +5,7 @@ import {MoreHorizontal} from 'lucide-vue-next'
 import {ref} from "vue";
 import {IconClipboard, IconPdf, IconUpload, IconExchange, IconPencil, IconFilePlus, IconNavigationNorth} from '@tabler/icons-vue';
 
-import {amceePdf, candidacyPdf, disabilityPdf, diversityPdf, indigenousPdf, migrantPdf, protestPdf, reelectionPdf} from '@/components/Documents/functions';
+import {amceePdf, candidacyPdf, disabilityPdf, diversityPdf, indigenousPdf, migrantPdf, protestPdf, reelectionPdf, violencyPdf} from '@/components/Documents/functions';
 import {currentUnixTime} from '@/components/Documents/utils';
 import MigrantDataModal from '@/components/Details/MigrantDataModal.vue';
 import { useLoadingStore } from '@/stores/loading';
@@ -98,7 +98,7 @@ async function downloadPdf(pdfFunction: Function, registration: object, fileName
             <DropdownMenuItem @click="downloadPdf(reelectionPdf, registration, 'Elección_Consecutiva')">
               <span>8. Elección consecutiva</span>
             </DropdownMenuItem>
-            <DropdownMenuItem disabled>
+            <DropdownMenuItem @click="downloadPdf(violencyPdf, registration, '8_de_8_contra_la_violencia')">
               <span>9. 8 de 8 contra la violencia</span>
             </DropdownMenuItem>
             <DropdownMenuItem @click="downloadPdf(amceePdf, registration, 'Red_Candidatas')">

@@ -20,7 +20,7 @@ const emit = defineEmits(['closeEditionModal']);
   <DialogRoot>
     <DialogScrollContent class="min-w-[80%]">
       <DialogHeader>
-        <DialogTitle>Sustituir registro en {{ registration.block.municipality }}</DialogTitle>
+        <DialogTitle>Sustituir registro en {{ registration.block.municipality.name }}</DialogTitle>
         <small>{{ registration.name }} {{ registration.first_name }} {{ registration.second_name }}</small>
       </DialogHeader>
       <Form :registration="registration"/>

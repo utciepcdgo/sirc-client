@@ -85,9 +85,9 @@ watch(() => props.form.values.compensatory_measure, (newVal) => {
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup v-for="i in selectedBlock.municipality.councils" :key="i">
-                  <SelectItem :value="i.toString()" :disabled="!selectedBlock.assignments?.councils.list.includes(i) && selectedBlock.assignments?.councils.list.length > 0">
+                  <SelectItem :value="i.toString()" :disabled="!selectedBlock.assignments?.councils.includes(i) && selectedBlock.assignments?.councils.length > 0">
                     {{ i }}
-                    <small class="accent-muted" v-show="!selectedBlock.assignments?.councils.list.includes(i) && selectedBlock.assignments?.councils.list.length > 0">(Deshabilitado)</small>
+                    <small class="accent-muted" v-show="!selectedBlock.assignments?.councils.includes(i) && selectedBlock.assignments?.councils.length > 0">(Deshabilitado)</small>
                   </SelectItem>
                 </SelectGroup>
               </SelectContent>

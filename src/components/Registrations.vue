@@ -119,6 +119,17 @@ const updateCurrentTime = () => {
   currentTime.value = new Date();
 };
 
+const generateReceipt = async (entityId) => {
+  loadingStore.showLoading()
+  const response = await axios.get(import.meta.env.VITE_SIRC_API_URI + `receipt?entity_id=${entityId}`).then((response) => {
+    console.log('response', response)
+  }).catch((error) => {
+    console.error('Error al obtener el recibo:', error)
+  })
+  console.log('response', response)
+  loadingStore.hideLoading()
+}
+
 let intervalId;
 
 onMounted(async () => {
@@ -185,7 +196,7 @@ onUnmounted(() => {
           <IconPlus/>
           Crear formato de solicitud de registro
         </Button>
-        <Button variant="default">
+        <Button variant="default" @click="generateReceipt(authStore.user.entities[0].id)">
           <IconPlus/>
           Presentar registros formalmente.
         </Button>
@@ -286,7 +297,7 @@ onUnmounted(() => {
     </DialogRoot>
 
     <DialogRoot v-model:open="openDetails">
-      <DialogScrollContent class="min-w-[80%]">
+      <DialogScrollContent class="min-w-max">
         <DialogHeader>
           <DialogTitle>Registros en {{ blockdata.municipality.name }}</DialogTitle>
           <DialogDescription>

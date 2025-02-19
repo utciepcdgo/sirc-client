@@ -199,5 +199,5 @@ export async function registrationRequestPdf(id: number, type: string) {
     doc.setFont('ARIALNB', 'normal').text('AVISO DE PRIVACIDAD:', 3, 23.5)
     doc.textWithLink('https://www.iepcdurango.mx/IEPC_DURANGO/informes/avisos_de_privacidad', 3, 25.2, {url: 'https://www.iepcdurango.mx/IEPC_DURANGO/informes/avisos_de_privacidad '})
 
-    doc.save('two-by-four.pdf');
+    doc.save('Formato_5_Solicitud_de_Registro.pdf');
 }
