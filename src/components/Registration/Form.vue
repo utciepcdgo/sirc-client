@@ -22,6 +22,7 @@ import {registrationSchema} from "@/components/Registration/Form/Schemas/registr
 import {FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form";
 import {Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 import {useToast} from "@/components/ui/toast";
+import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from '@/components/ui/card'
 
 const store = {storeCompensatory: useCompensatoryStore(), storeGender: useGenresStore(), storePostulation: usePostulationsStore(), storeLoading: useLoadingStore()}
 
@@ -131,7 +132,7 @@ const {values, handleSubmit} = useForm({
 
 const onSubmit = handleSubmit(async (values) => {
   try {
-    await axios.post( import.meta.env.VITE_SIRC_API_URI + 'registrations', values);
+    await axios.post(import.meta.env.VITE_SIRC_API_URI + 'registrations', values);
 
     // Emitir evento al padre para cerrar el modal
     emit("closeModal");
@@ -182,11 +183,12 @@ const showMote = computed(() => values.postulation_id === 3 && values.position_i
         <VoterCard/>
       </div>
     </div>
-    <div class="grid sm:grid-cols-1 xl:grid-cols-2 gap-4">
-      <div class="border border-slate-400 rounded-md p-4 relative mt-10">
-        <FormHeader subtitle="Indique la fecha de nacimiento, además del Estado y Municipio correspondiente" title="Fecha y lugar de nacimiento"/>
-
-        <div class="grid grid-cols-3 gap-4 mt-5">
+    <div class="flex gap-4 sm:flex-col md:flex-row">
+      <Card>
+        <CardHeader class="text-center">
+          <CardTitle class="text-2xl font-extrabold">Fecha y lugar de nacimiento</CardTitle>
+        </CardHeader>
+        <CardContent>
           <div>
             <FormField v-slot="{ componentField }" name="birthplace.birth">
               <FormItem>
@@ -246,14 +248,15 @@ const showMote = computed(() => values.postulation_id === 3 && values.position_i
               </FormItem>
             </FormField>
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
-      <div class="border border-slate-400 rounded-md p-4 relative mt-10">
-        <FormHeader subtitle="Información relacionada con el domicilio y el tiempo de residencia" title="Residencia"/>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4 mt-5">
-          <div class="grid grid-cols-1 2xl:grid-cols-2 gap-4">
+      <Card>
+        <CardHeader class="text-center">
+          <CardTitle class="text-2xl font-extrabold">Residencia</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div class="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4 mt-5">
             <div>
               <FormField v-slot="{ componentField }" v-model="selectedStateFromResidence" name="residence.state">
                 <FormItem>
@@ -300,8 +303,6 @@ const showMote = computed(() => values.postulation_id === 3 && values.position_i
                 </FormItem>
               </FormField>
             </div>
-          </div>
-          <div class="grid grid-cols-1 2xl:grid-cols-2 gap-4">
             <div>
               <FormField v-slot="{ componentField }" name="residence.city">
                 <FormItem>
@@ -324,19 +325,19 @@ const showMote = computed(() => values.postulation_id === 3 && values.position_i
                 </FormItem>
               </FormField>
             </div>
+            <div class="sm:col-span-1 md:col-span-2 xl:col-span-2 2xl:col-span-1">
+              <FormField v-slot="{ componentField }" name="residence.street">
+                <FormItem>
+                  <FormLabel>Calle</FormLabel>
+                  <FormControl>
+                    <Input placeholder="...Litio" type="text" v-bind="componentField"/>
+                  </FormControl>
+                  <FormMessage/>
+                </FormItem>
+              </FormField>
+            </div>
           </div>
-          <div class="sm:col-span-1 md:col-span-2 xl:col-span-2 2xl:col-span-1">
-            <FormField v-slot="{ componentField }" name="residence.street">
-              <FormItem>
-                <FormLabel>Calle</FormLabel>
-                <FormControl>
-                  <Input placeholder="...Litio" type="text" v-bind="componentField"/>
-                </FormControl>
-                <FormMessage/>
-              </FormItem>
-            </FormField>
-          </div>
-        </div>
+        </CardContent>
         <div class="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-2 gap-4 mt-5">
           <div class="grid grid-cols-1 2xl:grid-cols-2 gap-4">
             <div>
@@ -401,7 +402,7 @@ const showMote = computed(() => values.postulation_id === 3 && values.position_i
             </div>
           </div>
         </div>
-      </div>
+      </Card>
     </div>
     <div class="grid-cols-1 gap-4">
       <div class="border border-slate-400 rounded-md p-4 relative mt-10">
