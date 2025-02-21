@@ -27,6 +27,7 @@ import {useAuthStore} from "@/stores/auth";
 import {useLoadingStore} from '@/stores/loading';
 import TooltipWrapper from "@/components/ui/TooltipWrapper.vue";
 import RequestRegistrationModal from "@/components/RequestRegistrationModal.vue";
+import ReceiptModal from "@/components/Receipt/ReceiptModal.vue";
 
 const authStore = useAuthStore();
 const loadingStore = useLoadingStore();
@@ -119,17 +120,6 @@ const updateCurrentTime = () => {
   currentTime.value = new Date();
 };
 
-const generateReceipt = async (entityId) => {
-  loadingStore.showLoading()
-  const response = await axios.get(import.meta.env.VITE_SIRC_API_URI + `receipt?entity_id=${entityId}`).then((response) => {
-    console.log('response', response)
-  }).catch((error) => {
-    console.error('Error al obtener el recibo:', error)
-  })
-  console.log('response', response)
-  loadingStore.hideLoading()
-}
-
 let intervalId;
 
 onMounted(async () => {
@@ -196,10 +186,7 @@ onUnmounted(() => {
           <IconPlus/>
           Crear formato de solicitud de registro
         </Button>
-        <Button variant="default" @click="generateReceipt(authStore.user.entities[0].id)">
-          <IconPlus/>
-          Presentar registros formalmente.
-        </Button>
+        <ReceiptModal/>
       </div>
     </div>
 

@@ -10,19 +10,16 @@ import {vMaska} from "maska/vue"
 import {Input} from '@/components/ui/input'
 import GeneralInformation from "@/components/Registration/Form/Modules/GeneralInformation.vue";
 import {AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle} from "@/components/ui/alert-dialog";
-import {FingerprintSpinner} from "epic-spinners";
-import {VisuallyHidden} from "radix-vue";
 import {useCompensatoryStore} from "@/stores/compensatories";
 import {useGenresStore} from "@/stores/genres";
 import {usePostulationsStore} from "@/stores/postulations";
 import {useLoadingStore} from "@/stores/loading";
-import FormHeader from "@/components/Registration/Form/Modules/FormHeader.vue";
 import VoterCard from "@/components/Registration/Form/Modules/VoterCard.vue";
 import {registrationSchema} from "@/components/Registration/Form/Schemas/registration";
 import {FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form";
 import {Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 import {useToast} from "@/components/ui/toast";
-import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from '@/components/ui/card'
+import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card'
 
 const store = {storeCompensatory: useCompensatoryStore(), storeGender: useGenresStore(), storePostulation: usePostulationsStore(), storeLoading: useLoadingStore()}
 
@@ -152,6 +149,7 @@ const onSubmit = handleSubmit(async (values) => {
 
 const showCouncilNumber = computed(() => values.postulation_id === 5);
 const showMote = computed(() => values.postulation_id === 3 && values.position_id === 1);
+const showLGBTTTIQ = computed(() => values.compensatory_id === 3);
 
 </script>
 
@@ -183,7 +181,7 @@ const showMote = computed(() => values.postulation_id === 3 && values.position_i
         <VoterCard/>
       </div>
     </div>
-    <div class="flex gap-4 sm:flex-col md:flex-row">
+    <div class="flex gap-4 sm:flex-col md:flex-row mt-4">
       <Card>
         <CardHeader class="text-center">
           <CardTitle class="text-2xl font-extrabold">Fecha y lugar de nacimiento</CardTitle>
@@ -250,13 +248,12 @@ const showMote = computed(() => values.postulation_id === 3 && values.position_i
           </div>
         </CardContent>
       </Card>
-
-      <Card>
+      <Card class="flex-1">
         <CardHeader class="text-center">
           <CardTitle class="text-2xl font-extrabold">Residencia</CardTitle>
         </CardHeader>
         <CardContent>
-          <div class="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4 mt-5">
+          <div class="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4">
             <div>
               <FormField v-slot="{ componentField }" v-model="selectedStateFromResidence" name="residence.state">
                 <FormItem>
@@ -336,10 +333,6 @@ const showMote = computed(() => values.postulation_id === 3 && values.position_i
                 </FormItem>
               </FormField>
             </div>
-          </div>
-        </CardContent>
-        <div class="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-2 gap-4 mt-5">
-          <div class="grid grid-cols-1 2xl:grid-cols-2 gap-4">
             <div>
               <FormField v-slot="{ componentField }" name="residence.postal_code">
                 <FormItem>
@@ -351,33 +344,28 @@ const showMote = computed(() => values.postulation_id === 3 && values.position_i
                 </FormItem>
               </FormField>
             </div>
-            <div class="grid grid-cols-1 2xl:grid-cols-2 gap-4 border border-slate-400 rounded-md p-2">
-              <div>
-                <FormField v-slot="{ componentField }" name="residence.outside_number">
-                  <FormItem>
-                    <FormLabel>Número interior</FormLabel>
-                    <FormControl>
-                      <Input type="text" v-bind="componentField"/>
-                    </FormControl>
-                    <FormMessage/>
-                  </FormItem>
-                </FormField>
-              </div>
-              <div>
-                <FormField v-slot="{ componentField }" name="residence.inside_number">
-                  <FormItem>
-                    <FormLabel>Número exterior</FormLabel>
-                    <FormControl>
-                      <Input type="text" v-bind="componentField"/>
-                    </FormControl>
-                    <FormMessage/>
-                  </FormItem>
-                </FormField>
-              </div>
-              <div class="md:col-span-2 col-span-1 text-gray-500 text-sm">Si su dirección no cuenta con número interior y/o exterior, deje el valor "S/N"</div>
+            <div>
+              <FormField v-slot="{ componentField }" name="residence.outside_number">
+                <FormItem>
+                  <FormLabel>Número interior</FormLabel>
+                  <FormControl>
+                    <Input type="text" v-bind="componentField"/>
+                  </FormControl>
+                  <FormMessage/>
+                </FormItem>
+              </FormField>
             </div>
-          </div>
-          <div class="grid grid-cols-1 2xl:grid-cols-2 gap-4">
+            <div>
+              <FormField v-slot="{ componentField }" name="residence.inside_number">
+                <FormItem>
+                  <FormLabel>Número exterior</FormLabel>
+                  <FormControl>
+                    <Input type="text" v-bind="componentField"/>
+                  </FormControl>
+                  <FormMessage/>
+                </FormItem>
+              </FormField>
+            </div>
             <div>
               <FormField v-slot="{ componentField }" name="residence.length.years">
                 <FormItem>
@@ -401,13 +389,14 @@ const showMote = computed(() => values.postulation_id === 3 && values.position_i
               </FormField>
             </div>
           </div>
-        </div>
+        </CardContent>
       </Card>
     </div>
-    <div class="grid-cols-1 gap-4">
-      <div class="border border-slate-400 rounded-md p-4 relative mt-10">
-        <FormHeader subtitle="Ingrese la información referente al cargo por el que se postula" title="Candidatura"/>
-
+    <Card class="mt-4">
+      <CardHeader class="text-center">
+        <CardTitle class="text-2xl font-extrabold">Candidatura</CardTitle>
+      </CardHeader>
+      <CardContent>
         <div class="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4 mt-5">
           <div>
             <FormField v-slot="{ componentField }" label="Postulación" name="postulation_id">
@@ -525,42 +514,44 @@ const showMote = computed(() => values.postulation_id === 3 && values.position_i
               </FormItem>
             </FormField>
           </div>
-          <div>
-            <FormField v-slot="{ componentField }" name="gender_id">
-              <FormItem>
-                <FormLabel>Género</FormLabel>
-                <FormControl>
-                  <Select v-bind="componentField">
-                    <SelectTrigger>
-                      <SelectValue placeholder="Seleccione una opción"/>
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup v-for="gender in getGenres" :key="gender.id">
-                        <SelectItem :value="gender.id">
-                          {{ gender.name }}
-                        </SelectItem>
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </FormControl>
-                <FormMessage/>
-              </FormItem>
-            </FormField>
+          <div v-show="showLGBTTTIQ">
+            <div>
+              <FormField v-slot="{ componentField }" name="gender_id">
+                <FormItem>
+                  <FormLabel>Género</FormLabel>
+                  <FormControl>
+                    <Select v-bind="componentField">
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccione una opción"/>
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup v-for="gender in getGenres" :key="gender.id">
+                          <SelectItem :value="gender.id">
+                            {{ gender.name }}
+                          </SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage/>
+                </FormItem>
+              </FormField>
+            </div>
           </div>
           <div v-show="showMote">
             <FormField v-slot="{ componentField }" name="mote">
               <FormItem>
                 <FormLabel>Mote/Sobrenombre</FormLabel>
                 <FormControl>
-                  <Input placeholder="...Súper Electorín" type="text" v-bind="componentField"/>
+                  <Input type="text" v-bind="componentField"/>
                 </FormControl>
                 <FormMessage/>
               </FormItem>
             </FormField>
           </div>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   </form>
 </template>
 
