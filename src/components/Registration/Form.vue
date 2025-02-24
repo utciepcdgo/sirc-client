@@ -541,7 +541,7 @@ const showLGBTTTIQ = computed(() => values.compensatory_id === 3);
           <div v-show="showMote">
             <FormField v-slot="{ componentField }" name="mote">
               <FormItem>
-                <FormLabel>Mote/Sobrenombre</FormLabel>
+                <FormLabel>Sobrenombre</FormLabel>
                 <FormControl>
                   <Input type="text" v-bind="componentField"/>
                 </FormControl>

@@ -317,7 +317,7 @@ onUnmounted(() => {
               <span class="font-semibold">Siglados:</span>
               <span class="text-gray-600">Presidencia Municipal: {{ blockdata.assignments.municipality ? "Sí" : "No" }}</span>
               <span class="text-gray-600">Sindicatura: {{ blockdata.assignments.syndic ? "Sí" : "No" }}</span>
-              <span class="text-gray-600">Regidurías (Posiciones): {{ blockdata?.assignments?.councils?.list }}</span>
+              <span class="text-gray-600">Regidurías (Posiciones): {{ blockdata?.assignments?.councils }}</span>
             </div>
           </TabsContent>
         </Tabs>

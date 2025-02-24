@@ -56,13 +56,11 @@ export const registrationSchema = {
         cic: Yup.string().min(9, 'Debe ingresar 9 caracteres numéricos').max(9).optional(),
         ocr: Yup.string().min(13, 'Debe ingresar 13 caracteres numéricos').max(13).optional(),
         section: Yup.string().min(1).max(4).optional(),
-        emission_number: Yup.number()
-            .typeError("El año debe ser un número válido") // Si el usuario ingresa texto en lugar de un número
-            .integer("El año debe ser un número entero") // Evita decimales
-            .min(2006, "El año debe ser mayor a 2005") // Valida que sea mayor a 2005
-            .max(new Date().getFullYear(), "El año no puede ser mayor al actual") // Opcional: No permitir años futuros
+        emission_number: Yup.string()
             .optional()
-            .label("Año de emisión"),
+            .min(2, 'El valor mínimo permitido es 2')
+            .max(2, 'El valor máximo permitido es 2')
+            .label("Número de emisión"),
     }),
     postulation_id: Yup.number().required().label('Postulación'),
     position_id: Yup.number().required().label('Carácter'),

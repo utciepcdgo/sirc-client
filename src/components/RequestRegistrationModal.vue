@@ -100,7 +100,7 @@ function onSubmit(values) {
           variant: 'default',
         });
         // Enable the button
-        setEnableButton = ref(true)
+        setEnableButton.value = true
       })
       .catch(error => {
         console.error(error)
@@ -124,7 +124,7 @@ async function fetchRepresentatives(entityId) {
       formRef.value.setValues({persons: response.data.data});
     }
 
-    setEnableButton = ref(response.data.data.length > 0)
+    setEnableButton.value = !(response.data.data.length > 0)
 
     loading.hideLoading();
 
@@ -158,7 +158,7 @@ onMounted(async () => {
           // Se asigna la información al objeto formData
           formData.persons = response.data.data
           // Check if there are at least two persons for enabling the button
-          setEnableButton = ref(!formData.persons.some(person => person.name && person.ownership))
+          setEnableButton.value = !(formData.persons.some(person => person.name && person.ownership))
 
           loading.hideLoading()
         })
