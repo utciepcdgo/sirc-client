@@ -22,6 +22,10 @@ const handleLogout = async () => {
   });
 };
 
+const openManual = () => {
+  window.open('https://s3.us-east-1.amazonaws.com/static.appsiepcdurango.mx/Miselaneo/MANUAL_SIRC_2025.pdf', '_blank');
+};
+
 const mode = useColorMode()
 </script>
 
@@ -82,7 +86,7 @@ const mode = useColorMode()
             </NavigationMenuItem>
             <NavigationMenuItem>
               <TooltipWrapper message="Manual de usuario">
-                <Button variant="ghost" @click="window.open('https://s3.us-east-1.amazonaws.com/static.appsiepcdurango.mx/Miselaneo/MANUAL_SIRC_2025.pdf', '_blank')">
+                <Button variant="ghost" @click="openManual">
                   <IconFile/>
                 </Button>
               </TooltipWrapper>
