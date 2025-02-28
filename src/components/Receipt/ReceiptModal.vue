@@ -2,8 +2,9 @@
 import {Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger} from '@/components/ui/dialog'
 import {Checkbox} from '@/components/ui/checkbox'
 import {Button} from "@/components/ui/button";
+import {ToastAction} from '@/components/ui/toast'
 import {IconAlertTriangle, IconFileTypeXls} from "@tabler/icons-vue";
-import {ref} from "vue";
+import {ref, h} from "vue";
 import {useAuthStore} from "@/stores/auth";
 import {useLoadingStore} from '@/stores/loading';
 import {useToast} from "@/components/ui/toast";
@@ -22,13 +23,25 @@ const closeReceiptModal = () => {
 
 const generateReceipt = async (entityId) => {
   loadingStore.showLoading()
-  const response = await axios.get(import.meta.env.VITE_SIRC_API_URI + `receipt?entity_id=${entityId}`).then((response) => {
-    console.log('response', response.data.messange)
+  const response = await axios.post(import.meta.env.VITE_SIRC_API_URI + `receipt?entity_id=${entityId}`).then((response) => {
+    console.log('response', response.data.message)
+    toast({
+      title: response.data.message,
+      description: 'Registros presentados con éxito.',
+      action: h(ToastAction, {
+        altText: 'Descargar.',
+        onClick: () => {
+          window.open(response.data.url, '_blank');
+        }
+      }, {
+        default: () => 'Descargar',
+      }),
+    })
   }).catch((error) => {
-    console.error('Error al obtener el recibo:', error.response.data.message)
+    console.error('Error al obtener el recibo:', error)
     toast({
       title: 'Error al obtener el recibo',
-      description: error.response.data.message,
+      description: error?.response?.data?.message,
       variant: 'destructive',
     })
   })
