@@ -2,7 +2,7 @@
 import {DialogHeader, DialogScrollContent, DialogTitle} from '@/components/ui/dialog'
 import {Tabs, TabsContent, TabsList, TabsTrigger} from '@/components/ui/tabs'
 import {DialogRoot} from "radix-vue";
-import {defineProps, onMounted, ref, watch, defineEmits} from "vue";
+import {defineProps, onMounted, ref, watch} from "vue";
 import axios from "axios";
 import {useLoadingStore} from "@/stores/loading";
 import FilePondUploader from "@/components/Details/FilePondUploader.vue";
@@ -66,6 +66,44 @@ const isFileUploaded = (file) => {
   return uploadedFiles.value.some(uploaded => uploaded.filetype.id === file.id);
 };
 
+/**
+ * Función que determina si el documento está permitido para el registro actual.
+ * - Si allowed_to es un array y contiene "all", se permite.
+ * - Si es un objeto, se verifica cada condición definida.
+ */
+function isAllowed(doc) {
+  // Caso 1: Si allowed_to es un array, se permite si incluye "all".
+  if (Array.isArray(doc.allowed_to)) {
+    return doc.allowed_to.includes('all');
+  }
+  // Caso 2: Si allowed_to es un objeto, validar las condiciones
+  if (doc.allowed_to && typeof doc.allowed_to === 'object') {
+    let matches = true;
+
+    if (doc.allowed_to.compensatory_id !== undefined) {
+      matches = matches && Number(props.registration.compensatory.id) === Number(doc.allowed_to.compensatory_id);
+    }
+
+    if (doc.allowed_to.reelection !== undefined) {
+      matches = matches && Number(props.registration.reelection) === Number(doc.allowed_to.reelection);
+    }
+
+    if (doc.allowed_to.sex !== undefined) {
+      matches = matches && Number(props.registration.sex.id) === Number(doc.allowed_to.sex);
+    }
+
+    if (doc.allowed_to.postulation_id !== undefined && doc.allowed_to.position_id !== undefined) {
+      matches = matches && Number(props.registration.postulation.id) === Number(doc.allowed_to.postulation_id) &&
+          Number(props.registration.position.id) === Number(doc.allowed_to.position_id);
+    }
+
+    return matches;
+  }
+
+  // Por defecto, no se permite
+  return false;
+}
+
 </script>
 
 <template>
@@ -86,7 +124,9 @@ const isFileUploaded = (file) => {
           <div v-if="fileTypes.length">
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 items-end gap-4">
               <div v-for="file in fileTypes" :key="file.id">
-                <FilePondUploader :disabled="isFileUploaded(file)" :document="file" :is-loaded="isFileUploaded(file)" :registration="registration" @fileUploaded="fetchUploadedFiles"/>
+                <div v-if="isAllowed(file)">
+                  <FilePondUploader :disabled="isFileUploaded(file)" :document="file" :is-loaded="isFileUploaded(file)" :registration="registration" @fileUploaded="fetchUploadedFiles"/>
+                </div>
               </div>
             </div>
           </div>

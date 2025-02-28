@@ -430,8 +430,8 @@ const showLGBTTTIQ = computed(() => values.compensatory_id === 3);
                       <SelectValue placeholder="Seleccione una opción"/>
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectGroup v-for="i in selectedBlock.municipality.councils" :key="i">
-                        <SelectItem :disabled="!selectedBlock.assignments?.councils.includes(i) && selectedBlock.assignments?.councils.length > 0" :value="i">
+                      <SelectGroup v-for="i in selectedBlock?.municipality?.councils" :key="i">
+                        <SelectItem :disabled="!selectedBlock?.assignments?.councils?.includes(i) && selectedBlock?.assignments?.councils?.length > 0" :value="i">
                           {{ i }}
                         </SelectItem>
                       </SelectGroup>

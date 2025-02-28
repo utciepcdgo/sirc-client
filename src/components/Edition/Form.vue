@@ -452,8 +452,8 @@ const showMote = computed(() => values.postulation_id === 3 && values.position_i
                       <SelectValue placeholder="Seleccione una opción"/>
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectGroup v-for="i in registration.block.councils" :key="i">
-                        <SelectItem :disabled="!registration.block.assignments.includes(i) && registration.block.assignments.length > 0" :value="i">
+                      <SelectGroup v-for="i in registration?.block?.councils" :key="i">
+                        <SelectItem :disabled="!registration?.block?.assignments?.councils?.includes(i) && registration?.block?.assignments?.councils?.length > 0" :value="i">
                           {{ i }}
                         </SelectItem>
                       </SelectGroup>

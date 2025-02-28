@@ -13,8 +13,6 @@ import {Input} from '@/components/ui/input'
 import type {Registration} from './Details/columns'
 import {columns} from './Details/columns'
 import DataTable from './Details/DataTable.vue'
-
-import {registrationRequestPdf} from '@/components/Documents/RegistrationRequestPdf';
 import {IconChevronDown, IconFilter, IconInfoCircle, IconManFilled, IconPlus, IconSearch, IconWomanFilled} from '@tabler/icons-vue';
 
 import {DialogRoot, VisuallyHidden} from "radix-vue";
@@ -28,6 +26,7 @@ import {useLoadingStore} from '@/stores/loading';
 import TooltipWrapper from "@/components/ui/TooltipWrapper.vue";
 import RequestRegistrationModal from "@/components/RequestRegistrationModal.vue";
 import ReceiptModal from "@/components/Receipt/ReceiptModal.vue";
+import CountDown from "@/components/CountDown.vue";
 
 const authStore = useAuthStore();
 const loadingStore = useLoadingStore();
@@ -140,6 +139,7 @@ onUnmounted(() => {
 <template>
   <div class="p-6">
     <Toaster/>
+    <CountDown class="z-10 shadow"/>
     <div class="flex justify-between mb-5">
       <div class="relative items-center">
         <div class="flex space-x-3.5">

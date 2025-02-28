@@ -77,16 +77,16 @@ async function downloadPdf(pdfFunction: Function, registration: object, fileName
         </DropdownMenuSubTrigger>
         <DropdownMenuPortal>
           <DropdownMenuSubContent>
-            <DropdownMenuItem @click="downloadPdf(disabilityPdf, registration, 'Discapacidad_Permanente')">
+            <DropdownMenuItem :disabled="registration.compensatory.id !== 2" @click="downloadPdf(disabilityPdf, registration, 'Discapacidad_Permanente')">
               <span>1. Discapacidad permanente</span>
             </DropdownMenuItem>
-            <DropdownMenuItem @click="downloadPdf(diversityPdf, registration, 'Diversidad_Sexual')">
+            <DropdownMenuItem :disabled="registration.compensatory.id !== 3" @click="downloadPdf(diversityPdf, registration, 'Diversidad_Sexual')">
               <span>2. Diversidad sexual</span>
             </DropdownMenuItem>
-            <DropdownMenuItem @click="downloadPdf(migrantPdf, registration, 'Migrante')">
+            <DropdownMenuItem :disabled="registration.compensatory.id !== 5" @click="downloadPdf(migrantPdf, registration, 'Migrante')">
               <span>3. Migrante</span>
             </DropdownMenuItem>
-            <DropdownMenuItem @click="downloadPdf(indigenousPdf, registration, 'Indígena')">
+            <DropdownMenuItem :disabled="registration.compensatory.id !== 6" @click="downloadPdf(indigenousPdf, registration, 'Indígena')">
               <span>4. Indígena</span>
             </DropdownMenuItem>
             <DropdownMenuItem @click="downloadPdf(candidacyPdf, registration, 'Aceptación_de_Candidatura')">
@@ -101,7 +101,7 @@ async function downloadPdf(pdfFunction: Function, registration: object, fileName
             <DropdownMenuItem @click="downloadPdf(violencyPdf, registration, '8_de_8_contra_la_violencia')">
               <span>9. 8 de 8 contra la violencia</span>
             </DropdownMenuItem>
-            <DropdownMenuItem @click="downloadPdf(amceePdf, registration, 'Red_Candidatas')">
+            <DropdownMenuItem :disabled="registration.sex.id !== 1" @click="downloadPdf(amceePdf, registration, 'Red_Candidatas')">
               <span>10. Red de Candidatas y Mujeres Electas.</span>
             </DropdownMenuItem>
           </DropdownMenuSubContent>

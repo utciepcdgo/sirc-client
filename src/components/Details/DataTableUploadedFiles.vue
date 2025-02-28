@@ -67,7 +67,7 @@ const downloadFile = async (fileId) => {
     console.error('Error al obtener el enlace temporal:', error);
 
     toast({
-      title: 'Error en la solicitud de descarga',
+      title: 'Error al solicitar la descarga',
       variant: 'destructive',
     });
 
