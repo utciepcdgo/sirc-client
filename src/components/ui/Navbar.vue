@@ -2,14 +2,14 @@
 <script lang="ts" setup>
 
 import {NavigationMenu, NavigationMenuItem, NavigationMenuList} from "@/components/ui/navigation-menu";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from '@/components/ui/dropdown-menu'
 import {Button} from "@/components/ui/button";
-import {IconDoorExit, IconRefresh, IconMoon, IconSun} from "@tabler/icons-vue";
+import {IconDoorExit, IconRefresh, IconMoon, IconSun, IconFile} from "@tabler/icons-vue";
 import {useLoadingStore} from '@/stores/loading';
 import {useAuthStore} from "@/stores/auth";
 import {useBlocksStore} from "@/stores/blocks";
 import TooltipWrapper from "@/components/ui/TooltipWrapper.vue";
-import { useColorMode } from '@vueuse/core'
+import {useColorMode} from '@vueuse/core'
 
 const authStore = useAuthStore();
 const loadingStore = useLoadingStore();
@@ -77,6 +77,13 @@ const mode = useColorMode()
               <TooltipWrapper message="Cerrar sesión">
                 <Button variant="secondary" @click="handleLogout">
                   <IconDoorExit/>
+                </Button>
+              </TooltipWrapper>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <TooltipWrapper message="Manual de usuario">
+                <Button variant="ghost" @click="window.open('https://s3.us-east-1.amazonaws.com/static.appsiepcdurango.mx/Miselaneo/MANUAL_SIRC_2025.pdf', '_blank')">
+                  <IconFile/>
                 </Button>
               </TooltipWrapper>
             </NavigationMenuItem>

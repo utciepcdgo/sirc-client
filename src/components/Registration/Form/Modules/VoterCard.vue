@@ -20,7 +20,7 @@ import PopoverWrapper from "@/components/ui/PopoverWrapper.vue";
             <FormItem>
               <FormLabel class="flex items-center justify-between">
                 <span>CIC</span>
-                <PopoverWrapper :message="`<img src='https://s3.us-east-1.amazonaws.com/static.appsiepcdurango.mx/sirc/src/INE_B_CIC_OCR.png'  alt='Reverso de Credencial para votar'/>`">
+                <PopoverWrapper :message="`<img src='https://s3.us-east-1.amazonaws.com/static.appsiepcdurango.mx/Miselaneo/INE_B_CIC_OCR.png'  alt='Reverso de Credencial para votar'/>`">
                   <TooltipWrapper message="Haga clic para ver información acerca de cómo localizar el código CIC en la Credencial para Votar">
                     <IconInfoCircle class="w-4 h-4 text-blue-400"/>
                   </TooltipWrapper>
@@ -38,7 +38,7 @@ import PopoverWrapper from "@/components/ui/PopoverWrapper.vue";
             <FormItem>
               <FormLabel class="flex items-center justify-between">
                 <span>OCR</span>
-                <PopoverWrapper :message="`<img src='https://s3.us-east-1.amazonaws.com/static.appsiepcdurango.mx/sirc/src/INE_B_CIC_OCR.png' alt='Reverso de Credencial para votar'/>`">
+                <PopoverWrapper :message="`<img src='https://s3.us-east-1.amazonaws.com/static.appsiepcdurango.mx/Miselaneo/INE_B_CIC_OCR.png' alt='Reverso de Credencial para votar'/>`">
                   <TooltipWrapper message="Haga clic para ver información acerca de cómo localizar el código OCR en la Credencial para Votar">
                     <IconInfoCircle class="w-4 h-4 text-blue-400"/>
                   </TooltipWrapper>
