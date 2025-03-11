@@ -1,11 +1,17 @@
 {
   "compilerOptions": {
-    "target": "esnext",
+    "target": "ESNext",
+    "module": "ESNext",
     "useDefineForClassFields": true,
-    "module": "esnext",
     "moduleResolution": "node",
+    "skipDefaultLibCheck": true,
+    "noImplicitAny": false,
+    "allowJs": true,
     "strict": true,
     "jsx": "preserve",
+    "types": [
+      "vue"
+    ],
     "sourceMap": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
@@ -29,6 +35,10 @@
     "src/**/*.vue",
     "tests/**/*.ts",
     "tests/**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
   ],
   "files": [],
   "references": [

@@ -1,65 +1,69 @@
 <script lang="ts" setup>
-import {Button} from '@/components/ui/button'
-import {IconExchange, IconPencil, IconUpload} from '@tabler/icons-vue'
-import {defineEmits, defineProps, ref} from "vue";
-import UploadModal from "@/components/Details/UploadModal.vue";
-import EditionModal from "@/components/Edition/EditionModal.vue";
-import SubstitutionModal from "@/components/Substitution/SubstitutionModal.vue";
+import { Button } from '@/components/ui/button';
+import { IconExchange, IconPencil, IconUpload } from '@tabler/icons-vue';
+import { defineProps, ref } from 'vue';
+import UploadModal from '@/components/Details/UploadModal.vue';
+import EditionModal from '@/components/Edition/EditionModal.vue';
+import SubstitutionModal from '@/components/Substitution/SubstitutionModal.vue';
+import { Registration } from '@/types/types';
 
-const props = defineProps<{
-  registration: {
-    id: string,
-    uuid: string,
-  }
-}>()
+defineProps<{
+	registration: Registration;
+}>();
 
-const openModal = ref(false);
-const openEditionModal = ref(false);
-const openedSubstitutionModal = ref(false);
+const openModal = ref<boolean>(false);
+const openEditionModal = ref<boolean>(false);
+const openedSubstitutionModal = ref<boolean>(false);
 
 // Función para abrir el modal y enviar `registration`
 const openUploadModal = () => {
-  openModal.value = true;
+	openModal.value = true;
 };
 
 const openEditModal = () => {
-  openEditionModal.value = true;
+	openEditionModal.value = true;
 };
 
 const closeEditionModal = () => {
-  openEditionModal.value = false;
+	openEditionModal.value = false;
 };
 
 const openSubstitutionModal = () => {
-  openedSubstitutionModal.value = true;
+	openedSubstitutionModal.value = true;
 };
 
 const closeSubstitutionModal = () => {
-  openedSubstitutionModal.value = false;
+	openedSubstitutionModal.value = false;
 };
-
 </script>
 
 <template>
-  <div class="space-x-0 sm:space-y-1 2xl:space-x-2.5">
-    <Button @click="openUploadModal">
-      <IconUpload/>
-      Cargar
-    </Button>
-    <Button @click="openSubstitutionModal">
-      <IconExchange/>
-      Sustituír
-    </Button>
-    <Button @click="openEditModal">
-      <IconPencil/>
-      Editar
-    </Button>
-  </div>
-  <UploadModal v-model:open="openModal" :registration="registration" :opened="openModal"/>
-  <EditionModal :registration="registration" v-model:open="openEditionModal" @close-edition-modal="closeEditionModal"/>
-  <SubstitutionModal :registration="registration" v-model:open="openedSubstitutionModal" @close-edition-modal="closeSubstitutionModal"/>
+	<div class="space-x-0 sm:space-y-1 2xl:space-x-2.5">
+		<Button @click="openUploadModal">
+			<IconUpload />
+			Cargar
+		</Button>
+		<Button @click="openSubstitutionModal">
+			<IconExchange />
+			Sustituír
+		</Button>
+		<Button @click="openEditModal">
+			<IconPencil />
+			Editar
+		</Button>
+	</div>
+	<UploadModal
+		v-model:open="openModal"
+		:opened="openModal"
+		:registration="<Registration>registration" />
+	<EditionModal
+		v-model:open="openEditionModal"
+		:registration="registration"
+		@close-edition-modal="closeEditionModal" />
+	<SubstitutionModal
+		v-model:open="openedSubstitutionModal"
+		:registration="registration"
+		@close-edition-modal="closeSubstitutionModal" />
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

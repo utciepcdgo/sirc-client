@@ -24,8 +24,8 @@
 
 <script setup>
 import {computed, onMounted, onUnmounted, ref} from 'vue';
-import {Card} from '@/components/ui/Card';
-import {Button} from '@/components/ui/Button';
+import {Card} from '@/components/ui/card';
+import {Button} from '@/components/ui/button';
 
 // Define la fecha esperada (puede venir de prop, store, etc.)
 const expectedDate = new Date('2025-03-22T00:00:00');

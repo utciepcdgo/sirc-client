@@ -2,13 +2,19 @@ import {defineStore} from 'pinia'
 // Import axios to make HTTP requests
 import axios from "axios"
 
+interface Postulation {
+    id: number,
+    name: string
+    active: boolean
+}
+
 export const usePostulationsStore = defineStore("postulation", {
     state: () => ({
-        postulations: [],
+        postulations: [] as Postulation[],
     }),
     getters: {
         getPostulations(state) {
-            return state.postulations.data
+            return state.postulations
         }
     },
     actions: {
