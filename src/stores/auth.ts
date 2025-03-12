@@ -34,7 +34,7 @@ export const useAuthStore = defineStore('auth', {
 				const blocksStore = useBlocksStore();
 				await blocksStore.fetchBlocks();
 			} catch (error) {
-				console.error('Error en login:', error);
+				throw error;
 			}
 		},
 

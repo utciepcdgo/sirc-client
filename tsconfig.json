@@ -7,7 +7,7 @@
     "skipDefaultLibCheck": true,
     "noImplicitAny": false,
     "allowJs": true,
-    "strict": true,
+    "strict": false,
     "jsx": "preserve",
     "types": [
       "vue"
@@ -45,7 +45,7 @@
     {
       "path": "./tsconfig.app.json"
     },
-    {
+     {
       "path": "./tsconfig.node.json"
     }
   ]

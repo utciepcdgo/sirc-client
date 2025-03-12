@@ -31,14 +31,12 @@ import { useForm } from 'vee-validate';
 import { toTypedSchema } from '@vee-validate/yup';
 import { object } from 'yup';
 import { useToast } from '@/components/ui/toast';
-import { Registration } from '@/types/types';
+import { Registration, State, Municipality } from '@/types/types';
 
 // Hook para el Toast
 const { toast } = useToast();
 
-defineProps<{
-	registration?: Registration;
-}>();
+const props = defineProps<{ registration?: Registration }>();
 
 const store = {
 	storeCompensatory: useCompensatoryStore(),
@@ -63,27 +61,33 @@ const getPostulations = computed(() => {
 // Emitir eventos al padre
 const emit = defineEmits(['closeEditionModal']);
 
-const defaultRegistration = {
-	birthplace: { state: null, municipality: null },
-	residence: { state: null, municipality: null },
-};
-
-const states = ref([]);
-const municipalities = ref([]);
+const states = ref<State[]>([]);
+const municipalities = ref<Municipality[]>([]);
 const municipalitiesFromResidence = ref([]);
-const selectedState = ref(
-	registration?.birthplace?.state ?? defaultRegistration.birthplace.state
+const selectedState = ref<State>(
+	props.registration?.birthplace?.state ??
+		<State>{
+			id: 0,
+			name: 'Desconocido',
+			abbreviation: 'Desconocido',
+			shield: 'Desconocido',
+		}
 );
-const selectedMunicipality = ref(
-	registration?.birthplace?.municipality ??
-		defaultRegistration.birthplace.municipality
+const selectedMunicipality = ref<Municipality>(
+	props.registration?.birthplace.municipality ??
+		<Municipality>{ id: 0, name: 'Desconocido', state_id: 0 }
 );
-const selectedStateFromResidence = ref(
-	registration?.residence?.state ?? defaultRegistration.residence.state
+const selectedStateFromResidence = ref<State>(
+	props.registration?.residence?.state ??
+		<State>{
+			id: 0,
+			name: 'Desconocido',
+			abbreviation: 'Desconocido',
+			shield: 'Desconocido',
+		}
 );
-const selectedMunicipalityFromResidence = ref(
-	registration?.residence?.municipality ??
-		defaultRegistration.residence.municipality
+const selectedMunicipalityFromResidence = ref<String>(
+	props.registration?.residence?.municipality ?? 'Desconocido'
 );
 
 const fetchStates = async () => {
@@ -139,17 +143,21 @@ onMounted(async () => {
 	await fetchStates();
 
 	// Field 1 is for birthplace
-	watch(selectedState, async (newState) => {
-		console.log('selectedState ', selectedState);
-		if (newState) {
-			await fetchMunicipalities(newState.id, 1);
-		} else {
-			municipalities.value = [];
-		}
-	});
+	watch(
+		selectedState,
+		async (newState: State) => {
+			console.log(selectedState.value);
+			if (newState) {
+				await fetchMunicipalities(newState.id, 1);
+			} else {
+				municipalities.value = [];
+			}
+		},
+		{ flush: 'post' }
+	);
 
 	// Field 2 is for residence
-	watch(selectedStateFromResidence, async (newState) => {
+	watch(selectedStateFromResidence, async (newState: State) => {
 		if (newState) {
 			await fetchMunicipalities(newState.id, 2);
 		} else {
@@ -158,45 +166,45 @@ onMounted(async () => {
 	});
 });
 
-const { values, handleSubmit } = useForm({
+const { handleSubmit } = useForm<Registration>({
 	validationSchema: toTypedSchema(object().shape(registrationSchema)),
 	initialValues: {
-		name: registration.name,
-		first_name: registration.first_name,
-		second_name: registration.second_name,
+		name: props.registration?.name,
+		first_name: props.registration?.first_name,
+		second_name: props.registration?.second_name,
 		birthplace: {
-			birth: registration.birthplace.birth,
+			birth: props.registration?.birthplace?.birth,
 		},
 		residence: {
-			city: registration.residence.city,
-			colony: registration.residence.colony,
-			street: registration.residence.street,
-			postal_code: registration.residence.postal_code,
-			outside_number: registration.residence.outside_number,
-			inside_number: registration.residence.inside_number,
+			city: props.registration?.residence.city,
+			colony: props.registration?.residence.colony,
+			street: props.registration?.residence.street,
+			postal_code: props.registration?.residence.postal_code,
+			outside_number: props.registration?.residence.outside_number,
+			inside_number: props.registration?.residence.inside_number,
 			length: {
-				years: registration.residence.length.years,
-				months: registration.residence.length.months,
+				years: props.registration?.residence.length.years,
+				months: props.registration?.residence.length.months,
 			},
 		},
-		occupation: registration.occupation,
-		voter_key: registration.voter_key,
-		curp: registration.curp,
-		postulation_id: registration.postulation.id,
-		position_id: registration.position.id,
-		reelection: registration.reelection,
-		compensatory_id: registration.compensatory.id,
-		sex_id: registration.sex.id,
-		block_id: registration.block.id,
-		gender_id: registration.gender.id,
-		mote: registration.mote,
+		occupation: props.registration?.occupation,
+		voter_key: props.registration?.voter_key,
+		curp: props.registration?.curp,
+		postulation_id: props.registration?.postulation.id,
+		position_id: props.registration?.position.id,
+		reelection: props.registration?.reelection,
+		compensatory_id: props.registration?.compensatory.id,
+		sex_id: props.registration?.sex.id,
+		block_id: props.registration?.block.id,
+		gender_id: props.registration?.gender.id,
+		mote: props.registration?.mote,
 	},
 });
 
 const onSubmit = handleSubmit(async (values) => {
 	try {
 		await axios.patch(
-			`http://localhost:8000/api/registrations/${props.registration.id}`,
+			`http://localhost:8000/api/registrations/${props.registration?.id}`,
 			values
 		);
 
@@ -214,12 +222,14 @@ const onSubmit = handleSubmit(async (values) => {
 	}
 });
 
-const showCouncilNumber = computed(() => values?.postulation_id === 5);
+const showCouncilNumber = computed(
+	() => useForm()?.values?.postulation_id === 5
+);
 const showMote = computed(() => {
-	const postulationId = values?.postulation_id ?? 0;
-	const positionId = values?.position_id.id ?? 0;
-	const registrationPostulationId = props.registration.postulation.id ?? 0;
-	const registrationPositionId = props.registration.position.id ?? 0;
+	const postulationId = useForm()?.values?.postulation_id ?? 0;
+	const positionId = useForm()?.values?.position_id ?? 0;
+	const registrationPostulationId = props.registration?.postulation.id ?? 0;
+	const registrationPositionId = props.registration?.position.id ?? 0;
 
 	return (
 		(postulationId === 3 && positionId === 1) ||
@@ -256,7 +266,7 @@ const showMote = computed(() => {
 								<FormControl>
 									<Input
 										:default-value="
-											registration.birthplace.birth
+											registration?.birthplace?.birth
 										"
 										type="date"
 										v-bind="componentField" />
@@ -276,10 +286,10 @@ const showMote = computed(() => {
 									<Select v-bind="componentField">
 										<SelectTrigger>
 											<SelectValue
-												placeholder="Seleccione una opción">
+												placeholder="Selec0cione una opción">
 												{{
 													selectedState
-														? selectedState.name
+														? selectedState?.name
 														: ''
 												}}
 											</SelectValue>
@@ -287,9 +297,10 @@ const showMote = computed(() => {
 										<SelectContent>
 											<SelectGroup
 												v-for="state in states"
-												:key="state.id">
-												<SelectItem :value="state">
-													{{ state.name }}
+												:key="state?.id">
+												<SelectItem
+													:value="state.toString()">
+													{{ state?.name }}
 												</SelectItem>
 											</SelectGroup>
 										</SelectContent>
@@ -314,7 +325,7 @@ const showMote = computed(() => {
 												placeholder="Seleccione una opción">
 												{{
 													selectedMunicipality
-														? selectedMunicipality.name
+														? selectedMunicipality?.name
 														: ''
 												}}
 											</SelectValue>
@@ -324,7 +335,9 @@ const showMote = computed(() => {
 												v-for="municipality in municipalities"
 												:key="municipality.id">
 												<SelectItem
-													:value="municipality">
+													:value="
+														municipality.toString()
+													">
 													{{ municipality.name }}
 												</SelectItem>
 											</SelectGroup>
@@ -369,7 +382,10 @@ const showMote = computed(() => {
 												<SelectGroup
 													v-for="state in states"
 													:key="state.id">
-													<SelectItem :value="state">
+													<SelectItem
+														:value="
+															state.toString()
+														">
 														{{ state.name }}
 													</SelectItem>
 												</SelectGroup>
@@ -395,7 +411,7 @@ const showMote = computed(() => {
 													placeholder="Seleccione una opción">
 													{{
 														selectedMunicipalityFromResidence
-															? selectedMunicipalityFromResidence.name
+															? selectedMunicipalityFromResidence
 															: ''
 													}}
 												</SelectValue>
@@ -403,7 +419,7 @@ const showMote = computed(() => {
 											<SelectContent>
 												<SelectGroup
 													v-for="municipality in municipalitiesFromResidence"
-													:key="municipality.id">
+													:key="municipality.name">
 													<SelectItem
 														:value="
 															municipality.name
@@ -590,7 +606,7 @@ const showMote = computed(() => {
 								<FormControl>
 									<Select
 										:default-value="
-											registration?.postulation.id
+											props.registration?.postulation.id.toString()
 										"
 										v-bind="componentField">
 										<SelectTrigger>
@@ -599,7 +615,7 @@ const showMote = computed(() => {
 										</SelectTrigger>
 										<SelectContent>
 											<SelectGroup
-												v-for="postulation in getPostulations.data"
+												v-for="postulation in getPostulations?.data"
 												:key="postulation.id">
 												<SelectItem
 													:disabled="
@@ -631,12 +647,13 @@ const showMote = computed(() => {
 										</SelectTrigger>
 										<SelectContent>
 											<SelectGroup
-												v-for="i in registration?.block
-													?.councils"
+												v-for="i in props.registration
+													?.block.assignments
+													.councils"
 												:key="i">
 												<SelectItem
 													:disabled="
-														!registration?.block?.assignments?.councils?.includes(
+														!props.registration?.block.assignments.councils?.includes(
 															i
 														) &&
 														registration?.block
@@ -665,7 +682,7 @@ const showMote = computed(() => {
 								<FormControl>
 									<Select
 										:default-value="
-											registration?.position?.id
+											props.registration?.position.id.toString()
 										"
 										v-bind="componentField">
 										<SelectTrigger>
@@ -674,10 +691,10 @@ const showMote = computed(() => {
 										</SelectTrigger>
 										<SelectContent>
 											<SelectGroup>
-												<SelectItem :value="1">
+												<SelectItem :value="String(1)">
 													Propietaria/o
 												</SelectItem>
-												<SelectItem :value="2">
+												<SelectItem :value="String(2)">
 													Suplencia/o
 												</SelectItem>
 											</SelectGroup>
@@ -729,7 +746,7 @@ const showMote = computed(() => {
 								<FormControl>
 									<Select
 										:default-value="
-											registration?.compensatory?.id
+											props.registration?.compensatory.id.toString()
 										"
 										v-bind="componentField">
 										<SelectTrigger>
@@ -741,7 +758,9 @@ const showMote = computed(() => {
 												v-for="compensatory in getCompensatory"
 												:key="compensatory.id">
 												<SelectItem
-													:value="compensatory.id">
+													:value="
+														compensatory.id.toString()
+													">
 													{{ compensatory.name }}
 												</SelectItem>
 											</SelectGroup>
@@ -770,7 +789,10 @@ const showMote = computed(() => {
 											<SelectGroup
 												v-for="gender in getGenres"
 												:key="gender.id">
-												<SelectItem :value="gender.id">
+												<SelectItem
+													:value="
+														gender.id.toString()
+													">
 													{{ gender.name }}
 												</SelectItem>
 											</SelectGroup>

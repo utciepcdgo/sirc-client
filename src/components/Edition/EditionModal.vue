@@ -9,9 +9,10 @@ import { DialogRoot } from 'radix-vue';
 import { Button } from '@/components/ui/button';
 import Form from '@/components/Edition/Form.vue';
 import { defineProps } from 'vue';
+import { Registration } from '@/types/types';
 
 defineProps<{
-	registration?: Record<string, any>;
+	registration?: Registration;
 }>();
 
 const emit = defineEmits(['closeEditionModal']);
@@ -23,7 +24,7 @@ const emit = defineEmits(['closeEditionModal']);
 			<DialogHeader>
 				<DialogTitle>Detalles del Registro</DialogTitle>
 			</DialogHeader>
-			<Form :registration="registration ?? {}" />
+			<Form :registration="registration" />
 			<DialogFooter>
 				<Button form="edition_form" type="submit">
 					Guardar registro

@@ -1,11 +1,14 @@
 export interface State {
 	id: number;
 	name: string;
+	abbreviation: string;
+	shield: string;
 }
 
 export interface Municipality {
-	id: number;
+	state_id: number;
 	name: string;
+	id: number;
 }
 
 export interface Block {
@@ -101,6 +104,13 @@ export interface Registration {
 			abbreviation: string;
 			councils: number;
 		};
+		assignments: {
+			id: number;
+			municipality: boolean;
+			syndic: boolean;
+			councils: [];
+			block_id: number;
+		};
 	};
 	block_id: number;
 	council_number: number;
@@ -125,25 +135,11 @@ export interface Registration {
 		colony: string;
 		city: string;
 		municipality: string;
-		state: {
-			id: number;
-			name: string;
-			abbreviation: string;
-			shield: string;
-		};
+		state: State;
 	};
 	birthplace: {
-		municipality: {
-			id: number;
-			name: string;
-			state_id: string;
-		};
-		state: {
-			id: number;
-			name: string;
-			abbreviation: string;
-			shield: string;
-		};
+		municipality: Municipality;
+		state: State;
 		birth: string;
 	};
 	second_name: string;
