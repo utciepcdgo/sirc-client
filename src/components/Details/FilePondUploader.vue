@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import vueFilePond from 'vue-filepond';
 import { defineEmits } from 'vue';
 import { setOptions } from 'filepond';
@@ -17,15 +17,17 @@ import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css
 import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
 import FilePondPluginImagePreview from 'filepond-plugin-image-preview';
 import { useToast } from '@/components/ui/toast/use-toast';
-
+import { Registration } from '@/types/types';
 // Propiedad del documento que se carga
 const props = defineProps({
-	document: Object, // Este objeto contiene el nombre del documento y otros detalles
-	registration: Object, // Este objeto contiene el registro al que se asocia el documento
-	disabled: Boolean, // Esta propiedad deshabilita el componente si es verdadera
-	isLoaded: Boolean, // Esta propiedad indica si el archivo ya fue cargado
+  document: Object,
+  registration: {
+    type: Object as PropType<Registration>,
+    required: true, // Set to `false` if optional
+  },
+  disabled: Boolean,
+  isLoaded: Boolean,
 });
-
 const { toast } = useToast();
 
 // Configuración de FilePond
@@ -51,7 +53,7 @@ const filePondServer = {
 			fileName: file.name,
 			partyAcronym: props.registration.coalition.is_assigned
 				? props.registration.coalition.acronym
-				: props.registration.party.acronym,
+				: props.registration.entity.acronym,
 			municipality: props.registration.block.municipality.abbreviation,
 			postulation: props.registration.postulation.name
 				.slice(0, 4)

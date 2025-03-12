@@ -11,7 +11,7 @@ import {Alert, AlertDescription} from '@/components/ui/alert';
 import {IconEye, IconEyeClosed} from '@tabler/icons-vue';
 
 
-const email = ref("coordinacion.electoralpv@gmail.com");
+const email = ref(null);
 const password = ref("secret");
 const errorMessage = ref(null);
 const showPassword = ref(false);

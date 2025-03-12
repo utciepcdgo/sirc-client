@@ -23,7 +23,7 @@ const handleLogout = async () => {
 };
 
 const openManual = () => {
-  window.open('https://s3.us-east-1.amazonaws.com/static.appsiepcdurango.mx/Miselaneo/MANUAL_SIRC_2025.pdf', '_blank');
+  window.open('https://s3.us-east-1.amazonaws.com/static.appsiepcdurango.mx/Miselaneo/Manual+de+Usuario+del+SIRC+2024-2025.pdf', '_blank');
 };
 
 const mode = useColorMode()
