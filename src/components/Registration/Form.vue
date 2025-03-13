@@ -467,9 +467,9 @@ const showLGBTTTIQ = computed(() => values.compensatory_id === 3);
 						<div>
 							<FormField
 								v-slot="{ componentField }"
-								name="residence.outside_number">
+								name="residence.inside_number">
 								<FormItem>
-									<FormLabel>Número interior</FormLabel>
+									<FormLabel>Número exterior</FormLabel>
 									<FormControl>
 										<Input
 											type="text"
@@ -482,9 +482,9 @@ const showLGBTTTIQ = computed(() => values.compensatory_id === 3);
 						<div>
 							<FormField
 								v-slot="{ componentField }"
-								name="residence.inside_number">
+								name="residence.outside_number">
 								<FormItem>
-									<FormLabel>Número exterior</FormLabel>
+									<FormLabel>Número interior</FormLabel>
 									<FormControl>
 										<Input
 											type="text"
