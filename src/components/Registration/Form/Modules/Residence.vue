@@ -1,15 +1,25 @@
-<script setup lang="ts">
+<script lang="ts" setup>
+import {
+	FormControl,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { vMaska } from 'maska/vue';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+	Select,
+	SelectContent,
+	SelectGroup,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select';
+import { useLocationStore } from '@/stores/location';
 
-import {FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form";
-import {Input} from "@/components/ui/input";
-import {Separator} from "@/components/ui/separator";
-import {vMaska} from "maska/vue";
-import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
-import {Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
-import {ref, watch} from "vue";
-
-const selectedStateFromResidence = ref(null);
-
+const locationStore = useLocationStore();
 </script>
 
 <template>
@@ -22,28 +32,25 @@ const selectedStateFromResidence = ref(null);
 				<div>
 					<FormField
 						v-slot="{ componentField }"
-						v-model="selectedStateFromResidence"
 						name="residence.state">
 						<FormItem>
 							<FormLabel>Estado</FormLabel>
 							<FormControl>
-								<Select v-bind="componentField">
+								<Select
+									v-model="
+										locationStore.selectedStateResidence
+									"
+									v-bind="componentField">
 									<SelectTrigger>
 										<SelectValue
-											placeholder="Seleccione una opción">
-											{{
-												selectedStateFromResidence
-													? selectedStateFromResidence.name
-													: ''
-											}}
-										</SelectValue>
+											placeholder="Select a State" />
 									</SelectTrigger>
 									<SelectContent>
 										<SelectGroup
-											v-for="state in states"
+											v-for="state in locationStore.states"
 											:key="state.id">
-											<SelectItem :value="state">
-												{{ state.name }}
+											<SelectItem :value="state.name"
+												>{{ state.name }}
 											</SelectItem>
 										</SelectGroup>
 									</SelectContent>
@@ -56,25 +63,29 @@ const selectedStateFromResidence = ref(null);
 				<div>
 					<FormField
 						v-slot="{ componentField }"
-						v-model="selectedMunicipalityFromResidence"
-						:disabled="!selectedStateFromResidence"
 						name="residence.municipality">
 						<FormItem>
 							<FormLabel>Municipio</FormLabel>
 							<FormControl>
-								<Select v-bind="componentField">
+								<Select
+									v-model="
+										locationStore.selectedMunicipalityResidence
+									"
+									v-bind="componentField">
 									<SelectTrigger>
 										<SelectValue
-											placeholder="Seleccione una opción" />
+											placeholder="Select a Municipality" />
 									</SelectTrigger>
 									<SelectContent>
 										<SelectGroup
-											v-for="municipality in municipalitiesFromResidence"
+											v-for="municipality in locationStore.municipalities"
 											:key="municipality.id">
 											<SelectItem
-												:value="municipality.name">
-												{{ municipality.name }}
-											</SelectItem>
+												:value="municipality.name"
+												>{{
+													municipality.name
+												}}</SelectItem
+											>
 										</SelectGroup>
 									</SelectContent>
 								</Select>
@@ -88,7 +99,7 @@ const selectedStateFromResidence = ref(null);
 						v-slot="{ componentField }"
 						name="residence.city">
 						<FormItem>
-							<FormLabel>Ciudad</FormLabel>
+							<FormLabel>Ciudad/Localidad</FormLabel>
 							<FormControl>
 								<Input
 									placeholder="...Victoria de Durango"

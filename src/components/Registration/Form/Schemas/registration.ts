@@ -12,38 +12,16 @@ export const registrationSchema = {
 	first_name: Yup.string().required().min(3).label('Primer apellido'),
 	second_name: Yup.string().required().min(3).label('Segundo apellido'),
 	birthplace: Yup.object().shape({
-		birth: Yup.date().required('El campo Fecha es requerido'),
-		state: Yup.object()
-			.shape({
-				id: Yup.number().required(),
-				name: Yup.string().required(),
-				abbreviation: Yup.string().required(),
-				shield: Yup.string()
-					.optional()
-					.default(
-						'https://www.ine.mx/wp-content/uploads/2021/03/escudo-ine.png'
-					)
-					.nullable(),
-			})
+		birth: Yup.date().required('Este campo es requerido'),
+		state: Yup.string()
 			.label('Estado')
-			.nonNullable('El campo Estado no puede dejarlo vacío'),
-		municipality: Yup.object()
-			.shape({
-				id: Yup.string().required(),
-				name: Yup.string().required(),
-				state_id: Yup.string().required(),
-			})
+			.nonNullable('Este campo no puede dejarlo vacío'),
+		municipality: Yup.string()
 			.label('Municipio')
 			.nonNullable('El campo Municipio no puede dejarlo vacío'),
 	}),
 	residence: Yup.object().shape({
-		state: Yup.object()
-			.shape({
-				id: Yup.number().required(),
-				name: Yup.string().required(),
-				abbreviation: Yup.string().required(),
-				shield: Yup.string().optional(),
-			})
+		state: Yup.string()
 			.label('Estado')
 			.nonNullable('El campo Estado no puede dejarlo vacío'),
 		municipality: Yup.string()

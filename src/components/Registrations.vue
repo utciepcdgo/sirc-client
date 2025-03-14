@@ -100,9 +100,6 @@ const closeRequestRegistrationModal = () => {
 };
 
 const filterBlocks = computed(() => {
-	console.log('Recomputing filterBlocks...');
-	console.log('getBlocks value:', getBlocks.value);
-
 	const result = getBlocks.value?.filter((block) => {
 		const matchesSearch = block?.municipality?.name
 			?.toLowerCase()
@@ -125,7 +122,6 @@ const filterBlocks = computed(() => {
 		}
 	});
 
-	console.log('Filtered blocks:', result);
 	return result;
 });
 
@@ -149,7 +145,7 @@ const openModalDetails = async (block) => {
 			openDetails.value = true;
 		})
 		.catch((error) => {
-			alert('Error al obtener los registros:', error);
+			alert('Error al obtener los registros:' + error);
 		});
 	loadingStore.hideLoading();
 };

@@ -3,68 +3,25 @@
 import { useForm } from 'vee-validate';
 import { toTypedSchema } from '@vee-validate/yup';
 import { object } from 'yup';
-import { computed, onMounted, ref, watch } from 'vue';
+import { onMounted } from 'vue';
 import axios from 'axios';
-import { vMaska } from 'maska/vue';
-import { Input } from '@/components/ui/input';
 import GeneralInformation from '@/components/Registration/Form/Modules/GeneralInformation.vue';
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { useCompensatoryStore } from '@/stores/compensatories';
-import { useGenresStore } from '@/stores/genres';
-import { usePostulationsStore } from '@/stores/postulations';
 import { useLoadingStore } from '@/stores/loading';
+import { useBlocksStore } from '@/stores/blocks';
+import { useLocationStore } from '@/stores/location';
 import VoterCard from '@/components/Registration/Form/Modules/VoterCard.vue';
-import {
-	registrationSchema,
-	fetchStates,
-	fetchMunicipalities,
-} from '@/components/Registration/Form/Schemas/registration';
-import {
-	FormControl,
-	FormField,
-	FormItem,
-	FormLabel,
-	FormMessage,
-} from '@/components/ui/form';
-import {
-	Select,
-	SelectContent,
-	SelectGroup,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@/components/ui/select';
+import { registrationSchema } from '@/components/Registration/Form/Schemas/registration';
 import { useToast } from '@/components/ui/toast';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Born from '@/components/Registration/Form/Modules/Born.vue';
 import Residence from '@/components/Registration/Form/Modules/Residence.vue';
+import Candidacy from '@/components/Registration/Form/Modules/Candidacy.vue';
+import { Block, Registration } from '@/types/types';
 
 const store = {
-	storeCompensatory: useCompensatoryStore(),
-	storeGender: useGenresStore(),
-	storePostulation: usePostulationsStore(),
 	storeLoading: useLoadingStore(),
+	storeBlocks: useBlocksStore(),
+	storeLocation: useLocationStore(),
 };
-
-const getCompensatory = computed(() => {
-	return store.storeCompensatory.getCompensatory || [];
-});
-
-const getGenres = computed(() => {
-	return store.storeGender.getGenres || [];
-});
-
-const getPostulations = computed(() => {
-	return store.storePostulation.getPostulations || [];
-});
 
 // Emitir eventos al padre
 const emit = defineEmits(['closeModal']);
@@ -72,72 +29,18 @@ const emit = defineEmits(['closeModal']);
 // Hook para el Toast
 const { toast } = useToast();
 
-// Getting states from API
-const loadingStates = ref(false);
-const states = ref([]);
-const municipalities = ref([]);
-const municipalitiesFromResidence = ref([]);
-const selectedState = ref(null);
-const selectedMunicipality = ref(null);
-const selectedStateFromResidence = ref(null);
-const selectedMunicipalityFromResidence = ref(null);
-const isError = ref({ there: false, error: '' });
+const props = defineProps<{
+	selectedBlock: Block;
+	editMode: Boolean; // True for edit mode, false for insert
+	initialData: Registration; // Pre-filled data for edit mode
+}>();
 
-const insertMunicipalityOnField = async (field: number) => {
-	store.storeLoading.showLoading(
-		'Cargando Municipios de ' + selectedState.value.name
-	);
-	field == 1
-		? (municipalities.value = await fetchMunicipalities(
-				selectedState.value.id
-			))
-		: (municipalitiesFromResidence.value = await fetchMunicipalities(
-				selectedStateFromResidence.value.id
-			));
-	store.storeLoading.hideLoading();
-};
-
-onMounted(async () => {
-	store.storeCompensatory.fetchCompensatory();
-	store.storeGender.fetchGenres();
-	store.storePostulation.fetchPostulations();
-
-	store.storeLoading.showLoading('Cargando información de Estados...');
-
-	states.value = await fetchStates();
-
-	// Field 1 is for birthplace
-	watch(selectedState, async (newState) => {
-		console.log('selectedState ', selectedState);
-		if (newState) {
-			insertMunicipalityOnField(1);
-		} else {
-			municipalities.value = [];
-		}
-	});
-
-	// Field 2 is for residence
-	watch(selectedStateFromResidence, async (newState) => {
-		if (newState) {
-			insertMunicipalityOnField(2);
-		} else {
-			municipalitiesFromResidence.value = [];
-		}
-	});
-});
-
-const props = defineProps({
-	selectedBlock: {
-		type: Object,
-		required: false,
-	},
-});
-
-const { values, handleSubmit } = useForm({
+const { values, setValues, handleSubmit } = useForm({
 	validationSchema: toTypedSchema(object().shape(registrationSchema)),
 	initialValues: {
 		block_id: props.selectedBlock?.id,
 	},
+	keepValuesOnUnmount: false,
 });
 
 const onSubmit = handleSubmit(async (values) => {
@@ -156,43 +59,49 @@ const onSubmit = handleSubmit(async (values) => {
 			description: 'Registro creado correctamente.',
 		});
 	} catch (error) {
-		isError.value = { there: true, error: error.response.data.message };
-		console.error(
-			'Error al enviar el formulario:',
-			error.response.data.message
-		);
+		toast({
+			title: 'Error',
+			description: 'Hubo un error al aprocesar la información',
+			variant: 'destructive',
+		});
 	} finally {
+		// Fetch data
+		store.storeBlocks.fetchBlocks();
 		// Close modal
 	}
 });
 
-const showCouncilNumber = computed(() => values.postulation_id === 5);
-const showMote = computed(
-	() => values.postulation_id === 3 && values.position_id === 1
-);
-const showLGBTTTIQ = computed(() => values.compensatory_id === 3);
+onMounted(() => {
+	store.storeLocation.fetchStates();
+
+	if (props.editMode && props.initialData) {
+		setValues({
+			birthplace: {
+				state: props.initialData.birthplace?.state || null,
+				municipality:
+					props.initialData.birthplace?.municipality || null,
+			},
+			residence: {
+				state: props.initialData.residence?.state || null,
+				municipality: props.initialData.residence?.municipality || null,
+			},
+		});
+
+		store.storeLocation.selectedStateBorn =
+			props.initialData?.birthpalce?.state || null;
+		store.storeLocation.selectedMunicipalityBorn =
+			props.initialData?.birthpalce?.municipality || null;
+
+		store.storeLocation.selectedStateResidence =
+			props.initialData?.residence?.state || null;
+		store.storeLocation.selectedMunicipalityResidence =
+			props.initialData?.residence?.municipality || null;
+	}
+});
 </script>
 
 <template>
 	<form id="registration_form" @submit.prevent="onSubmit">
-		<AlertDialog v-model:open="isError.there">
-			<AlertDialogContent>
-				<AlertDialogHeader>
-					<AlertDialogTitle>Error</AlertDialogTitle>
-					<AlertDialogDescription>
-						Hubo un error al intentar guardar el registro.
-						<p class="mt-3 p-0 leading-none">Detalles:</p>
-						<p class="italic text-red-600 leading-none">
-							{{ isError.error }}
-						</p>
-					</AlertDialogDescription>
-				</AlertDialogHeader>
-				<AlertDialogFooter>
-					<AlertDialogAction>Aceptar</AlertDialogAction>
-				</AlertDialogFooter>
-			</AlertDialogContent>
-		</AlertDialog>
-
 		<div class="grid sm:grid-cols-1 xl:grid-cols-2 gap-4">
 			<div>
 				<GeneralInformation />
@@ -206,217 +115,7 @@ const showLGBTTTIQ = computed(() => values.compensatory_id === 3);
 			<Born />
 			<Residence />
 		</div>
-		<Card class="mt-4">
-			<CardHeader class="text-center">
-				<CardTitle class="text-2xl font-extrabold"
-					>Candidatura
-				</CardTitle>
-			</CardHeader>
-			<CardContent>
-				<div
-					class="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4 mt-5">
-					<div>
-						<FormField
-							v-slot="{ componentField }"
-							label="Postulación"
-							name="postulation_id">
-							<FormItem>
-								<FormLabel>Postulación</FormLabel>
-								<FormControl>
-									<Select v-bind="componentField">
-										<SelectTrigger>
-											<SelectValue
-												placeholder="Seleccione una opción" />
-										</SelectTrigger>
-										<SelectContent>
-											<SelectGroup
-												v-for="postulation in getPostulations.data"
-												:key="postulation.id">
-												<SelectItem
-													:disabled="
-														!postulation.active
-													"
-													:value="postulation.id">
-													{{ postulation.name }}
-												</SelectItem>
-											</SelectGroup>
-										</SelectContent>
-									</Select>
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						</FormField>
-					</div>
-					<div v-show="showCouncilNumber">
-						<FormField
-							v-slot="{ componentField }"
-							label="Número de Consejo"
-							name="council_number">
-							<FormItem>
-								<FormLabel>Posición</FormLabel>
-								<FormControl>
-									<Select v-bind="componentField">
-										<SelectTrigger>
-											<SelectValue
-												placeholder="Seleccione una opción" />
-										</SelectTrigger>
-										<SelectContent>
-											<SelectGroup
-												v-for="i in selectedBlock
-													?.municipality?.councils"
-												:key="i">
-												<SelectItem
-													:disabled="
-														!selectedBlock?.assignments?.councils?.includes(
-															i
-														) &&
-														selectedBlock
-															?.assignments
-															?.councils?.length >
-															0
-													"
-													:value="i">
-													{{ i }}
-												</SelectItem>
-											</SelectGroup>
-										</SelectContent>
-									</Select>
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						</FormField>
-					</div>
-					<div>
-						<FormField
-							v-slot="{ componentField }"
-							v-model="position_id"
-							name="position_id">
-							<FormItem>
-								<FormLabel>Carácter</FormLabel>
-								<FormControl>
-									<Select v-bind="componentField">
-										<SelectTrigger>
-											<SelectValue
-												placeholder="Seleccione una opción" />
-										</SelectTrigger>
-										<SelectContent>
-											<SelectGroup>
-												<SelectItem :value="1">
-													Propietaria/o
-												</SelectItem>
-												<SelectItem :value="2">
-													Suplencia/o
-												</SelectItem>
-											</SelectGroup>
-										</SelectContent>
-									</Select>
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						</FormField>
-					</div>
-					<div>
-						<FormField
-							v-slot="{ componentField }"
-							name="reelection">
-							<FormItem>
-								<FormLabel>Periodo de reelección</FormLabel>
-								<FormControl>
-									<Select v-bind="componentField">
-										<SelectTrigger>
-											<SelectValue
-												placeholder="Seleccione una opción" />
-										</SelectTrigger>
-										<SelectContent>
-											<SelectGroup>
-												<SelectItem value="Si">
-													Sí (2022-2025)
-												</SelectItem>
-												<SelectItem value="No">
-													No
-												</SelectItem>
-											</SelectGroup>
-										</SelectContent>
-									</Select>
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						</FormField>
-					</div>
-					<div>
-						<FormField
-							v-slot="{ componentField }"
-							name="compensatory_id">
-							<FormItem>
-								<FormLabel>Medida Compensatoria</FormLabel>
-								<FormControl>
-									<Select v-bind="componentField">
-										<SelectTrigger>
-											<SelectValue
-												placeholder="Seleccione una opción" />
-										</SelectTrigger>
-										<SelectContent>
-											<SelectGroup
-												v-for="compensatory in getCompensatory"
-												:key="compensatory.id">
-												<SelectItem
-													:value="compensatory.id">
-													{{ compensatory.name }}
-												</SelectItem>
-											</SelectGroup>
-										</SelectContent>
-									</Select>
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						</FormField>
-					</div>
-					<div v-show="showLGBTTTIQ">
-						<div>
-							<FormField
-								v-slot="{ componentField }"
-								name="gender_id">
-								<FormItem>
-									<FormLabel>Género</FormLabel>
-									<FormControl>
-										<Select v-bind="componentField">
-											<SelectTrigger>
-												<SelectValue
-													placeholder="Seleccione una opción" />
-											</SelectTrigger>
-											<SelectContent>
-												<SelectGroup
-													v-for="gender in getGenres"
-													:key="gender.id">
-													<SelectItem
-														:value="gender.id">
-														{{ gender.name }}
-													</SelectItem>
-												</SelectGroup>
-											</SelectContent>
-										</Select>
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							</FormField>
-						</div>
-					</div>
-					<div v-show="showMote">
-						<FormField v-slot="{ componentField }" name="mote">
-							<FormItem>
-								<FormLabel>Sobrenombre</FormLabel>
-								<FormControl>
-									<Input
-										type="text"
-										v-bind="componentField" />
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						</FormField>
-					</div>
-				</div>
-			</CardContent>
-		</Card>
+		<Candidacy :form="values" :selected-block="props.selectedBlock" />
 	</form>
 </template>
 

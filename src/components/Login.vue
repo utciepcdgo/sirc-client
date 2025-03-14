@@ -55,8 +55,8 @@ const login = async () => {
 			class="w-full max-w-sm shadow-lg border dark:border-gray-800 bg-white/90 dark:bg-gray-800/90 relative z-10">
 			<CardHeader class="text-center">
 				<CardTitle class="text-2xl font-semibold"
-					>Iniciar Sesión</CardTitle
-				>
+					>Iniciar Sesión
+				</CardTitle>
 			</CardHeader>
 
 			<CardContent>
@@ -70,8 +70,8 @@ const login = async () => {
 					<Label for="email">Correo Electrónico</Label>
 					<Input
 						id="email"
-						name="email"
 						v-model="email"
+						name="email"
 						placeholder="usuario@correo.com"
 						required
 						type="email" />
@@ -83,9 +83,9 @@ const login = async () => {
 					<div class="relative">
 						<Input
 							id="password"
-							name="password"
 							v-model="password"
 							:type="showPassword ? 'text' : 'password'"
+							name="password"
 							placeholder="********"
 							required />
 						<button
