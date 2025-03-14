@@ -27,6 +27,6 @@ const loadingStore = useLoadingStore();
       <RouterView :isLoading="loadingStore.isLoading" />
     </transition>
     <!--  SHOW ALERT LOADING FEED -->
-    <LoadingScreen :show="loadingStore.isLoading" />
+    <LoadingScreen :show="loadingStore.isLoading" :loadingText="loadingStore.loadingText" />
   </main>
 </template>

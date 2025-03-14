@@ -13,18 +13,12 @@ export const useBlocksStore = defineStore('block', {
 	}),
 	getters: {
 		getBlocks(state) {
-			console.info('State blocks:', state.blocks); // Debugging
 
 			// Ensure state.blocks is always an array
 			if (!Array.isArray(state.blocks)) {
-				console.error(
-					'getBlocks: state.blocks is not an array',
-					state.blocks
-				);
 				return [];
 			}
 
-			// Return the mapped array instead of processing without returning
 			return state.blocks.map((block) => ({
 				id: block.id,
 				uuid: block.uuid,
@@ -63,7 +57,7 @@ export const useBlocksStore = defineStore('block', {
 	},
 	actions: {
 		async fetchBlocks() {
-			this.isLoading.showLoading();
+			this.isLoading.showLoading('Obteniendo información de los registros');
 			this.blocksError = null;
 
 			const authStore = useAuthStore();
@@ -90,8 +84,6 @@ export const useBlocksStore = defineStore('block', {
 						`blocks?filters[entity][id][$in][]=${authStore.user.entities[0].id}`
 				);
 
-				console.log('API Response:', response.data); // Debugging
-
 				// Ensure `blocks` is assigned correctly
 				this.blocks = Array.isArray(response.data.data)
 					? response.data.data
@@ -101,7 +93,7 @@ export const useBlocksStore = defineStore('block', {
 					error instanceof Error
 						? error.message
 						: 'Error desconocido';
-				alert('Error al obtener blocks: ' + this.blocksError);
+				alert('Error al obtener los municipios correspondientes: ' + this.blocksError);
 			} finally {
 				this.isLoading.hideLoading();
 			}

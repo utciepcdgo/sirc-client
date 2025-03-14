@@ -23,7 +23,7 @@ export const useCountriesStore = defineStore('country', {
 	actions: {
 		async fetchCountries() {
 			// Set isLoading to true to show a loading spinner
-			this.isLoading.showLoading();
+			this.isLoading.showLoading('Cargando información...');
 			try {
 				const response = await axios.get(
 					import.meta.env.VITE_SIRC_API_URI + 'countries'

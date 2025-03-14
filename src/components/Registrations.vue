@@ -135,7 +135,7 @@ const openModal = (block) => {
 };
 
 const openModalDetails = async (block) => {
-	loadingStore.showLoading();
+	loadingStore.showLoading('Obteniendo información del registro...');
 	await axios
 		.get(
 			import.meta.env.VITE_SIRC_API_URI +

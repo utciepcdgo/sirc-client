@@ -30,7 +30,7 @@ export const useCompensatoryStore = defineStore('compensatory', {
 	actions: {
 		async fetchCompensatory() {
 			// Set isLoading to true to show a loading spinner
-			this.isLoading.showLoading();
+			this.isLoading.showLoading('Cargando información...');
 
 			try {
 				const response = await axios.get(

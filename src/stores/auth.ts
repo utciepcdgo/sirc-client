@@ -41,7 +41,7 @@ export const useAuthStore = defineStore('auth', {
 		async fetchUser() {
 			if (!this.token) return; // Si no hay token, no hacer la petición
 			// Mostramos la pantalla de carga
-			this.loader.showLoading();
+			this.loader.showLoading('Obteniendo información del usuario autenticado');
 			try {
 				const response = await axios.get(
 					import.meta.env.VITE_SIRC_API_URI + 'user',

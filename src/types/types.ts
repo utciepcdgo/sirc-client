@@ -34,6 +34,7 @@ export interface Block {
 			total: string;
 			women: string;
 			man: string;
+			queer: string;
 			compensatories: string;
 		};
 		list: Registration[];

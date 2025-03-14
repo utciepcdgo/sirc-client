@@ -22,7 +22,11 @@ import { useGenresStore } from '@/stores/genres';
 import { usePostulationsStore } from '@/stores/postulations';
 import { useLoadingStore } from '@/stores/loading';
 import VoterCard from '@/components/Registration/Form/Modules/VoterCard.vue';
-import { registrationSchema } from '@/components/Registration/Form/Schemas/registration';
+import {
+	registrationSchema,
+	fetchStates,
+	fetchMunicipalities,
+} from '@/components/Registration/Form/Schemas/registration';
 import {
 	FormControl,
 	FormField,
@@ -40,6 +44,8 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/components/ui/toast';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import Born from '@/components/Registration/Form/Modules/Born.vue';
+import Residence from '@/components/Registration/Form/Modules/Residence.vue';
 
 const store = {
 	storeCompensatory: useCompensatoryStore(),
@@ -77,50 +83,18 @@ const selectedStateFromResidence = ref(null);
 const selectedMunicipalityFromResidence = ref(null);
 const isError = ref({ there: false, error: '' });
 
-const fetchStates = async () => {
-	loadingStates.value = true;
-	store.storeLoading.showLoading();
-	try {
-		const response = await axios.get(
-			import.meta.env.VITE_SERVICES_API_URI + 'states',
-			{
-				headers: {
-					authorization:
-						'Bearer ' + import.meta.env.VITE_SERVICES_API_TOKEN,
-				},
-			}
-		);
-		states.value = response.data.data;
-	} catch (error) {
-		console.error(error);
-	} finally {
-		loadingStates.value = false;
-		store.storeLoading.hideLoading();
-	}
-};
-
-const fetchMunicipalities = async (stateId, field) => {
-	store.storeLoading.showLoading();
-	try {
-		const response = await axios.get(
-			import.meta.env.VITE_SERVICES_API_URI + `municipalities/${stateId}`,
-			{
-				headers: {
-					authorization:
-						'Bearer ' + import.meta.env.VITE_SERVICES_API_TOKEN,
-				},
-			}
-		);
-
-		console.log('field: ', field);
-		field == 1
-			? (municipalities.value = response.data.data)
-			: (municipalitiesFromResidence.value = response.data.data);
-	} catch (error) {
-		console.error('Error al obtener los municipios:', error);
-	} finally {
-		store.storeLoading.hideLoading();
-	}
+const insertMunicipalityOnField = async (field: number) => {
+	store.storeLoading.showLoading(
+		'Cargando Municipios de ' + selectedState.value.name
+	);
+	field == 1
+		? (municipalities.value = await fetchMunicipalities(
+				selectedState.value.id
+			))
+		: (municipalitiesFromResidence.value = await fetchMunicipalities(
+				selectedStateFromResidence.value.id
+			));
+	store.storeLoading.hideLoading();
 };
 
 onMounted(async () => {
@@ -128,13 +102,15 @@ onMounted(async () => {
 	store.storeGender.fetchGenres();
 	store.storePostulation.fetchPostulations();
 
-	await fetchStates();
+	store.storeLoading.showLoading('Cargando información de Estados...');
+
+	states.value = await fetchStates();
 
 	// Field 1 is for birthplace
 	watch(selectedState, async (newState) => {
 		console.log('selectedState ', selectedState);
 		if (newState) {
-			await fetchMunicipalities(newState.id, 1);
+			insertMunicipalityOnField(1);
 		} else {
 			municipalities.value = [];
 		}
@@ -143,7 +119,7 @@ onMounted(async () => {
 	// Field 2 is for residence
 	watch(selectedStateFromResidence, async (newState) => {
 		if (newState) {
-			await fetchMunicipalities(newState.id, 2);
+			insertMunicipalityOnField(2);
 		} else {
 			municipalitiesFromResidence.value = [];
 		}
@@ -227,317 +203,14 @@ const showLGBTTTIQ = computed(() => values.compensatory_id === 3);
 			</div>
 		</div>
 		<div class="flex gap-4 sm:flex-col md:flex-row mt-4">
-			<Card>
-				<CardHeader class="text-center">
-					<CardTitle class="text-2xl font-extrabold"
-						>Fecha y lugar de nacimiento</CardTitle
-					>
-				</CardHeader>
-				<CardContent>
-					<div>
-						<FormField
-							v-slot="{ componentField }"
-							name="birthplace.birth">
-							<FormItem>
-								<FormLabel>Fecha de nacimiento</FormLabel>
-								<FormControl>
-									<Input
-										type="date"
-										v-bind="componentField" />
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						</FormField>
-					</div>
-					<div>
-						<FormField
-							v-slot="{ componentField }"
-							v-model="selectedState"
-							name="birthplace.state">
-							<FormItem>
-								<FormLabel>Estado</FormLabel>
-								<FormControl>
-									<Select v-bind="componentField">
-										<SelectTrigger>
-											<SelectValue
-												placeholder="Seleccione una opción">
-												{{
-													selectedState
-														? selectedState.name
-														: ''
-												}}
-											</SelectValue>
-										</SelectTrigger>
-										<SelectContent>
-											<SelectGroup
-												v-for="state in states"
-												:key="state.id">
-												<SelectItem :value="state">
-													{{ state.name }}
-												</SelectItem>
-											</SelectGroup>
-										</SelectContent>
-									</Select>
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						</FormField>
-					</div>
-					<div>
-						<FormField
-							v-slot="{ componentField }"
-							v-model="selectedMunicipality"
-							:disabled="!selectedState"
-							name="birthplace.municipality">
-							<FormItem>
-								<FormLabel>Municipio</FormLabel>
-								<FormControl>
-									<Select v-bind="componentField">
-										<SelectTrigger>
-											<SelectValue
-												placeholder="Seleccione una opción">
-												{{
-													selectedMunicipality
-														? selectedMunicipality.name
-														: ''
-												}}
-											</SelectValue>
-										</SelectTrigger>
-										<SelectContent>
-											<SelectGroup
-												v-for="municipality in municipalities"
-												:key="municipality.id">
-												<SelectItem
-													:value="municipality">
-													{{ municipality.name }}
-												</SelectItem>
-											</SelectGroup>
-										</SelectContent>
-									</Select>
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						</FormField>
-					</div>
-				</CardContent>
-			</Card>
-			<Card class="flex-1">
-				<CardHeader class="text-center">
-					<CardTitle class="text-2xl font-extrabold"
-						>Residencia</CardTitle
-					>
-				</CardHeader>
-				<CardContent>
-					<div
-						class="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4">
-						<div>
-							<FormField
-								v-slot="{ componentField }"
-								v-model="selectedStateFromResidence"
-								name="residence.state">
-								<FormItem>
-									<FormLabel>Estado</FormLabel>
-									<FormControl>
-										<Select v-bind="componentField">
-											<SelectTrigger>
-												<SelectValue
-													placeholder="Seleccione una opción">
-													{{
-														selectedStateFromResidence
-															? selectedStateFromResidence.name
-															: ''
-													}}
-												</SelectValue>
-											</SelectTrigger>
-											<SelectContent>
-												<SelectGroup
-													v-for="state in states"
-													:key="state.id">
-													<SelectItem :value="state">
-														{{ state.name }}
-													</SelectItem>
-												</SelectGroup>
-											</SelectContent>
-										</Select>
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							</FormField>
-						</div>
-						<div>
-							<FormField
-								v-slot="{ componentField }"
-								v-model="selectedMunicipalityFromResidence"
-								:disabled="!selectedStateFromResidence"
-								name="residence.municipality">
-								<FormItem>
-									<FormLabel>Municipio</FormLabel>
-									<FormControl>
-										<Select v-bind="componentField">
-											<SelectTrigger>
-												<SelectValue
-													placeholder="Seleccione una opción" />
-											</SelectTrigger>
-											<SelectContent>
-												<SelectGroup
-													v-for="municipality in municipalitiesFromResidence"
-													:key="municipality.id">
-													<SelectItem
-														:value="
-															municipality.name
-														">
-														{{ municipality.name }}
-													</SelectItem>
-												</SelectGroup>
-											</SelectContent>
-										</Select>
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							</FormField>
-						</div>
-						<div>
-							<FormField
-								v-slot="{ componentField }"
-								name="residence.city">
-								<FormItem>
-									<FormLabel>Ciudad</FormLabel>
-									<FormControl>
-										<Input
-											placeholder="...Victoria de Durango"
-											type="text"
-											v-bind="componentField" />
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							</FormField>
-						</div>
-						<div>
-							<FormField
-								v-slot="{ componentField }"
-								name="residence.colony">
-								<FormItem>
-									<FormLabel
-										>Colonia/Fraccionamiento</FormLabel
-									>
-									<FormControl>
-										<Input
-											placeholder="...Ciudad Industrial"
-											type="text"
-											v-bind="componentField" />
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							</FormField>
-						</div>
-						<div
-							class="sm:col-span-1 md:col-span-2 xl:col-span-2 2xl:col-span-1">
-							<FormField
-								v-slot="{ componentField }"
-								name="residence.street">
-								<FormItem>
-									<FormLabel>Calle</FormLabel>
-									<FormControl>
-										<Input
-											placeholder="...Litio"
-											type="text"
-											v-bind="componentField" />
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							</FormField>
-						</div>
-						<div>
-							<FormField
-								v-slot="{ componentField }"
-								name="residence.postal_code">
-								<FormItem>
-									<FormLabel>Código Postal</FormLabel>
-									<FormControl>
-										<Input
-											v-maska="'#####'"
-											placeholder="34208"
-											type="text"
-											v-bind="componentField" />
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							</FormField>
-						</div>
-						<div>
-							<FormField
-								v-slot="{ componentField }"
-								name="residence.inside_number">
-								<FormItem>
-									<FormLabel>Número exterior</FormLabel>
-									<FormControl>
-										<Input
-											type="text"
-											v-bind="componentField" />
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							</FormField>
-						</div>
-						<div>
-							<FormField
-								v-slot="{ componentField }"
-								name="residence.outside_number">
-								<FormItem>
-									<FormLabel>Número interior</FormLabel>
-									<FormControl>
-										<Input
-											type="text"
-											v-bind="componentField" />
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							</FormField>
-						</div>
-						<div>
-							<FormField
-								v-slot="{ componentField }"
-								name="residence.length.years">
-								<FormItem>
-									<FormLabel>Años</FormLabel>
-									<FormControl>
-										<Input
-											max="99"
-											min="0"
-											type="number"
-											v-bind="componentField" />
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							</FormField>
-						</div>
-						<div>
-							<FormField
-								v-slot="{ componentField }"
-								name="residence.length.months">
-								<FormItem>
-									<FormLabel>Meses</FormLabel>
-									<FormControl>
-										<Input
-											max="11"
-											min="0"
-											step="1"
-											type="number"
-											v-bind="componentField" />
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							</FormField>
-						</div>
-					</div>
-				</CardContent>
-			</Card>
+			<Born />
+			<Residence />
 		</div>
 		<Card class="mt-4">
 			<CardHeader class="text-center">
 				<CardTitle class="text-2xl font-extrabold"
-					>Candidatura</CardTitle
-				>
+					>Candidatura
+				</CardTitle>
 			</CardHeader>
 			<CardContent>
 				<div

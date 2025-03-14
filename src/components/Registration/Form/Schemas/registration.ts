@@ -1,4 +1,5 @@
 import * as Yup from 'yup';
+import axios from 'axios';
 
 Yup.setLocale({
 	mixed: {
@@ -124,4 +125,41 @@ export const registrationSchema = {
 	}),
 	mote: Yup.string().optional(),
 	id: Yup.number().optional(),
+};
+
+export const fetchStates = async () => {
+	try {
+		const response = await axios.get(
+			import.meta.env.VITE_SERVICES_API_URI + 'states',
+			{
+				headers: {
+					authorization:
+						'Bearer ' + import.meta.env.VITE_SERVICES_API_TOKEN,
+				},
+			}
+		);
+		return response.data.data;
+	} catch (error) {
+		console.error(error);
+		return null;
+	} finally {
+	}
+};
+
+export const fetchMunicipalities = async (stateId: number) => {
+	try {
+		const response = await axios.get(
+			import.meta.env.VITE_SERVICES_API_URI + `municipalities/${stateId}`,
+			{
+				headers: {
+					authorization:
+						'Bearer ' + import.meta.env.VITE_SERVICES_API_TOKEN,
+				},
+			}
+		);
+		return response.data.data;
+	} catch (error) {
+		console.error('Error al obtener los municipios:', error);
+	} finally {
+	}
 };

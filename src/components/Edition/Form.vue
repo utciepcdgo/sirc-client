@@ -384,7 +384,7 @@ const showMote = computed(() => {
 													:key="state.id">
 													<SelectItem
 														:value="
-															state.toString()
+															state.id
 														">
 														{{ state.name }}
 													</SelectItem>
@@ -441,7 +441,7 @@ const showMote = computed(() => {
 								v-slot="{ componentField }"
 								name="residence.city">
 								<FormItem>
-									<FormLabel>Ciudad</FormLabel>
+									<FormLabel>Ciudad/Localidad</FormLabel>
 									<FormControl>
 										<Input
 											placeholder="...Victoria de Durango"
