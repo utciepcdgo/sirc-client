@@ -110,7 +110,7 @@ import PopoverWrapper from '@/components/ui/PopoverWrapper.vue';
 							<FormControl>
 								<Input
 									v-maska="'####'"
-									placeholder="Año de emisión"
+									placeholder="03"
 									type="text"
 									v-bind="componentField" />
 							</FormControl>

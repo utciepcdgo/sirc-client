@@ -22,7 +22,7 @@ const router = useRouter();
 const login = async () => {
   isLoading.showLoading('Iniciando sesión...');
   try {
-    await authStore.login({ email: email.value, password: password.value });
+    await authStore.login({ login: email.value, password: password.value });
     // Redirect to /registrations
     if (authStore.token) {
       await router.push('/registrations');
@@ -60,8 +60,8 @@ const login = async () => {
 
         <!-- Campo de Email -->
         <div class="mb-4">
-          <Label for="email">Correo Electrónico</Label>
-          <Input id="email" v-model="email" name="email" placeholder="usuario@correo.com" required type="email" />
+          <Label for="login">Usuario / Correo Electrónico</Label>
+          <Input id="login" v-model="email" name="login" placeholder="Usuario o correo electrónico" required type="text" />
         </div>
 
         <!-- Campo de Contraseña -->
