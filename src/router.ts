@@ -1,16 +1,15 @@
-import { createMemoryHistory, createRouter } from 'vue-router';
+import { createMemoryHistory, createRouter, RouteRecordRaw } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 
 import Registrations from '@/components/Registrations.vue';
 import Login from '@/components/Login.vue';
 
-const routes = [
+const routes: RouteRecordRaw[] = [
   { path: '/login', component: Login },
   { path: '/', redirect: '/registrations' },
   { path: '/registrations', component: Registrations, meta: { requiresAuth: true } },
 ];
 
-// @ts-ignore
 const router = createRouter({
   history: createMemoryHistory(),
   routes,
