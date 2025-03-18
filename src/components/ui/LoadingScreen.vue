@@ -1,8 +1,7 @@
 <script lang="ts" setup>
-import {FingerprintSpinner, LoopingRhombusesSpinner} from 'epic-spinners';
-import AnimatedBackground from '@/components/ui/AnimatedBackground.vue';
+import { LoopingRhombusesSpinner } from 'epic-spinners';
 
-const props = defineProps({
+defineProps({
 	show: {
 		type: Boolean,
 		default: false,
@@ -47,10 +46,12 @@ const props = defineProps({
 }
 
 /* Fade Transition */
-.fade-enter-active, .fade-leave-active {
-  transition: opacity 0.5s ease-in-out;
+.fade-enter-active,
+.fade-leave-active {
+	transition: opacity 0.5s ease-in-out;
 }
-.fade-enter-from, .fade-leave-to {
-  opacity: 0;
+.fade-enter-from,
+.fade-leave-to {
+	opacity: 0;
 }
 </style>

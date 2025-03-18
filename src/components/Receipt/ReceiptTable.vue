@@ -1,18 +1,20 @@
 <script lang="ts" setup>
-import {Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow} from '@/components/ui/table'
-import {Button} from "@/components/ui/button";
-import {IconDownload, IconLoader2} from "@tabler/icons-vue";
-import axios from "axios";
-import {reactive} from "vue";
+import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+import { IconDownload, IconLoader2 } from '@tabler/icons-vue';
+import axios from 'axios';
+import { reactive } from 'vue';
+import { useToast } from '@/components/ui/toast';
 
-const props = defineProps({
+defineProps({
   receipts: {
     type: Object,
-    required: true
-  }
-})
+    required: true,
+  },
+});
 
 const downloadingFiles = reactive({});
+const { toast } = useToast();
 
 const isDownloading = (receiptId) => {
   return downloadingFiles[receiptId] === true;
@@ -22,7 +24,7 @@ const download = async (receiptId) => {
   try {
     downloadingFiles[receiptId] = true;
     // Solicitar el enlace a la API
-    const {data} = await axios.get(import.meta.env.VITE_SIRC_API_URI + `receipt/download/${receiptId}`);
+    const { data } = await axios.get(import.meta.env.VITE_SIRC_API_URI + `receipt/download/${receiptId}`);
 
     if (data.success && data.url) {
       // Opción 1: Redireccionar la ventana actual
@@ -45,7 +47,6 @@ const download = async (receiptId) => {
     downloadingFiles[receiptId] = false;
   }
 };
-
 </script>
 
 <template>
@@ -56,8 +57,7 @@ const download = async (receiptId) => {
         <TableHead>Acuse</TableHead>
         <TableHead>Hash</TableHead>
         <TableHead>Fecha solicitud</TableHead>
-        <TableHead class="text-right">
-        </TableHead>
+        <TableHead class="text-right"></TableHead>
       </TableRow>
     </TableHeader>
     <TableBody>
@@ -67,8 +67,8 @@ const download = async (receiptId) => {
         <TableCell>{{ receipt.created_at }}</TableCell>
         <TableCell class="text-right">
           <Button :disabled="isDownloading(receipt.id)" variant="link" @click="download(receipt.id)">
-            <IconDownload v-show="!isDownloading(receipt.id)"/>
-            <IconLoader2 v-show="isDownloading(receipt.id)" class="animate-spin"/>
+            <IconDownload v-show="!isDownloading(receipt.id)" />
+            <IconLoader2 v-show="isDownloading(receipt.id)" class="animate-spin" />
             {{ isDownloading(receipt.id) ? 'Solicitando enlace...' : 'Descargar' }}
           </Button>
         </TableCell>
@@ -77,6 +77,4 @@ const download = async (receiptId) => {
   </Table>
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

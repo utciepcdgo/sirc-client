@@ -32,11 +32,15 @@ import PopoverWrapper from '@/components/ui/PopoverWrapper.vue';
 								class="flex items-center justify-between">
 								<span>CIC</span>
 								<PopoverWrapper
-									:message="`<img src='https://s3.us-east-1.amazonaws.com/static.appsiepcdurango.mx/Miselaneo/INE_B_CIC_OCR.png'  alt='Reverso de Credencial para votar'/>`">
+									:message="`<img src='https://s3.us-east-1.amazonaws.com/static.appsiepcdurango.mx/Miselaneo/INE_B_CIC_OCR.png'  alt='Reverso de Credencial para votar'/>`"
+									tabindex="-1">
 									<TooltipWrapper
-										message="Haga clic para ver información acerca de cómo localizar el código CIC en la Credencial para Votar">
+										message="Haga clic para ver información acerca de cómo localizar el código CIC en la Credencial para Votar"
+										tabindex="-1">
 										<IconInfoCircle
-											class="w-4 h-4 text-blue-400" />
+											class="w-4 h-4 text-blue-400"
+											tabindex="-1"
+											aria-hidden="true" />
 									</TooltipWrapper>
 								</PopoverWrapper>
 							</FormLabel>

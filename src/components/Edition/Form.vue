@@ -1,40 +1,24 @@
 <script lang="ts" setup>
-import {
-	Select,
-	SelectContent,
-	SelectGroup,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@/components/ui/select';
-import {
-	FormControl,
-	FormField,
-	FormItem,
-	FormLabel,
-	FormMessage,
-} from '@/components/ui/form';
 import VoterCard from '@/components/Registration/Form/Modules/VoterCard.vue';
-import FormHeader from '@/components/Registration/Form/Modules/FormHeader.vue';
 import GeneralInformation from '@/components/Registration/Form/Modules/GeneralInformation.vue';
-import { Input } from '@/components/ui/input';
-import { computed, onMounted, ref, watch } from 'vue';
+import { onMounted } from 'vue';
 import { useCompensatoryStore } from '@/stores/compensatories';
 import { useGenresStore } from '@/stores/genres';
 import { useLoadingStore } from '@/stores/loading';
 import { usePostulationsStore } from '@/stores/postulations';
 import { useBlocksStore } from '@/stores/blocks';
 import { registrationSchema } from '@/components/Registration/Form/Schemas/registration';
-import { vMaska } from 'maska/vue';
-import axios, { AxiosRequestConfig } from 'axios';
+import axios from 'axios';
 import { useForm } from 'vee-validate';
 import { toTypedSchema } from '@vee-validate/yup';
-import { object } from 'yup';
 import { useToast } from '@/components/ui/toast';
-import { Registration, State, Municipality } from '@/types/types';
+import { Registration } from '@/types/types';
 import Born from '@/components/Registration/Form/Modules/Born.vue';
 import Residence from '@/components/Registration/Form/Modules/Residence.vue';
 import Candidacy from '@/components/Registration/Form/Modules/Candidacy.vue';
+import { useLocationStore } from '@/stores/location';
+import { emitBlockDataUpdate } from '@/composables/useBlockData';
+import { InferType } from 'yup';
 
 // Hook para el Toast
 const { toast } = useToast();
@@ -42,125 +26,141 @@ const { toast } = useToast();
 const props = defineProps<{ registration?: Registration }>();
 
 const store = {
-	storeCompensatory: useCompensatoryStore(),
-	storeGender: useGenresStore(),
-	storePostulation: usePostulationsStore(),
-	storeLoading: useLoadingStore(),
-	storeBlocks: useBlocksStore(),
+  storeCompensatory: useCompensatoryStore(),
+  storeGender: useGenresStore(),
+  storePostulation: usePostulationsStore(),
+  storeLoading: useLoadingStore(),
+  storeBlocks: useBlocksStore(),
+  storeLocation: useLocationStore(),
 };
-
-const getCompensatory = computed(() => {
-	return store.storeCompensatory.getCompensatory || [];
-});
-
-const getGenres = computed(() => {
-	return store.storeGender.getGenres || [];
-});
-
-const getPostulations = computed(() => {
-	return store.storePostulation.getPostulations || [];
-});
 
 // Emitir eventos al padre
 const emit = defineEmits(['closeEditionModal']);
 
 onMounted(async () => {
-	await store.storeCompensatory.fetchCompensatory();
-	await store.storeGender.fetchGenres();
-	await store.storePostulation.fetchPostulations();
+  await store.storeCompensatory.fetchCompensatory();
+  await store.storeGender.fetchGenres();
+  await store.storePostulation.fetchPostulations();
+  await store.storeLocation.fetchStates();
+
+  await store.storeLocation.fetchMunicipalities(props.registration.birthplace?.state);
+  values.birthplace.municipality = props.registration.birthplace?.municipality ?? null;
+
+  await store.storeLocation.fetchMunicipalities(props.registration.residence?.state);
+
+  values.residence.municipality = props.registration.residence?.municipality ?? null;
 });
 
-const { handleSubmit } = useForm<Registration>({
-	validationSchema: toTypedSchema(object().shape(registrationSchema)),
-	initialValues: {
-		name: props.registration?.name,
-		first_name: props.registration?.first_name,
-		second_name: props.registration?.second_name,
-		birthplace: {
-			birth: props.registration?.birthplace?.birth,
-		},
-		residence: {
-			city: props.registration?.residence.city,
-			colony: props.registration?.residence.colony,
-			street: props.registration?.residence.street,
-			postal_code: props.registration?.residence.postal_code,
-			outside_number: props.registration?.residence.outside_number,
-			inside_number: props.registration?.residence.inside_number,
-			length: {
-				years: props.registration?.residence.length.years,
-				months: props.registration?.residence.length.months,
-			},
-		},
-		occupation: props.registration?.occupation,
-		voter_key: props.registration?.voter_key,
-		curp: props.registration?.curp,
-		postulation_id: props.registration?.postulation.id,
-		position_id: props.registration?.position.id,
-		reelection: props.registration?.reelection,
-		compensatory_id: props.registration?.compensatory.id,
-		sex_id: props.registration?.sex.id,
-		block_id: props.registration?.block.id,
-		gender_id: props.registration?.gender.id,
-		mote: props.registration?.mote,
-	},
+// @ts-ignore
+const { values, handleSubmit } = useForm<InferType<typeof registrationSchema>>({
+  validationSchema: toTypedSchema(registrationSchema),
+  initialValues: {
+    name: props.registration?.name ?? '',
+    first_name: props.registration?.first_name ?? '',
+    second_name: props.registration?.second_name ?? '',
+    birthplace: {
+      birth: props.registration?.birthplace?.birth?.split('T')[0].toString() ?? '',
+      state: props.registration?.birthplace?.state,
+      municipality: props.registration?.birthplace?.municipality ?? '',
+    },
+    residence: {
+      state: props.registration?.residence?.state ?? '', // Ensure it's a string
+      municipality: props.registration?.residence?.municipality ?? '',
+      city: props.registration?.residence?.city ?? '',
+      colony: props.registration?.residence?.colony ?? '',
+      street: props.registration?.residence?.street ?? '',
+      postal_code: props.registration?.residence?.postal_code ?? '',
+      outside_number: props.registration?.residence?.outside_number.toString() ?? 'S/N',
+      inside_number: props.registration?.residence?.inside_number.toString() ?? 'S/N',
+      length: {
+        years: props.registration?.residence?.length?.years ?? 0, // Ensure number
+        months: props.registration?.residence?.length?.months ?? 0, // Ensure number
+      },
+    },
+    occupation: props.registration?.occupation ?? '',
+    voter_key: props.registration?.voter_key ?? '',
+    curp: props.registration?.curp ?? '',
+    voter_card: {
+      cic: props.registration?.voter_card?.cic ?? '', // Ensure it's a string
+      ocr: props.registration?.voter_card?.ocr ?? '',
+      section: props.registration?.voter_card?.section ?? '',
+      emission_number: props.registration?.voter_card?.emission_number ?? '',
+    },
+    postulation_id: props.registration?.postulation?.id ?? null,
+    position_id: props.registration?.position?.id ?? null,
+    council_number:
+      props.registration?.council_number !== null && props.registration?.council_number !== undefined
+        ? props.registration?.council_number.toString()
+        : '',
+    reelection: props.registration?.reelection ?? 'No',
+    sex_id: props.registration?.sex?.id.toString() ?? null,
+    compensatory_id: props.registration?.compensatory?.id.toString() ?? null,
+    block_id: props.registration?.block?.id ?? null,
+    gender_id: props.registration?.gender?.id.toString() ?? null,
+    mote: props.registration?.mote ?? '',
+    id: props.registration?.id ?? null,
+  },
 });
 
 const onSubmit = handleSubmit(async (values) => {
-	try {
-		await axios.patch(
-			`http://localhost:8000/api/registrations/${props.registration?.id}`,
-			values
-		);
+  try {
+    store.storeLoading.showLoading('Actualizando información de registro...');
+    await axios.patch(`http://localhost:8000/api/registrations/${props.registration?.id}`, values);
+    store.storeLoading.hideLoading();
 
-		// Emitir evento al padre para cerrar el modal
-		emit('closeEditionModal');
+    store.storeLoading.showLoading('Actualizando registros...');
 
-		// Mostrar Toast de éxito
-		toast({
-			title: 'Éxito',
-			description: 'Registro actualizado correctamente.',
-		});
-		await store.storeBlocks.fetchBlocks();
-	} catch (error) {
-		console.error('Error al enviar el formulario:', error);
-	}
-});
+    await axios
+      .get(import.meta.env.VITE_SIRC_API_URI + `blocks/${props.registration?.block?.id}?include=registrations`)
+      .then((response) => {
+        console.log('From datatable emit: ', response.data);
+        emitBlockDataUpdate.emit('updateDatatable', response.data.data.registrations?.list || []);
+      })
+      .catch((error) => {
+        alert('Error al obtener los registros:' + error);
+      });
 
-const showCouncilNumber = computed(
-	() => useForm()?.values?.postulation_id === 5
-);
-const showMote = computed(() => {
-	const postulationId = useForm()?.values?.postulation_id ?? 0;
-	const positionId = useForm()?.values?.position_id ?? 0;
-	const registrationPostulationId = props.registration?.postulation.id ?? 0;
-	const registrationPositionId = props.registration?.position.id ?? 0;
+    store.storeLoading.hideLoading();
+    // Update Datatable information after Update Registration :D
+    // Emitir evento al padre para cerrar el modal
+    emit('closeEditionModal');
 
-	return (
-		(postulationId === 3 && positionId === 1) ||
-		(registrationPostulationId === 4 && registrationPositionId === 1)
-	);
+    // Mostrar Toast de éxito
+    toast({
+      title: 'Éxito',
+      description: 'Registro actualizado correctamente.',
+    });
+
+    // await store.storeBlocks.fetchBlocks();
+    store.storeLoading.hideLoading();
+  } catch (error) {
+    console.error('Error al enviar el formulario:', error);
+  }
 });
 </script>
 
 <template>
-	<form id="edition_form" @submit.prevent="onSubmit">
-		<div class="grid sm:grid-cols-1 xl:grid-cols-2 gap-4">
-			<div>
-				<GeneralInformation :registration="registration" />
-			</div>
+  <form id="edition_form" @submit.prevent="onSubmit">
+    <div class="grid sm:grid-cols-1 xl:grid-cols-2 gap-4">
+      <div>
+        <GeneralInformation :registration="registration" />
+      </div>
 
-			<div>
-				<VoterCard />
-			</div>
-		</div>
-		<div class="flex gap-4 sm:flex-col md:flex-row mt-4">
-			<Born />
-			<Residence />
-		</div>
-		<div class="grid-cols-1 gap-4">
-			<Candidacy form="" selected-block="" />
-		</div>
-	</form>
+      <div>
+        <VoterCard />
+      </div>
+    </div>
+    <div class="flex gap-4 sm:flex-col md:flex-row mt-4">
+      <Born :registration="registration" />
+      <Residence />
+    </div>
+    <div class="grid-cols-1 gap-4">
+      <Candidacy :form="values" :selected-block="registration.block" mode="edition" />
+    </div>
+  </form>
+  <!--	<form id="edition_form" @submit.prevent="onSubmit">-->
+  <!--		<input type="text" name="name" />-->
+  <!--	</form>-->
 </template>
 
 <style scoped></style>

@@ -44,18 +44,14 @@ function copy(id: string) {
 
 let openingMigrantDetails = ref(false);
 
-async function downloadPdf(
-  pdfFunction: Function,
-  registration: object,
-  fileName: string
-) {
+async function downloadPdf(pdfFunction: Function, registration: object, fileName: string) {
   // If the pdf function is 'migrantPdf', first, check if the migrant data in registration.migrant isn't null,
   // next and if it is, open the modal, otherwise, generate the pdf
   if (pdfFunction === migrantPdf) {
     openingMigrantDetails.value = true;
     return;
   }
-  loadingStore.showLoading();
+  loadingStore.showLoading('Generando formato ' + fileName.replace(/_/g, ' '));
 
   const pdfFormat = await pdfFunction(registration);
 
@@ -76,9 +72,7 @@ async function downloadPdf(
 </script>
 
 <template>
-  <MigrantDataModal
-    :registration="registration"
-    v-model:open="openingMigrantDetails" />
+  <MigrantDataModal :registration="registration" v-model:open="openingMigrantDetails" />
   <DropdownMenu>
     <DropdownMenuTrigger as-child>
       <Button variant="ghost" class="w-8 h-8 p-0">
@@ -101,67 +95,41 @@ async function downloadPdf(
         <DropdownMenuPortal>
           <DropdownMenuSubContent>
             <DropdownMenuItem
-              :disabled="registration.compensatory.id !== 2"
-              @click="
-                downloadPdf(
-                  disabilityPdf,
-                  registration,
-                  'Discapacidad_Permanente'
-                )
-              ">
+              :disabled="registration.compensatory.id !== '2'"
+              @click="downloadPdf(disabilityPdf, registration, 'Discapacidad_Permanente')">
               <span>1. Discapacidad permanente</span>
             </DropdownMenuItem>
             <DropdownMenuItem
-              :disabled="registration?.compensatory?.id !== 3"
-              @click="
-                downloadPdf(diversityPdf, registration, 'Diversidad_Sexual')
-              ">
+              :disabled="registration?.compensatory?.id !== '3'"
+              @click="downloadPdf(diversityPdf, registration, 'Diversidad_Sexual')">
               <span>2. Diversidad sexual</span>
             </DropdownMenuItem>
             <DropdownMenuItem
-              :disabled="registration?.compensatory?.id !== 5"
+              :disabled="registration?.compensatory?.id !== '5'"
               @click="downloadPdf(migrantPdf, registration, 'Migrante')">
               <span>3. Migrante</span>
             </DropdownMenuItem>
             <DropdownMenuItem
-              :disabled="registration?.compensatory?.id !== 6"
+              :disabled="registration?.compensatory?.id !== '6'"
               @click="downloadPdf(indigenousPdf, registration, 'Indígena')">
               <span>4. Indígena</span>
             </DropdownMenuItem>
-            <DropdownMenuItem
-              @click="
-                downloadPdf(
-                  candidacyPdf,
-                  registration,
-                  'Aceptación_de_Candidatura'
-                )
-              ">
+            <DropdownMenuItem @click="downloadPdf(candidacyPdf, registration, 'Aceptación_de_Candidatura')">
               <span>6. Aceptación de Candidatura</span>
             </DropdownMenuItem>
-            <DropdownMenuItem
-              @click="
-                downloadPdf(protestPdf, registration, 'Carta_Bajo_Protesta')
-              ">
+            <DropdownMenuItem @click="downloadPdf(protestPdf, registration, 'Carta_Bajo_Protesta')">
               <span>7. Carta bajo protesta</span>
             </DropdownMenuItem>
             <DropdownMenuItem
-              @click="
-                downloadPdf(reelectionPdf, registration, 'Elección_Consecutiva')
-              ">
+              :disabled="registration?.reelection !== 'Si'"
+              @click="downloadPdf(reelectionPdf, registration, 'Elección_Consecutiva')">
               <span>8. Elección consecutiva</span>
             </DropdownMenuItem>
-            <DropdownMenuItem
-              @click="
-                downloadPdf(
-                  violencyPdf,
-                  registration,
-                  '8_de_8_contra_la_violencia'
-                )
-              ">
+            <DropdownMenuItem @click="downloadPdf(violencyPdf, registration, '8_de_8_contra_la_violencia')">
               <span>9. 8 de 8 contra la violencia</span>
             </DropdownMenuItem>
             <DropdownMenuItem
-              :disabled="registration?.sex?.id !== 1"
+              :disabled="registration?.sex?.id !== '1'"
               @click="downloadPdf(amceePdf, registration, 'Red_Candidatas')">
               <span>10. Red de Candidatas y Mujeres Electas.</span>
             </DropdownMenuItem>

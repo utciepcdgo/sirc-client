@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { ref, watch } from 'vue';
 import { useLoadingStore } from '@/stores/loading';
 import axios from 'axios';
-import { Municipality } from '@/types/types';
+import { Municipality, State } from '@/types/types';
 
 export const useLocationStore = defineStore('location', () => {
 	// State selection
@@ -15,8 +15,8 @@ export const useLocationStore = defineStore('location', () => {
 
 	const isLoading = useLoadingStore();
 	// Lists
-	const states = ref([]);
-	const municipalities = ref([]);
+	const states = ref<State[]>([]);
+	const municipalities = ref<Municipality[]>([]);
 
 	// Fetch States
 	const fetchStates = async () => {
@@ -64,7 +64,7 @@ export const useLocationStore = defineStore('location', () => {
 			municipalities.value = response.data.data;
 			isLoading.hideLoading();
 		} catch (error) {
-			console.error('Error fetching municipalities:', error);
+			console.error('Error al intentar obtener los municipios:', error);
 			isLoading.hideLoading();
 		}
 	};

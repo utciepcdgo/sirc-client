@@ -58,8 +58,8 @@ const closeSubstitutionModal = () => {
 		:registration="<Registration>registration" />
 	<EditionModal
 		v-model:open="openEditionModal"
-		:registration="registration"
-		@close-edition-modal="closeEditionModal" />
+		@closeEditionModal="closeEditionModal"
+		:registration="<Registration>registration" />
 	<SubstitutionModal
 		v-model:open="openedSubstitutionModal"
 		:registration="registration"

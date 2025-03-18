@@ -5,13 +5,11 @@
       <div>
         <p class="text-center text-sm text-gray-500 mt-2">Faltan...</p>
       </div>
-      <div class="text-center font-light" style="font-size: 39px;">
+      <div class="text-center font-light" style="font-size: 39px">
         {{ countdownText }}
       </div>
       <div>
-        <p class="text-center text-sm text-gray-500 mt-2">
-          Para el inicio de Registro de Candidaturas
-        </p>
+        <p class="text-center text-sm text-gray-500 mt-2">Para el término del Registro de Candidaturas</p>
       </div>
       <div class="mt-2 flex justify-center">
         <Button variant="outline" @click="togglePosition">
@@ -23,18 +21,18 @@
 </template>
 
 <script setup>
-import {computed, onMounted, onUnmounted, ref} from 'vue';
-import {Card} from '@/components/ui/card';
-import {Button} from '@/components/ui/button';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 // Define la fecha esperada (puede venir de prop, store, etc.)
-const expectedDate = new Date('2025-03-22T00:00:00');
+const expectedDate = new Date('2025-03-29T00:00:00');
 
 // Variable para la posición: 'right' (inicial) o 'left'
 const position = ref('right');
 
 const cardWidth = 300; // ancho del Card en px
-const margin = 64;     // margen en px (1rem, aproximadamente)
+const margin = 64; // margen en px (1rem, aproximadamente)
 
 // Computed para generar un estilo inline que posicione el contenedor y aplique la transformación
 const containerStyle = computed(() => {
@@ -46,11 +44,8 @@ const containerStyle = computed(() => {
     left: `${margin}px`,
     // Si la posición es "right", movemos el contenedor al lado derecho.
     // Calculamos: ancho total de la ventana menos (ancho de la tarjeta + 2 * margen)
-    transform:
-        position.value === 'right'
-            ? `translateX(calc(100vw - ${cardWidth + margin * 2}px))`
-            : 'translateX(0)',
-    transition: 'transform 0.3s ease-in-out'
+    transform: position.value === 'right' ? `translateX(calc(100vw - ${cardWidth + margin * 2}px))` : 'translateX(0)',
+    transition: 'transform 0.3s ease-in-out',
   };
 });
 
@@ -60,7 +55,7 @@ const remainingTime = ref(expectedDate - new Date());
 // Prop. computada para formatear el tiempo restante en días, horas, minutos y segundos (los odio)
 const countdownText = computed(() => {
   const diff = remainingTime.value;
-  if (diff <= 0) return "Tiempo terminado";
+  if (diff <= 0) return 'Tiempo terminado';
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));
   const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
   const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));

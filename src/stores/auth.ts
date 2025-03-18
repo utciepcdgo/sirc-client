@@ -3,13 +3,13 @@ import axios, { AxiosError } from 'axios';
 import { useRouter } from 'vue-router';
 import { useBlocksStore } from '@/stores/blocks';
 import { useLoadingStore } from '@/stores/loading';
-import { User, LoginCredentials } from '@/types/types';
+import { User, LoginCredentials, Entity } from '@/types/types';
 
 export const useAuthStore = defineStore('auth', {
 	state: () => ({
 		user: null as User | null,
 		token: localStorage.getItem('token') || null,
-		entities: [],
+		entities: [] as Entity[],
 		route: useRouter(),
 		loader: useLoadingStore(),
 	}),
@@ -41,7 +41,9 @@ export const useAuthStore = defineStore('auth', {
 		async fetchUser() {
 			if (!this.token) return; // Si no hay token, no hacer la petición
 			// Mostramos la pantalla de carga
-			this.loader.showLoading('Obteniendo información del usuario autenticado');
+			this.loader.showLoading(
+				'Obteniendo información del usuario autenticado'
+			);
 			try {
 				const response = await axios.get(
 					import.meta.env.VITE_SIRC_API_URI + 'user',

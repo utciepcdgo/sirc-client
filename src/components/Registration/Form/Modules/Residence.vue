@@ -43,7 +43,7 @@ const locationStore = useLocationStore();
 									v-bind="componentField">
 									<SelectTrigger>
 										<SelectValue
-											placeholder="Select a State" />
+											placeholder="Seleccione una opción" />
 									</SelectTrigger>
 									<SelectContent>
 										<SelectGroup
@@ -74,7 +74,7 @@ const locationStore = useLocationStore();
 									v-bind="componentField">
 									<SelectTrigger>
 										<SelectValue
-											placeholder="Select a Municipality" />
+											placeholder="Seleccione un municipio" />
 									</SelectTrigger>
 									<SelectContent>
 										<SelectGroup

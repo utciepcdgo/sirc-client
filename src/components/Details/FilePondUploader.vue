@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import vueFilePond from 'vue-filepond';
-import { defineEmits } from 'vue';
 import { setOptions } from 'filepond';
 import { IconCircleCheck } from '@tabler/icons-vue';
 import axios from 'axios';
@@ -17,17 +16,14 @@ import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css
 import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
 import FilePondPluginImagePreview from 'filepond-plugin-image-preview';
 import { useToast } from '@/components/ui/toast/use-toast';
-import { Registration } from '@/types/types';
+import { Registration, Filetype } from '@/types/types';
 // Propiedad del documento que se carga
-const props = defineProps({
-  document: Object,
-  registration: {
-    type: Object as PropType<Registration>,
-    required: true, // Set to `false` if optional
-  },
-  disabled: Boolean,
-  isLoaded: Boolean,
-});
+const props = defineProps<{
+	document: Filetype;
+	registration: Registration;
+	disabled: Boolean;
+	isLoaded: Boolean;
+}>();
 const { toast } = useToast();
 
 // Configuración de FilePond
@@ -219,8 +215,7 @@ setOptions({
 			:allow-multiple="false"
 			:disabled="props.disabled"
 			:max-files="1"
-			:name="document.name"
-			:server="filePondServer"
-			@addfile="handleFileUpload" />
+			:name="document?.name"
+			:server="filePondServer" />
 	</div>
 </template>

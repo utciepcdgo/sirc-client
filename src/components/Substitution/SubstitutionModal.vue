@@ -1,19 +1,15 @@
 <script lang="ts" setup>
+import { DialogFooter, DialogHeader, DialogScrollContent, DialogTitle } from '@/components/ui/dialog';
+import { DialogRoot } from 'radix-vue';
+import { Button } from '@/components/ui/button';
+import Form from '@/components/Substitution/Form.vue';
+import { Registration } from '@/types/types';
 
-import {DialogFooter, DialogHeader, DialogScrollContent, DialogTitle} from "@/components/ui/dialog";
-import {DialogRoot} from "radix-vue";
-import {Button} from "@/components/ui/button";
-import Form from "@/components/Substitution/Form.vue";
-
-const props = defineProps({
-  registration: {
-    type: Object,
-    required: true
-  }
-});
+defineProps<{
+  registration: Registration | null;
+}>();
 
 const emit = defineEmits(['closeEditionModal']);
-
 </script>
 
 <template>
@@ -23,19 +19,13 @@ const emit = defineEmits(['closeEditionModal']);
         <DialogTitle>Sustituir registro en {{ registration.block.municipality.name }}</DialogTitle>
         <small>{{ registration.name }} {{ registration.first_name }} {{ registration.second_name }}</small>
       </DialogHeader>
-      <Form :registration="registration"/>
+      <Form :registration="registration" />
       <DialogFooter>
-        <Button form="substitution_form" type="submit">
-          Sustituir registro
-        </Button>
-        <Button variant="destructive" @click="$emit('closeEditionModal')">
-          Cerrar
-        </Button>
+        <Button form="substitution_form" type="submit">Sustituir registro</Button>
+        <Button variant="destructive" @click="$emit('closeEditionModal')">Cerrar</Button>
       </DialogFooter>
     </DialogScrollContent>
   </DialogRoot>
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

@@ -17,6 +17,11 @@ import {
 	SelectValue,
 } from '@/components/ui/select';
 import { useLocationStore } from '@/stores/location';
+import { Registration } from '@/types/types';
+
+defineProps<{
+	registration?: Registration;
+}>();
 
 const locationStore = useLocationStore();
 </script>
@@ -46,8 +51,8 @@ const locationStore = useLocationStore();
 						<FormLabel>Estado</FormLabel>
 						<FormControl>
 							<Select
-								v-bind="componentField"
-								v-model="locationStore.selectedStateBorn">
+								v-model="locationStore.selectedStateResidence"
+								v-bind="componentField">
 								<SelectTrigger>
 									<SelectValue
 										placeholder="Seleccione una opción" />
@@ -56,9 +61,9 @@ const locationStore = useLocationStore();
 									<SelectGroup
 										v-for="state in locationStore.states"
 										:key="state.id">
-										<SelectItem :value="state.name">{{
-											state.name
-										}}</SelectItem>
+										<SelectItem :value="state.name"
+											>{{ state.name }}
+										</SelectItem>
 									</SelectGroup>
 								</SelectContent>
 							</Select>
@@ -75,13 +80,13 @@ const locationStore = useLocationStore();
 						<FormLabel>Municipio</FormLabel>
 						<FormControl>
 							<Select
-								v-bind="componentField"
 								v-model="
-									locationStore.selectedMunicipalityBorn
-								">
+									locationStore.selectedMunicipalityResidence
+								"
+								v-bind="componentField">
 								<SelectTrigger>
 									<SelectValue
-										placeholder="Seleccione una opción" />
+										placeholder="Seleccione un municipio" />
 								</SelectTrigger>
 								<SelectContent>
 									<SelectGroup
