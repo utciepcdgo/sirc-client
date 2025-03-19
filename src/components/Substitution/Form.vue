@@ -34,7 +34,7 @@ const store = {
 };
 
 // Emitir eventos al padre
-const emit = defineEmits(['closeEditionModal']);
+const emit = defineEmits(['closeSubstitutionModal']);
 
 onMounted(async () => {
   await store.storeCompensatory.fetchCompensatory();
@@ -51,6 +51,10 @@ const { values, handleSubmit } = useForm<InferType<typeof registrationSchema>>({
     registration_id: props.registration?.id,
     postulation_id: props.registration?.postulation?.id,
     position_id: props.registration?.position.id,
+    council_number:
+      props.registration?.council_number !== null && props.registration?.council_number !== undefined
+        ? props.registration?.council_number.toString()
+        : '',
   },
 });
 
@@ -82,6 +86,8 @@ const onSubmit = handleSubmit(async (values) => {
       title: 'Éxito',
       description: 'Registro sustituido correctamente.',
     });
+
+    emit('closeSubstitutionModal');
   } catch (error) {
     toast({
       title: 'Error',

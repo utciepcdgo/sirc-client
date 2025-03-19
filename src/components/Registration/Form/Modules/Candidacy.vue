@@ -120,7 +120,7 @@ watch([() => props.form?.postulation_id, () => props.form?.position_id], ([newPo
                           !selectedBlock?.assignments?.councils?.includes(i) &&
                           selectedBlock?.assignments?.councils?.length > 0
                         "
-                        :value="String(i)">
+                        :value="i.toString()">
                         {{ i }}
                       </SelectItem>
                     </SelectGroup>

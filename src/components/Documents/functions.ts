@@ -81,7 +81,7 @@ export async function diversityPdf(registration: Registration) {
   // If the id doesn't match, check the 'Otro' checkbox and write the name on the corresponding field.
   // Comparar recursivamente gendersOnFile con registration.gender.id
   // @ts-ignore
-  const genderMatch = Object.values(gendersOnFile).find((gender) => gender.id === registration.gender.id);
+  const genderMatch = Object.values(gendersOnFile).find((gender) => gender.id.toString() === registration.gender.id);
 
   if (genderMatch) {
     // Check the corresponding box if match
@@ -374,7 +374,7 @@ export async function protestPdf(registration: Registration) {
   doc.setFontSize(12).setFont('ARIALNB', 'normal').text('1 | 1', 17.8, 26);
 
   // Guardar el documento
-  doc.save('formato_7_carta_bajo_protesta.pdf');
+  doc.save('F7_CARTA_BAJO_PROTESTA.pdf');
 }
 
 // Formato 8 - Reelección
@@ -572,7 +572,7 @@ export async function violencyPdf(registration: Registration) {
   doc.setFontSize(12).setFont('ARIALNB', 'normal').text('1 | 1', 17.8, 26.5);
 
   // Guardar el documento
-  doc.save('formato_7_carta_bajo_protesta.pdf');
+  doc.save('F9_8_DE_8_CONTRA_LA_VIOLENCIA.pdf');
 }
 
 // Formato 10 - Red de Candidatas

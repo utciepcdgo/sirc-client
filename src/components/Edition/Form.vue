@@ -105,7 +105,7 @@ const { values, handleSubmit } = useForm<InferType<typeof registrationSchema>>({
 const onSubmit = handleSubmit(async (values) => {
   try {
     store.storeLoading.showLoading('Actualizando información de registro...');
-    await axios.patch(`http://localhost:8000/api/registrations/${props.registration?.id}`, values);
+    await axios.patch(import.meta.env.VITE_SIRC_API_URI + `registrations/${props.registration?.id}`, values);
     store.storeLoading.hideLoading();
 
     store.storeLoading.showLoading('Actualizando registros...');

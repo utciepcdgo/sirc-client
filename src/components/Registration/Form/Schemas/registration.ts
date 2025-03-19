@@ -8,8 +8,23 @@ Yup.setLocale({
 
 export const registrationSchema = Yup.object({
   name: Yup.string().required().min(3).label('Nombre'),
-  first_name: Yup.string().required().min(3).label('Primer apellido'),
-  second_name: Yup.string().required().min(3).label('Segundo apellido'),
+  first_name: Yup.string()
+    .required('El primer apellido es obligatorio')
+    .test(
+      'valid-first_name',
+      'Debe tener al menos 3 caracteres o ser "X"',
+      (value) => value === 'X' || (value && value.length >= 3),
+    )
+    .label('Primer apellido'),
+
+  second_name: Yup.string()
+    .required('El segundo apellido es obligatorio')
+    .test(
+      'valid-second_name',
+      'Debe tener al menos 3 caracteres o ser "X"',
+      (value) => value === 'X' || (value && value.length >= 3),
+    )
+    .label('Segundo apellido'),
   birthplace: Yup.object().shape({
     birth: Yup.string().required('Este campo es requerido'),
     state: Yup.string().label('Estado').nonNullable('Este campo no puede dejarlo vacío'),

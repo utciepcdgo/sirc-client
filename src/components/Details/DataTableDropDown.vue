@@ -51,13 +51,14 @@ async function downloadPdf(pdfFunction: Function, registration: object, fileName
     openingMigrantDetails.value = true;
     return;
   }
+
   loadingStore.showLoading('Generando formato ' + fileName.replace(/_/g, ' '));
 
   const pdfFormat = await pdfFunction(registration);
 
   loadingStore.hideLoading();
   // Create a download link
-  if (pdfFunction !== protestPdf) {
+  if (pdfFunction !== protestPdf || pdfFunction !== violencyPdf) {
     const blob = new Blob([pdfFormat], { type: 'application/pdf' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
