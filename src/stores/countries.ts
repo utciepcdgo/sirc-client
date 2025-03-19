@@ -28,7 +28,7 @@ export const useCountriesStore = defineStore('country', {
 				const response = await axios.get(
 					import.meta.env.VITE_SIRC_API_URI + 'countries'
 				);
-				this.countries = response.data;
+				this.countries = response.data.data;
 			} catch (error) {
 				// alert(error)
 				this.countriesError = error;

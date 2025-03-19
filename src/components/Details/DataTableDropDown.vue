@@ -76,12 +76,12 @@ async function downloadPdf(pdfFunction: Function, registration: object, fileName
   <DropdownMenu>
     <DropdownMenuTrigger as-child>
       <Button variant="ghost" class="w-8 h-8 p-0">
-        <span class="sr-only">Open menu</span>
+        <span class="sr-only">Abrir menú de opciones</span>
         <MoreHorizontal class="w-4 h-4" />
       </Button>
     </DropdownMenuTrigger>
     <DropdownMenuContent align="end">
-      <DropdownMenuLabel>Actions</DropdownMenuLabel>
+      <DropdownMenuLabel>Acciones</DropdownMenuLabel>
       <DropdownMenuItem @click="copy(registration.uuid)">
         <IconClipboard class="mr-2 h-4 w-4" />
         Copiar ID de registro
