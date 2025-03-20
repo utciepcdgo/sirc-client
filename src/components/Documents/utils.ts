@@ -34,8 +34,18 @@ export const defineAgeRange = (age: number) => {
   }
 };
 
+// Aprendiendo a odiar Chrome y sus basados.
 export async function loadRemoteFontBase64(url: string): Promise<string> {
   const response = await fetch(url);
   const fontBytes = await response.arrayBuffer();
-  return btoa(String.fromCharCode(...new Uint8Array(fontBytes)));
+  const uint8Array = new Uint8Array(fontBytes);
+
+  let binaryString = "";
+  const chunkSize = 8192; // Se divide en partes (chunks) de 8KB. Chrome no soporta strings de más de 8KB.
+
+  for (let i = 0; i < uint8Array.length; i += chunkSize) {
+    binaryString += String.fromCharCode(...uint8Array.slice(i, i + chunkSize));
+  }
+
+  return btoa(binaryString);
 }
