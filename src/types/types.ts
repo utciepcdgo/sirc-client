@@ -133,6 +133,7 @@ export interface Registration {
   name: string;
   reelection: 'Si' | 'No';
   mote: string;
+  status: string;
 }
 
 export interface File {

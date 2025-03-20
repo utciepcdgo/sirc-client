@@ -79,6 +79,13 @@ const columns: ColumnDef<Registration>[] = [
     enableHiding: true,
   },
   {
+    id: 'status',
+    accessorKey: 'status',
+    header: 'Estado',
+    cell: ({ row }) => h('div', { class: '' }, row.getValue<Registration>('status') ?? 'indefinido'),
+    enableHiding: true,
+  },
+  {
     id: 'actions',
     enableHiding: false,
     cell: ({ row }) => {
