@@ -93,7 +93,13 @@ watch([() => props.form?.postulation_id, () => props.form?.position_id], ([newPo
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup v-for="postulation in getPostulations" :key="postulation.id">
-                      <SelectItem :disabled="!postulation.active" :value="postulation.id.toString()">
+                      <SelectItem
+                        :disabled="
+                          !postulation.active ||
+                          (postulation.id == '3' && !selectedBlock.assignments.municipality) ||
+                          (postulation.id === '4' && !selectedBlock.assignments.syndic)
+                        "
+                        :value="postulation.id.toString()">
                         {{ postulation.name }}
                       </SelectItem>
                     </SelectGroup>

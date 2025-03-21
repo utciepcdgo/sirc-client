@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 
 export const useLoadingStore = defineStore('loading', () => {
-  const isLoading = ref<Boolean>(false);
+  const isLoading = ref<boolean>(false); // ✅ lowercase
   const loadingText = ref<string>('Cargando...');
 
   const showLoading = (text: string) => {

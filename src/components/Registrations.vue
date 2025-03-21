@@ -25,6 +25,7 @@ import {
   IconPlus,
   IconSearch,
   IconWomanFilled,
+  IconXboxXFilled,
 } from '@tabler/icons-vue';
 
 import { DialogRoot } from 'radix-vue';
@@ -45,6 +46,7 @@ import RequestRegistrationModal from '@/components/RequestRegistrationModal.vue'
 import ReceiptModal from '@/components/Receipt/ReceiptModal.vue';
 import CountDown from '@/components/CountDown.vue';
 import { emitBlockDataUpdate } from '@/composables/useBlockData';
+import { Alert } from '@/components/ui/alert';
 
 const authStore = useAuthStore();
 const loadingStore = useLoadingStore();
@@ -229,7 +231,20 @@ onUnmounted(() => {
             </div>
           </CardHeader>
           <CardContent>
-            <div class="flex text-center justify-around">
+            <div
+              v-if="
+                block.assignments.councils !== null &&
+                block.assignments.municipality == false &&
+                block.assignments.syndic == false &&
+                typeof block.assignments.councils === 'object' &&
+                block.assignments.councils[0] == 0
+              ">
+              <Alert variant="destructive">
+                <IconXboxXFilled />
+                <p>Registro deshabilitado según Convenio</p>
+              </Alert>
+            </div>
+            <div v-else class="flex text-center justify-around">
               <div class="flex flex-col">
                 <IconWomanFilled class="self-center" />
                 <small class="text-[8pt]">MUJERES</small>
@@ -244,7 +259,16 @@ onUnmounted(() => {
           </CardContent>
           <CardFooter class="justify-between">
             <div class="flex space-x-2.5 md:space-x-1 sm:space-x-3.5 lg:space-x-1 xl:space-x-3.5 items-center">
-              <Button variant="default" @click="openModal(block)">
+              <Button
+                :disabled="
+                  block.assignments.councils !== null &&
+                  block.assignments.municipality == false &&
+                  block.assignments.syndic == false &&
+                  typeof block.assignments.councils === 'object' &&
+                  block.assignments.councils[0] == 0
+                "
+                variant="default"
+                @click="openModal(block)">
                 <IconPlus stroke-width="3" />
                 Registrar
               </Button>

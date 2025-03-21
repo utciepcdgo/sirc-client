@@ -3,7 +3,7 @@ import { defineStore } from 'pinia';
 import axios from 'axios';
 
 interface Postulation {
-  id: number;
+  id: string;
   name: string;
   active: boolean;
 }
