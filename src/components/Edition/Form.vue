@@ -43,16 +43,38 @@ onMounted(async () => {
   await store.storePostulation.fetchPostulations();
   await store.storeLocation.fetchStates();
 
-  await store.storeLocation.fetchMunicipalities(props.registration.birthplace?.state);
-  values.birthplace.municipality = props.registration.birthplace?.municipality ?? null;
+  if (props.registration.birthplace?.state) {
+    store.storeLocation.municipalitiesBirthplace = await store.storeLocation.fetchMunicipalitiesByStateName(
+      props.registration.birthplace.state,
+    );
 
-  await store.storeLocation.fetchMunicipalities(props.registration.residence?.state);
+    // Prefill form fields
+    setFieldValue('birthplace.state', props.registration.birthplace.state);
+    setFieldValue('birthplace.municipality', props.registration.birthplace.municipality ?? null);
 
-  values.residence.municipality = props.registration.residence?.municipality ?? null;
+    // Optional: sync store
+    store.storeLocation.selectedStateBirthplace = props.registration.birthplace.state;
+    store.storeLocation.selectedMunicipalityBirthplace = props.registration.birthplace.municipality ?? '';
+  }
+
+  // 🔁 Residence
+  if (props.registration.residence?.state) {
+    store.storeLocation.municipalitiesResidence = await store.storeLocation.fetchMunicipalitiesByStateName(
+      props.registration.residence.state,
+    );
+
+    // Prefill form fields
+    setFieldValue('residence.state', props.registration.residence.state);
+    setFieldValue('residence.municipality', props.registration.residence.municipality ?? null);
+
+    // Optional: sync store
+    store.storeLocation.selectedStateResidence = props.registration.residence.state;
+    store.storeLocation.selectedMunicipalityResidence = props.registration.residence.municipality ?? '';
+  }
 });
 
 // @ts-ignore
-const { values, handleSubmit } = useForm<InferType<typeof registrationSchema>>({
+const { values, handleSubmit, setFieldValue } = useForm<InferType<typeof registrationSchema>>({
   validationSchema: toTypedSchema(registrationSchema),
   initialValues: {
     name: props.registration?.name ?? '',

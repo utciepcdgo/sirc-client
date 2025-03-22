@@ -166,7 +166,7 @@ export async function migrantPdf(registration: Registration) {
         ' ' +
         registration?.migrant?.zip_code +
         ' ' +
-        registration?.migrant?.country?.alpha3.toUpperCase(),
+        registration?.migrant?.country?.name.toUpperCase(),
     );
 
   // Check the corresponding sex checkbox
@@ -250,7 +250,7 @@ export async function candidacyPdf(registration: Registration) {
   // Fill the party or coalition field
   form
     .getTextField('party')
-    .setText(registration.coalition.is_assigned ? registration.coalition.name : registration.entity.name);
+    .setText(registration.block.shared_entity !== null ? registration?.coalition?.name : registration?.entity?.name);
   // Fill the postulation field
   form.getTextField('postulation').setText(registration.postulation.name);
   // Fill the position field
@@ -417,7 +417,7 @@ export async function reelectionPdf(registration: Registration) {
     maxWidth: 440,
   });
 
-  let secondParagraph = `Me postula el mismo partido o un partido integrante de la Coalición ${registration.coalition.is_assigned ? registration.coalition.name : registration.entity.name} conforme lo mandata la normativa aplicable`;
+  let secondParagraph = `Me postula el mismo partido o un partido integrante de la Coalición ${registration.block.shared_entity !== null ? registration?.coalition?.name : registration?.entity?.name} conforme lo mandata la normativa aplicable`;
   firstPage.drawText(secondParagraph, {
     x: 121,
     y: 350,
@@ -431,9 +431,7 @@ export async function reelectionPdf(registration: Registration) {
   form.getTextField('name').setFontSize(10);
   form.getTextField('name').setText(registration.name + ' ' + registration.first_name + ' ' + registration.second_name);
   // Fill the party or coalition field
-  form
-    .getTextField('party')
-    .setText(registration.coalition.is_assigned ? registration.coalition.name : registration.entity.name);
+  form.getTextField('party').setText(registration.block.shared_entity !== null ? registration?.coalition?.name : registration?.entity?.name);
   // Fill the postulation field
   form.getTextField('postulation').setText(registration.postulation.name);
 
@@ -594,7 +592,7 @@ export async function amceePdf(registration: Registration) {
   // Fill the party or coalition field
   form
     .getTextField('party')
-    .setText(registration.coalition.is_assigned ? registration?.coalition?.name : registration?.entity?.name);
+    .setText(registration.block.shared_entity !== null ? registration?.coalition?.name : registration?.entity?.name);
   // Fill the postulation field
   if (registration.compensatory.id == '3') {
     form.getTextField('compensatory').setText(registration.gender.name);

@@ -287,7 +287,7 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <DialogRoot v-model:open="open" :update:open="open">
+    <DialogRoot v-model:open="open" :update:open="open" @interactOutside.prevent>
       <DialogScrollContent class="min-w-fit">
         <DialogHeader>
           <div class="flex items-center space-x-2.5">

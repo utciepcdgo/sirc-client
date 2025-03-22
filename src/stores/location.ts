@@ -2,92 +2,89 @@ import { defineStore } from 'pinia';
 import { ref, watch } from 'vue';
 import { useLoadingStore } from '@/stores/loading';
 import axios from 'axios';
-import { Municipality, State } from '@/types/types';
 
 export const useLocationStore = defineStore('location', () => {
-	// State selection
-	const selectedStateBorn = ref<String>(null);
-	const selectedStateResidence = ref<String>(null);
+  const isLoading = useLoadingStore();
 
-	// Municipality selection
-	const selectedMunicipalityBorn = ref<Municipality>(null);
-	const selectedMunicipalityResidence = ref<Municipality>(null);
+  // 📦 All available states
+  const states = ref([]);
 
-	const isLoading = useLoadingStore();
-	// Lists
-	const states = ref<State[]>([]);
-	const municipalities = ref<Municipality[]>([]);
+  // 🟣 Birthplace selections
+  const selectedStateBirthplace = ref('');
+  const selectedMunicipalityBirthplace = ref('');
+  const municipalitiesBirthplace = ref([]);
 
-	// Fetch States
-	const fetchStates = async () => {
-		try {
-			isLoading.showLoading('Cargando información de Estados...');
-			const response = await axios.get(
-				import.meta.env.VITE_SERVICES_API_URI + 'states',
-				{
-					headers: {
-						authorization:
-							'Bearer ' + import.meta.env.VITE_SERVICES_API_TOKEN,
-					},
-				}
-			);
-			states.value = response.data.data;
-			isLoading.hideLoading();
-		} catch (error) {
-			console.error('Error fetching states:', error);
-			isLoading.hideLoading();
-		}
-	};
+  // 🟡 Residence selections
+  const selectedStateResidence = ref('');
+  const selectedMunicipalityResidence = ref('');
+  const municipalitiesResidence = ref([]);
 
-	// Fetch Municipalities based on selected state
-	const fetchMunicipalities = async (state: string) => {
-		// Pa' que se vea más bonito 🤭
-		let lowerCaseStateName = state.toLowerCase();
-		let capitalizeStateName =
-			lowerCaseStateName.charAt(0).toUpperCase() +
-			lowerCaseStateName.slice(1);
+  // ✅ Fetch all states
+  const fetchStates = async () => {
+    try {
+      isLoading.showLoading('Cargando información de Estados...');
+      const { data } = await axios.get(import.meta.env.VITE_SERVICES_API_URI + 'states', {
+        headers: {
+          authorization: 'Bearer ' + import.meta.env.VITE_SERVICES_API_TOKEN,
+        },
+      });
+      states.value = data.data;
+    } catch (error) {
+      console.error('Error fetching states:', error);
+    } finally {
+      isLoading.hideLoading();
+    }
+  };
 
-		try {
-			isLoading.showLoading(
-				`Cargando información del Estado de ${capitalizeStateName} ...`
-			);
-			const response = await axios.get(
-				import.meta.env.VITE_SERVICES_API_URI +
-					`municipalities?search_by=name&name=${state}`,
-				{
-					headers: {
-						authorization:
-							'Bearer ' + import.meta.env.VITE_SERVICES_API_TOKEN,
-					},
-				}
-			);
-			municipalities.value = response.data.data;
-			isLoading.hideLoading();
-		} catch (error) {
-			console.error('Error al intentar obtener los municipios:', error);
-			isLoading.hideLoading();
-		}
-	};
+  // ✅ Generic fetch municipalities method
+  const fetchMunicipalitiesByStateName = async (stateName: string) => {
+    const capitalized = stateName.charAt(0).toUpperCase() + stateName.slice(1).toLowerCase();
 
-	// Watch for changes and fetch municipalities dynamically
-	watch(selectedStateBorn, (newState: string) => {
-		if (newState) fetchMunicipalities(newState);
-		selectedMunicipalityBorn.value = null;
-	});
+    try {
+      isLoading.showLoading(`Cargando municipios de ${capitalized}...`);
+      const { data } = await axios.get(
+        import.meta.env.VITE_SERVICES_API_URI + `municipalities?search_by=name&name=${stateName}`,
+        {
+          headers: {
+            authorization: 'Bearer ' + import.meta.env.VITE_SERVICES_API_TOKEN,
+          },
+        },
+      );
+      return data.data;
+    } catch (error) {
+      console.error('Error al obtener municipios:', error);
+      return [];
+    } finally {
+      isLoading.hideLoading();
+    }
+  };
 
-	watch(selectedStateResidence, (newState: string) => {
-		if (newState) fetchMunicipalities(newState);
-		selectedMunicipalityResidence.value = null;
-	});
+  // 🔁 Auto-watchers for dynamic update
+  watch(selectedStateBirthplace, async (stateName: string) => {
+    municipalitiesBirthplace.value = await fetchMunicipalitiesByStateName(stateName);
+    selectedMunicipalityBirthplace.value = '';
+  });
 
-	return {
-		states,
-		municipalities,
-		selectedStateBorn,
-		selectedStateResidence,
-		selectedMunicipalityBorn,
-		selectedMunicipalityResidence,
-		fetchStates,
-		fetchMunicipalities,
-	};
+  watch(selectedStateResidence, async (stateName: string) => {
+    municipalitiesResidence.value = await fetchMunicipalitiesByStateName(stateName);
+    selectedMunicipalityResidence.value = '';
+  });
+
+  return {
+    states,
+
+    // Birthplace
+    selectedStateBirthplace,
+    selectedMunicipalityBirthplace,
+    municipalitiesBirthplace,
+
+    // Residence
+    selectedStateResidence,
+    selectedMunicipalityResidence,
+    municipalitiesResidence,
+
+    // Methods
+    fetchStates,
+    fetchMunicipalitiesByStateName,
+  };
 });

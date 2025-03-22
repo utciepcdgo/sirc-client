@@ -67,6 +67,7 @@ async function downloadPdf(
 	if (pdfFunction == protestPdf || pdfFunction == violencyPdf) {
 		return;
 	}
+
 	// Create a download link
 	const blob = new Blob([pdfFormat], { type: 'application/pdf' });
 	const url = URL.createObjectURL(blob);

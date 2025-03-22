@@ -78,7 +78,7 @@ const locationStore = useLocationStore();
 									</SelectTrigger>
 									<SelectContent>
 										<SelectGroup
-											v-for="municipality in locationStore.municipalities"
+											v-for="municipality in locationStore.municipalitiesResidence"
 											:key="municipality.id">
 											<SelectItem
 												:value="municipality.name"

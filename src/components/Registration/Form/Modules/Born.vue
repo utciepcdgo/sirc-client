@@ -51,7 +51,7 @@ const locationStore = useLocationStore();
 						<FormLabel>Estado</FormLabel>
 						<FormControl>
 							<Select
-								v-model="locationStore.selectedStateResidence"
+								v-model="locationStore.selectedStateBirthplace"
 								v-bind="componentField">
 								<SelectTrigger>
 									<SelectValue
@@ -81,7 +81,7 @@ const locationStore = useLocationStore();
 						<FormControl>
 							<Select
 								v-model="
-									locationStore.selectedMunicipalityResidence
+									locationStore.selectedMunicipalityBirthplace
 								"
 								v-bind="componentField">
 								<SelectTrigger>
@@ -90,7 +90,7 @@ const locationStore = useLocationStore();
 								</SelectTrigger>
 								<SelectContent>
 									<SelectGroup
-										v-for="municipality in locationStore.municipalities"
+										v-for="municipality in locationStore.municipalitiesBirthplace"
 										:key="municipality.id">
 										<SelectItem
 											:value="municipality.name"
