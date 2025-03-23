@@ -84,11 +84,7 @@ onMounted(() => {
             <FormItem>
               <FormLabel>CURP</FormLabel>
               <FormControl>
-                <Input
-                  v-maska="'@@@@######@@@@@@##'"
-                  placeholder="LLLLAAMMDDHDGRLL00"
-                  type="text"
-                  v-bind="componentField" />
+                <Input placeholder="LLLLAAMMDDHDGRLL00" type="text" v-bind="componentField" />
               </FormControl>
               <FormMessage />
             </FormItem>
