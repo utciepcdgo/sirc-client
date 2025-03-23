@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { vMaska } from 'maska/vue';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { computed, onMounted } from 'vue';
 import { useSexesStore } from '@/stores/sexes';
