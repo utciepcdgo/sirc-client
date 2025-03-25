@@ -46,9 +46,8 @@ const filePondServer = {
       document: fieldName.replace(/\s+/g, '_').toUpperCase(),
       formatId: 'F' + String(props.document.id).padStart(2, '0'),
       fileName: file.name,
-      partyAcronym: props.registration.coalition.is_assigned
-        ? props.registration.coalition.acronym
-        : props.registration.entity.acronym,
+      partyAcronym:
+        props.registration.block.shared_entity !== null ? props.registration?.coalition?.acronym : props.registration?.entity?.acronym,
       municipality: props.registration.block.municipality.abbreviation,
       postulation:
         props.registration.postulation.id === '5'
@@ -64,6 +63,7 @@ const filePondServer = {
       fileFormat: file.name.split('.').pop().toLowerCase(),
       contentType: file.type,
     };
+    console.log('DataHeader:', dataHeader);
 
     axios
       .post(import.meta.env.VITE_SIRC_API_URI + 'aws_s3_signed_url', dataHeader)
