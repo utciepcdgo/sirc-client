@@ -19,7 +19,7 @@ export async function registrationRequestPdf(id: number, type: string) {
 
   console.log('Registration Data ', registrationData);
   // console.log(registrationData);
-  let municipalities = Array.isArray(registrationData.municipalities) ? registrationData.municipalities.join(', ') : '';
+  let municipalities = Object.values(registrationData.municipalities).join(', ');
   console.log('Municipalities ', municipalities);
 
   // URL de la fuente remota
@@ -125,6 +125,8 @@ export async function registrationRequestPdf(id: number, type: string) {
   // Tabla de candidaturas con las columnas Nombre, Cargo, Calidad (Propietario, Suplente), Grupo vulnerable al que representa.
   // Usando el paquete https://github.com/simonbengtsson/jsPDF-AutoTable
   // Verificar que existan candidaturas pertenecientes a alguna medida compensatoria, si no, agregar un texto que lo indique y ocultar la tabla
+  let lastY = 0; // Variable para almacenar la última posición Y de la tabla
+
   if (registrationData.compensatories.length === 0) {
     doc
       .setFont('ARIALN-Normal', 'normal')
@@ -140,7 +142,7 @@ export async function registrationRequestPdf(id: number, type: string) {
         name: row.name
           .split(' ')
           .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-          .join(' '), // 😖
+          .join(' '),
       })),
       columns: [
         { header: 'No.', dataKey: 'index' },
@@ -153,25 +155,32 @@ export async function registrationRequestPdf(id: number, type: string) {
         fillColor: [0, 0, 0],
         textColor: [255, 255, 255],
       },
-      startY: 4.5,
       styles: {
         font: 'ARIALN-Normal',
         fontStyle: 'normal',
         fontSize: 12,
-        lineWidth: 0.01,
-        lineColor: [0, 0, 0],
+      },
+      startY: 4.5,
+      didDrawPage: function (data) {
+        lastY = data.cursor.y;
       },
     });
   }
+
+  const pageHeight = doc.internal.pageSize.getHeight();
+
+  if (lastY + 5 > pageHeight) {
+    doc.addPage();
+    lastY = 4; // Reset to top of new page
+  }
   // Add text dynamically positioned at Y axis  after the table
   // En Y = 4.5 (Punto donde empieza la tabla) + número de candidaturas + 1 (margen de error)
-  let dinamicYafterTable = 4.5 + registrationData.compensatories.length + 1;
   doc
     .setFont('ARIALN-Normal', 'normal')
     .text(
       `\nA la presente solicitud se anexa también la documentación requerida de conformidad a la legislación aplicable para efectos de acreditar los requisitos de elegibilidad de cada una de las candidaturas:`,
       3,
-      dinamicYafterTable,
+      lastY,
       { align: 'justify', maxWidth: contentWidth },
     );
 
@@ -190,58 +199,76 @@ export async function registrationRequestPdf(id: number, type: string) {
     'Acuse de recibo de entrega de informe de gastos de precampaña o no precampaña, según corresponda, ante el Instituto Nacional Electoral.',
   ];
   const listBBullets = ['a)', 'b)', 'c)', 'd)', 'e)', 'f)', 'g)', 'h)', 'i)', 'j)', 'k)', 'l)'];
-  const listBPositionsY = [
-    dinamicYafterTable + 0.5 + 1,
-    dinamicYafterTable + 0.5 + 1.5,
-    dinamicYafterTable + 0.5 + 2,
-    dinamicYafterTable + 0.5 + 2.5,
-    dinamicYafterTable + 0.5 + 3,
-    dinamicYafterTable + 0.5 + 3.5,
-    dinamicYafterTable + 0.5 + 4,
-    dinamicYafterTable + 0.5 + 5,
-    dinamicYafterTable + 0.5 + 5.5,
-    dinamicYafterTable + 0.5 + 6.5,
-    dinamicYafterTable + 0.5 + 7,
-    dinamicYafterTable + 0.5 + 8,
-  ];
+
+  const lineSpacing = 0.3; // Vertical space between bullets
+  const bottomMargin = 2;
+  let bulletY = lastY + 2;
 
   for (let i = 0; i < listB.length; i++) {
-    doc.setFont('ARIALNB', 'normal').text(listBBullets[i], 3.5, listBPositionsY[i], { align: 'right' });
-    doc
-      .setFont('ARIALN-Normal', 'normal')
-      .text(listB[i], 4, listBPositionsY[i], { align: 'justify', maxWidth: contentWidth - 1 });
+    // Estimate the height needed for the current text
+    const textLines = doc.splitTextToSize(listB[i], contentWidth - 1); // Wrap text
+    const estimatedHeight = textLines.length * 0.5 + lineSpacing; // 0.5 line height per line
+
+    // Check if we need a new page
+    if (bulletY + estimatedHeight > pageHeight - bottomMargin) {
+      doc.addPage();
+      bulletY = 3; // Reset Y for new page with margin
+    }
+
+    // Draw bullet
+    doc.setFont('ARIALNB', 'normal').text(listBBullets[i], 3.5, bulletY, { align: 'right' });
+
+    // Draw wrapped text
+    doc.setFont('ARIALN-Normal', 'normal').text(textLines, 4, bulletY, { maxWidth: contentWidth - 1 });
+
+    // Update Y position for next item
+    bulletY += estimatedHeight;
   }
 
-  doc.text(
+  const paragraphLines = doc.splitTextToSize(
     `Sin otro particular, agradecemos el trámite que se realice a la presente solicitud.`,
-    3,
-    listBPositionsY[listBPositionsY.length - 1] + 1.5,
-    { align: 'justify', maxWidth: contentWidth },
+    contentWidth,
   );
+
+  // Auto-page break check
+  if (bulletY + paragraphLines.length * 0.5 > pageHeight - bottomMargin) {
+    doc.addPage();
+    bulletY = 3;
+  }
+
+  doc.setFont('ARIALN-Normal', 'normal').text(paragraphLines, 3, bulletY, { align: 'justify', maxWidth: contentWidth });
+
+  bulletY += paragraphLines.length * 0.5 + 1;
 
   // Firmas
   // Firma de los suscriptores, agregar hasta 2 firmas con linea de firma y debajo el nombre
-  const signaturesY = listBPositionsY[listBPositionsY.length - 1] + 3;
-  const signatureLineY = signaturesY + 1;
-  const signatureNameY = signatureLineY + 0.5;
-  const pageWidthX = doc.internal.pageSize.getWidth();
+  // “ATENTAMENTE” Title
   const textWidthX = doc.getTextWidth('ATENTAMENTE');
-  const centerX = (pageWidthX - textWidthX) / 2;
-  doc.setFont('ARIALNB', 'normal').text('ATENTAMENTE', centerX, signatureNameY - 2);
+  const centerX = (pageWidth - textWidthX) / 2;
+
+  if (bulletY + 4 > pageHeight - bottomMargin) {
+    doc.addPage();
+    bulletY = 3;
+  }
+
+  doc.setFont('ARIALNB', 'normal').text('ATENTAMENTE', centerX, bulletY);
+  bulletY += 2;
+
+  // Signature lines
+  const signatureLineY = bulletY;
+  const signatureNameY = signatureLineY + 0.5;
 
   if (registrationData.subscribed.length === 1) {
-    // Single signature (centered)
     const signatureX = pageWidth / 2;
-
     drawSignature(doc, registrationData.subscribed[0].name, signatureX, signatureLineY);
   } else if (registrationData.subscribed.length === 2) {
-    // Two signatures (centered & evenly spaced)
-    const leftSignatureX = pageWidth * 0.3;
-    const rightSignatureX = pageWidth * 0.7;
-
-    drawSignature(doc, registrationData.subscribed[0].name, leftSignatureX, signatureLineY);
-    drawSignature(doc, registrationData.subscribed[1].name, rightSignatureX, signatureLineY);
+    const leftX = pageWidth * 0.3;
+    const rightX = pageWidth * 0.7;
+    drawSignature(doc, registrationData.subscribed[0].name, leftX, signatureLineY);
+    drawSignature(doc, registrationData.subscribed[1].name, rightX, signatureLineY);
   }
+
+  bulletY = signatureNameY + 2;
 
   // Obtiene 3 páginas (una vacía) y por ello se resta una.
   const totalPageCount = doc.internal.pages.length - 1;
