@@ -26,7 +26,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
 // Define la fecha esperada (puede venir de prop, store, etc.)
-const expectedDate = new Date('2025-03-29T00:00:00');
+const expectedDate = new Date('2025-03-29T23:59:00');
 
 // Variable para la posición: 'right' (inicial) o 'left'
 const position = ref('right');
