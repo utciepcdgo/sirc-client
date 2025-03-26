@@ -48,8 +48,8 @@ export const registrationSchema = Yup.object({
       .default('S/N')
       .label('Número interior'),
     length: Yup.object().shape({
-      years: Yup.number().min(0).max(99, 'El valor máximo permitido es 99'),
-      months: Yup.number().positive().min(0).max(11, 'El valor máximo permitido es 11'),
+      years: Yup.number().min(0).max(99, 'El valor máximo permitido es 99').required(),
+      months: Yup.number().positive().min(0).max(11, 'El valor máximo permitido es 11').required(),
     }),
   }),
   occupation: Yup.string().required().min(3).label('Ocupación'),

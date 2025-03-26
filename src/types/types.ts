@@ -56,7 +56,6 @@ export interface Block {
 
 export interface Registration {
   coalition: {
-    is_assigned: boolean;
     name: string;
     acronym: string;
   };
