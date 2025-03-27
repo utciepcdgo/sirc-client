@@ -24,7 +24,7 @@ const closeReceiptModal = () => {
 };
 
 const generateReceipt = async (entityId) => {
-  loadingStore.showLoading('Generando acuse...');
+  loadingStore.showLoading('Generando acuse, esto puede tardar varios minutos...');
   const response = await axios
     .post(import.meta.env.VITE_SIRC_API_URI + `receipt?entity_id=${entityId}`)
     .then((response) => {

@@ -10,12 +10,19 @@ import {
   useVueTable,
 } from '@tanstack/vue-table';
 import { valueUpdater } from '@/utils/utils';
-import {computed, defineProps, h, ref} from 'vue';
+import { computed, defineProps, h, ref } from 'vue';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Registration } from '@/types/types';
-import { IconArrowsUpDown, IconSearch } from '@tabler/icons-vue';
+import {
+  IconArrowBarToLeft,
+  IconArrowBarToRight,
+  IconArrowsUpDown,
+  IconChevronLeft,
+  IconChevronRight,
+  IconSearch,
+} from '@tabler/icons-vue';
 import DropdownAction from '@/components/Details/DataTableDropDown.vue';
 import UploadAction from '@/components/Details/DataTableUploadAction.vue';
 
@@ -205,13 +212,43 @@ const table = useVueTable({
         </TableBody>
       </Table>
     </div>
-    <div class="flex items-center justify-start py-4 space-x-2">
-      <Button :disabled="!table.getCanPreviousPage()" size="sm" variant="outline" @click="table.previousPage()">
-        Anterior
-      </Button>
-      <Button :disabled="!table.getCanNextPage()" size="sm" variant="outline" @click="table.nextPage()">
-        Siguiente
-      </Button>
+    <div class="flex items-center justify-between px-2 py-5">
+      <div class="flex items-center justify-start space-x-6 lg:space-x-8">
+        <div class="flex w-[100px] items-center justify-center text-sm font-medium">
+          Página {{ table.getState().pagination.pageIndex + 1 }} de
+          {{ table.getPageCount() }}
+        </div>
+        <div class="flex items-center space-x-2">
+          <Button
+            :disabled="!table.getCanPreviousPage()"
+            class="hidden w-8 h-8 p-0 lg:flex"
+            variant="outline"
+            @click="table.setPageIndex(0)">
+            <span class="sr-only">Ir a la primera página</span>
+            <IconArrowBarToLeft class="w-4 h-4" />
+          </Button>
+          <Button
+            :disabled="!table.getCanPreviousPage()"
+            class="w-8 h-8 p-0"
+            variant="outline"
+            @click="table.previousPage()">
+            <span class="sr-only">Ir a la página anterior</span>
+            <IconChevronLeft class="w-4 h-4" />
+          </Button>
+          <Button :disabled="!table.getCanNextPage()" class="w-8 h-8 p-0" variant="outline" @click="table.nextPage()">
+            <span class="sr-only">Ir a la siguiente página</span>
+            <IconChevronRight class="w-4 h-4" />
+          </Button>
+          <Button
+            :disabled="!table.getCanNextPage()"
+            class="hidden w-8 h-8 p-0 lg:flex"
+            variant="outline"
+            @click="table.setPageIndex(table.getPageCount() - 1)">
+            <span class="sr-only">Ir a última página</span>
+            <IconArrowBarToRight class="w-4 h-4" />
+          </Button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
