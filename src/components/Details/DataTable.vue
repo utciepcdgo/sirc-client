@@ -10,7 +10,7 @@ import {
   useVueTable,
 } from '@tanstack/vue-table';
 import { valueUpdater } from '@/utils/utils';
-import { defineProps, h, ref } from 'vue';
+import {computed, defineProps, h, ref} from 'vue';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -127,7 +127,7 @@ const sorting = ref<SortingState>([]);
 const columnFilters = ref<ColumnFiltersState>([]);
 
 const table = useVueTable({
-  data: props.data,
+  data: computed(() => props.data),
   columns,
   getCoreRowModel: getCoreRowModel(),
   getPaginationRowModel: getPaginationRowModel(),
