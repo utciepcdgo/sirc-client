@@ -76,7 +76,11 @@ const onSubmit = handleSubmit(async (values) => {
 
     store.storeLoading.showLoading('Enviando información...');
 
-    await axios.post(import.meta.env.VITE_SIRC_API_URI + `registrations/${props.registration.id}/substitute`, values);
+    await axios.post(import.meta.env.VITE_SIRC_API_URI + `registrations/${props.registration.id}/substitute`, values, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+    });
 
     // Cerrar pantalla de carga
     store.storeLoading.hideLoading();

@@ -127,7 +127,12 @@ const { values, handleSubmit, setFieldValue } = useForm<InferType<typeof registr
 const onSubmit = handleSubmit(async (values) => {
   try {
     store.storeLoading.showLoading('Actualizando información de registro...');
-    await axios.patch(import.meta.env.VITE_SIRC_API_URI + `registrations/${props.registration?.id}`, values);
+
+    await axios.patch(import.meta.env.VITE_SIRC_API_URI + `registrations/${props.registration?.id}`, values, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+    });
     store.storeLoading.hideLoading();
 
     store.storeLoading.showLoading('Actualizando registros...');
