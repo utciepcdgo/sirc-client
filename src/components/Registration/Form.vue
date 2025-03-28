@@ -44,7 +44,11 @@ const { values, handleSubmit } = useForm<InferType<typeof registrationSchema>>({
 
 const onSubmit = handleSubmit(async (values) => {
   try {
-    await axios.post(import.meta.env.VITE_SIRC_API_URI + 'registrations', values);
+    await axios.post(import.meta.env.VITE_SIRC_API_URI + 'registrations', values, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      }
+    });
 
     // Emitir evento al padre para cerrar el modal
     emit('closeModal');
