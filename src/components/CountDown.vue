@@ -9,7 +9,7 @@
         {{ countdownText }}
       </div>
       <div>
-        <p class="text-center text-sm text-gray-500 mt-2">Para el término del Registro de Candidaturas</p>
+        <p class="text-center text-sm text-gray-500 mt-2">Registro cerrado</p>
       </div>
       <div class="mt-2 flex justify-center">
         <Button variant="outline" @click="togglePosition">
