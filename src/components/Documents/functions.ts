@@ -252,7 +252,7 @@ export async function candidacyPdf(registration: Registration) {
     .getTextField('party')
     .setText(registration.block.shared_entity !== null ? registration?.coalition?.name : registration?.entity?.name);
   // Fill the postulation field
-  form.getTextField('postulation').setText(registration.postulation.name);
+  form.getTextField('postulation').setText(registration.postulation.name + ' ' + registration?.council_number);
   // Fill the position field
   form.getTextField('position').setText(registration.position.name);
 

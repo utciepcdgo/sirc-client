@@ -55,6 +55,8 @@ export const useAuthStore = defineStore('auth', {
 				this.user = response.data;
 				this.entities = response.data.entities;
 
+				axios.defaults.headers.common['Authorization'] = `Bearer ${this.token}`;
+
 				// Ocultamos la pantalla de carga
 				this.loader.hideLoading();
 			} catch (error) {
@@ -82,6 +84,7 @@ export const useAuthStore = defineStore('auth', {
 					{},
 					{ headers: { Authorization: `Bearer ${this.token}` } }
 				);
+
 			} catch (error) {
 				console.error('Error al cerrar sesión en el backend', error);
 			}
